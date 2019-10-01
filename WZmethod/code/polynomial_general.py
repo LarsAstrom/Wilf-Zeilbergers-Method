@@ -55,6 +55,7 @@ class constant:
 
 '''Polynomial class'''
 class polynomial:
+    '''Methods only using self'''
     def __init__(self,coefficients,variable):
         self.coefficients = coefficients
         while len(self.coefficients) > 1 and self.coefficients[-1].is_zero:
@@ -63,6 +64,11 @@ class polynomial:
         self.is_zero = (self.degree==0 and self.coefficients[0].is_zero)
         assert variable not in self.coefficients[0].variables, 'Duplicate variable name.'
         self.variables = [variable] + self.coefficients[0].variables
+
+    def convert_polynomial(self,variables):
+        for var in self.variables:
+            assert var in variables, 'Cannot convert {} to {}'.format(self.to_string(),variables)
+        raise Exception('convert_polynomial not implemented')
 
     def equals(self,other):
         assert self.variables == other.variables, 'Trying to check equality polynomials of different variables.'
@@ -89,6 +95,38 @@ class polynomial:
         g = self.gcd_list()
         return polynomial([c.divide(g) for c in self.coefficients])
 
+    def power(self,n):
+        if n == 0:
+            return self.get_constant(1)
+        return self.power(n-1).multiply(self)
+
+    def negate(self):
+        return polynomial([c.negate() for c in self.coefficients],self.variables[0])
+
+    def gcd_list(self):
+        if self.degree == 0: return self.coefficients[0]
+        out = self.coefficients[0].gcd(self.coefficients[1])
+        for x in self.coefficients[2:]:
+            out = out.gcd(x)
+        return out
+
+    def to_string(self):
+        out = []
+        for i,c in enumerate(reversed(self.coefficients)):
+            if c.is_zero and self.degree > 0: continue
+            if i: out.append('+')
+            out.append('{}{}{}{}{}{}'.format('(' if len(self.variables)>1 else '',
+                                    c.to_string() if (len(self.variables)>1 or c.to_string()!='1' or i==self.degree) else '',
+                                    ')' if len(self.variables)>1 else '',
+                                    self.variables[0] if i<self.degree else '',
+                                    '^' if i<self.degree-1 else '',
+                                    self.degree-i if i<self.degree-1 else ''))
+        return ''.join(out)
+
+    def PRINT(self):
+        print(self.to_string())
+
+    '''Methods using other'''
     def add(self,other):
         assert self.variables == other.variables, 'Trying to add polynomials of different variables.'
         c = [self.get_prev_constant(0) for _ in range(max(self.degree,other.degree)+1)]
@@ -106,16 +144,8 @@ class polynomial:
                 c[i+j] = c[i+j].add(self.coefficients[i].multiply(other.coefficients[j]))
         return polynomial(c,self.variables[0])
 
-    def power(self,n):
-        if n == 0:
-            return self.get_constant(1)
-        return self.power(n-1).multiply(self)
-
-    def negate(self):
-        return polynomial([c.negate() for c in self.coefficients],self.variables[0])
-
-    # Returns (q,r,f) such that f*self/other = q + r/other. (f is a constant)
     def divide(self,other):
+        # Returns (q,r,f) such that f*self/other = q + r/other. (f is of same type as coefficients)
         assert self.variables == other.variables, 'Trying to divide polynomials of different variables.'
         '''This if statement is not optimal'''
         if other.degree == 0:
@@ -152,121 +182,5 @@ class polynomial:
         if other.is_zero: return self#.simplify()
         return other.gcd(self.modulo(other))
 
-    def gcd_list(self):
-        if self.degree == 0: return self.coefficients[0]
-        out = self.coefficients[0].gcd(self.coefficients[1])
-        for x in self.coefficients[2:]:
-            out = out.gcd(x)
-        return out
-
-    def to_string(self):
-        out = []
-        for i,c in enumerate(reversed(self.coefficients)):
-            if c.is_zero and self.degree > 0: continue
-            if i: out.append('+')
-            out.append('{}{}{}{}{}{}'.format('(' if len(self.variables)>1 else '',
-                                    c.to_string() if (len(self.variables)>1 or c.to_string()!='1' or i==self.degree) else '',
-                                    ')' if len(self.variables)>1 else '',
-                                    self.variables[0] if i<self.degree else '',
-                                    '^' if i<self.degree-1 else '',
-                                    self.degree-i if i<self.degree-1 else ''))
-        return ''.join(out)
-
-    def PRINT(self):
-        print(self.to_string())
-
-'''Help functions
-def gcd(a,b):
-    if a < 0 or b < 0: return gcd(abs(a),abs(b))
-    return gcd(b,a%b) if b else a
-
-def gcd_list(l):
-    l_copy = list(l)
-    while len(l_copy) > 1:
-        l_copy.append(gcd(l_copy.pop(),l_copy.pop()))
-    return l_copy[0]
-
-def lcm(a,b):
-    return a*b//gcd(a,b)
-
-def sign(a):
-    if a < 0: return -1
-    elif a == 0: return 0
-    else: return 1
-'''
-
 '''TESTING'''
 if __name__ == '__main__':
-    c0 = constant(0)
-    c1 = constant(1)
-    c2 = constant(2)
-    c3 = constant(3)
-    c4 = constant(4)
-    c0.PRINT()
-    c1.PRINT()
-    c2.PRINT()
-    c3.PRINT()
-    c4.PRINT()
-    p1 = polynomial([c1,c2,c1],'x')
-    p1.PRINT()
-    p2 = polynomial([c1,c1],'x')
-    p2.PRINT()
-    p3 = polynomial([p1,p2],'y')
-    p3.PRINT()
-    p3.multiply(p3).PRINT()
-    p3.power(2).PRINT()
-    p4 = polynomial([c0,c0,c1,c0,c1],'z')
-    p4.PRINT()
-    p5 = p3.power(2)
-    print('-----------------------------------')
-    p3.PRINT()
-    p5.PRINT()
-    q,r,f = p5.divide(p3)
-    q.PRINT()
-    r.PRINT()
-    f.PRINT()
-    q2,r2,f2 = q.coefficients[1].divide(f)
-    q2.PRINT()
-    r2.PRINT()
-    f2.PRINT()
-    print('-----------------------')
-    p1.PRINT()
-    p2.PRINT()
-    print(p2.power(2).equals(p1))
-    p6 = polynomial([p3,p5],'z')
-    p6.PRINT()
-    print('------------------------------------')
-    p7 = polynomial([constant(0),constant(1)],'x')
-    p8 = polynomial([constant(13),constant(-3)],'x')
-    p9,q9,f9 = p8.divide(p7)
-    p7.PRINT()
-    p8.PRINT()
-    p9.PRINT()
-    q9.PRINT()
-    f9.PRINT()
-    print('-------------------------------------')
-    p10 = polynomial([constant(0),constant(1)],'x')
-    p11 = polynomial([constant(0),constant(0),constant(1)],'x')
-    p12 = polynomial([constant(0),constant(0),constant(-1)],'x')
-    p13 = polynomial([constant(0)],'x')
-    p14 = polynomial([p12,p11,p10],'y')
-    p15 = polynomial([p13,p10],'y')
-    p16,q16,f16 = p14.divide(p15)
-    p16.PRINT()
-    q16.PRINT()
-    f16.PRINT()
-    print('============================')
-    p1 = polynomial([c1,c1],'x')
-    p2 = polynomial([p1],'y')
-    p3 = polynomial([p1,p1],'y')
-    q,r,f = p3.divide(p2)
-    print('p2')
-    p2.PRINT()
-    print('p3')
-    p3.PRINT()
-    print('q')
-    q.PRINT()
-    print('r')
-    r.PRINT()
-    print('f')
-    f.PRINT()
