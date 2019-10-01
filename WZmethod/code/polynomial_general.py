@@ -127,7 +127,7 @@ class polynomial:
         print(self.to_string())
 
     '''Methods using other'''
-    def add(self,other):
+    def add_simple(self,other):
         assert self.variables == other.variables, 'Trying to add polynomials of different variables.'
         c = [self.get_prev_constant(0) for _ in range(max(self.degree,other.degree)+1)]
         for i in range(self.degree+1):
@@ -136,7 +136,7 @@ class polynomial:
             c[i] = c[i].add(other.coefficients[i])
         return polynomial(c,self.variables[0])
 
-    def multiply(self,other):
+    def multiply_simple(self,other):
         assert self.variables == other.variables, 'Trying to multiply polynomials of different variables.'
         c = [self.get_prev_constant(0) for _ in range(self.degree+other.degree+1)]
         for i in range(self.degree+1):
@@ -144,7 +144,7 @@ class polynomial:
                 c[i+j] = c[i+j].add(self.coefficients[i].multiply(other.coefficients[j]))
         return polynomial(c,self.variables[0])
 
-    def divide(self,other):
+    def divide_simple(self,other):
         # Returns (q,r,f) such that f*self/other = q + r/other. (f is of same type as coefficients)
         assert self.variables == other.variables, 'Trying to divide polynomials of different variables.'
         '''This if statement is not optimal'''
@@ -172,12 +172,12 @@ class polynomial:
         f = f.divide(g)[0]
         return (q,r,f)
 
-    def modulo(self,other):
+    def modulo_simple(self,other):
         assert self.variables == other.variables, 'Trying to modulo polynomials of different variables.'
         q,r,f = self.divide(other)
         return r
 
-    def gcd(self,other):
+    def gcd_simple(self,other):
         assert self.variables == other.variables, 'Trying to gcd polynomials of different variables.'
         if other.is_zero: return self#.simplify()
         return other.gcd(self.modulo(other))
