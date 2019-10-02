@@ -3,18 +3,32 @@ from random import randint as RI
 
 '''Constant class'''
 class constant:
+    '''Methods only using self'''
     def __init__(self,value,variable=None):
         self.coefficients = [value]
         self.degree = 0
         self.is_zero = (value == 0)
         self.variables = []
 
+    def simplify(self):
+        return self
+
+    def power(self,n):
+        return constant(pow(self.coefficients[0],n))
+
+    def negate(self):
+        return constant(-self.coefficients[0])
+
+    def to_string(self):
+        return str(self.coefficients[0])
+
+    def PRINT(self):
+        print(self.to_string())
+
+    '''Methods using other'''
     def equals(self,other):
         if other.variables != self.variables: return False
         return self.coefficients[0] == other.coefficients[0]
-
-    def simplify(self):
-        return self
 
     def add(self,other):
         assert self.variables == other.variables, 'Trying to add polynomials of different variables.'
@@ -24,14 +38,8 @@ class constant:
         assert self.variables == other.variables, 'Trying to multiply polynomials of different variables.'
         return constant(self.coefficients[0]*other.coefficients[0])
 
-    def power(self,n):
-        return constant(pow(self.coefficients[0],n))
-
-    def negate(self):
-        return constant(-self.coefficients[0])
-
-    # Returns (q,r,f) such that f*self/other = q + r/other. (f is a constant)
     def divide(self,other):
+        # Returns (q,r,f) such that f*self/other = q + r/other. (f is a constant)
         assert self.variables == other.variables, 'Trying to divide polynomials of different variables.'
         return (constant(self.coefficients[0]//other.coefficients[0]),
                 constant(self.coefficients[0]%other.coefficients[0]),
@@ -47,12 +55,6 @@ class constant:
         if other.is_zero: return self
         return other.gcd(self.modulo(other))
 
-    def to_string(self):
-        return str(self.coefficients[0])
-
-    def PRINT(self):
-        print(self.to_string())
-
 '''Polynomial class'''
 class polynomial:
     '''Methods only using self'''
@@ -67,16 +69,9 @@ class polynomial:
 
     def convert_polynomial(self,variables):
         for var in self.variables:
-            assert var in variables, 'Cannot convert {} to {}'.format(self.to_string(),variables)
-        raise Exception('convert_polynomial not implemented')
-
-    def equals(self,other):
-        assert self.variables == other.variables, 'Trying to check equality polynomials of different variables.'
-        if self.degree != other.degree: return False
-        for i in range(self.degree+1):
-            if not self.coefficients[i].equals(other.coefficients[i]):
-                return False
-        return True
+            assert var in variables, 'Cannot convert {} to {}, because {} is missing.'\
+                                        .format(self.to_string(),variables,var)
+        return parse(self.to_string(),variables)
 
     def get_constant(self,value):
         cur = constant(value)
@@ -127,6 +122,22 @@ class polynomial:
         print(self.to_string())
 
     '''Methods using other'''
+    def get_common_variables(self,other):
+        return sorted(list(set(self.variables)|set(other.variables)))
+
+    def equals(self,other):
+        assert self.variables == other.variables, 'Trying to check equality polynomials of different variables.'
+        if self.degree != other.degree: return False
+        for i in range(self.degree+1):
+            if not self.coefficients[i].equals(other.coefficients[i]):
+                return False
+        return True
+
+    def add(self,other):
+        if self.variables == other.variables:
+            return self.add_simple(other)
+        vars = self.get_common_variables(other)
+        return self.convert_polynomial(vars).add(other.convert_polynomial(vars))
     def add_simple(self,other):
         assert self.variables == other.variables, 'Trying to add polynomials of different variables.'
         c = [self.get_prev_constant(0) for _ in range(max(self.degree,other.degree)+1)]
@@ -136,6 +147,11 @@ class polynomial:
             c[i] = c[i].add(other.coefficients[i])
         return polynomial(c,self.variables[0])
 
+    def multiply(self,other):
+        if self.variables == other.variables:
+            return self.multiply_simple(other)
+        vars = self.get_common_variables(other)
+        return self.convert_polynomial(vars).multiply(other.convert_polynomial(vars))
     def multiply_simple(self,other):
         assert self.variables == other.variables, 'Trying to multiply polynomials of different variables.'
         c = [self.get_prev_constant(0) for _ in range(self.degree+other.degree+1)]
@@ -144,6 +160,11 @@ class polynomial:
                 c[i+j] = c[i+j].add(self.coefficients[i].multiply(other.coefficients[j]))
         return polynomial(c,self.variables[0])
 
+    def divide(self,other):
+        if self.variables == other.variables:
+            return self.divide_simple(other)
+        vars = self.get_common_variables(other)
+        return self.convert_polynomial(vars).divide(other.convert_polynomial(vars))
     def divide_simple(self,other):
         # Returns (q,r,f) such that f*self/other = q + r/other. (f is of same type as coefficients)
         assert self.variables == other.variables, 'Trying to divide polynomials of different variables.'
@@ -172,15 +193,76 @@ class polynomial:
         f = f.divide(g)[0]
         return (q,r,f)
 
+    def modulo(self,other):
+        if self.variables == other.variables:
+            return self.modulo_simple(other)
+        vars = self.get_common_variables(other)
+        return self.convert_polynomial(vars).modulo(other.convert_polynomial(vars))
     def modulo_simple(self,other):
         assert self.variables == other.variables, 'Trying to modulo polynomials of different variables.'
         q,r,f = self.divide(other)
         return r
 
+    def gcd(self,other):
+        if self.variables == other.variables:
+            return self.gcd_simple(other)
+        vars = self.get_common_variables(other)
+        return self.convert_polynomial(vars).gcd(other.convert_polynomial(vars))
     def gcd_simple(self,other):
         assert self.variables == other.variables, 'Trying to gcd polynomials of different variables.'
         if other.is_zero: return self#.simplify()
         return other.gcd(self.modulo(other))
 
+def parse(s,variables = None):
+    raise Exception('parse not implemented')
+    if variables == None: variables = sorted(get_variables(s))
+    def simplify(stack):
+        if len(stack) == 1: return stack
+        if stack[-2] == '(': return stack
+        raise Exception('simplify in parse not implemented')
+
+    def poly_from_char(ch):
+        cur = constant(1)
+    stack = []
+    i = 0
+    while i < len(s):
+        ch = s[i]
+        if ch == ' ':
+            continue
+        elif ch == ')':
+            stack = simplify(stack)
+            stack = stack[:-2] + [stack[-1]]
+        elif ch == '+' or ch == '-':
+            stack = simplify(stack)
+            stack.append(ch)
+        elif ch == '*' or ch == '/':
+            stack.append(ch)
+        elif ch == '(':
+            stack.append(ch)
+        elif ch == '^':
+            stack.append(ch)
+        elif ch.isdigit():
+            st = i
+            while s[i+1].isdigit(): i += 1
+            n = int(s[st:i+1])
+            NOT DONE
+            pass
+        elif ch.isalpha():
+            pass
+        else:
+            raise Exception('parse not implemented for character {}.'.format(ch))
+        i += 1
+
+def get_variables(s):
+    raise Exception('get_variables not implemented')
+
 '''TESTING'''
 if __name__ == '__main__':
+    c0,c1 = constant(0),constant(1)
+    p1 = polynomial([c0,c1],'x')
+    p2 = polynomial([p1],'y')
+    p2.PRINT()
+    p2.power(3).PRINT()
+    p3 = polynomial([polynomial([constant(0)],'x'),polynomial([constant(1)],'x')],'y')
+    p3.PRINT()
+    p2.multiply(p3).power(3).PRINT()
