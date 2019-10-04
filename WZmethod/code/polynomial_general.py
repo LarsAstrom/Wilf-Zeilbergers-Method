@@ -10,6 +10,12 @@ class constant:
         self.is_zero = (value == 0)
         self.variables = []
 
+    def get_constant(self,value):
+        return constant(value)
+
+    def get_prev_constant(self,value):
+        raise Exception('Not possible to get prev constant for a constant')
+
     def simplify(self):
         return self
 
@@ -26,6 +32,9 @@ class constant:
         print(self.to_string())
 
     '''Methods using other'''
+    def get_common_variables(self,other):
+        return other.variables
+
     def equals(self,other):
         if other.variables != self.variables: return False
         return self.coefficients[0] == other.coefficients[0]
@@ -33,10 +42,12 @@ class constant:
     def add(self,other):
         assert self.variables == other.variables, 'Trying to add polynomials of different variables.'
         return constant(self.coefficients[0]+other.coefficients[0])
+    def add_simple(self,other): return self.add(other)
 
     def multiply(self,other):
         assert self.variables == other.variables, 'Trying to multiply polynomials of different variables.'
         return constant(self.coefficients[0]*other.coefficients[0])
+    def multiply_simple(self,other): return self.multiply(other)
 
     def divide(self,other):
         # Returns (q,r,f) such that f*self/other = q + r/other. (f is a constant)
@@ -44,16 +55,19 @@ class constant:
         return (constant(self.coefficients[0]//other.coefficients[0]),
                 constant(self.coefficients[0]%other.coefficients[0]),
                 constant(1))
+    def divide_simple(self,other): return self.divide(other)
 
     def modulo(self,other):
         assert self.variables == other.variables, 'Trying to modulo polynomials of different variables.'
         q,r,f = self.divide(other)
         return r
+    def modulo_simple(self,other): return self.modulo(other)
 
     def gcd(self,other):
         assert self.variables == other.variables, 'Trying to gcd polynomials of different variables. {} {}'.format(self.variables,other.variables)
         if other.is_zero: return self
         return other.gcd(self.modulo(other))
+    def gcd_simple(self,other): return self.gcd(other)
 
 '''Polynomial class'''
 class polynomial:
@@ -93,7 +107,7 @@ class polynomial:
     def power(self,n):
         if n == 0:
             return self.get_constant(1)
-        return self.power(n-1).multiply(self)
+        return self.power(n-1).multiply_simple(self)
 
     def negate(self):
         return polynomial([c.negate() for c in self.coefficients],self.variables[0])
@@ -123,7 +137,7 @@ class polynomial:
 
     '''Methods using other'''
     def get_common_variables(self,other):
-        return sorted(list(set(self.variables)|set(other.variables)))
+        return sorted(list(set(self.variables)|set(other.variables)))[::-1]
 
     def equals(self,other):
         assert self.variables == other.variables, 'Trying to check equality polynomials of different variables.'
@@ -157,7 +171,7 @@ class polynomial:
         c = [self.get_prev_constant(0) for _ in range(self.degree+other.degree+1)]
         for i in range(self.degree+1):
             for j in range(other.degree+1):
-                c[i+j] = c[i+j].add(self.coefficients[i].multiply(other.coefficients[j]))
+                c[i+j] = c[i+j].add(self.coefficients[i].multiply_simple(other.coefficients[j]))
         return polynomial(c,self.variables[0])
 
     def divide(self,other):
@@ -213,21 +227,52 @@ class polynomial:
         if other.is_zero: return self#.simplify()
         return other.gcd(self.modulo(other))
 
+def print_stack(stack):
+    print('---------PRINT STACK----------')
+    for a in stack:
+        if type(a) == type(polynomial([constant(0)],'x')):
+            print(a.variables,a.to_string())
+        else:
+            print(a)
+    print('------------------------------')
+
 def parse(s,variables = None):
-    raise Exception('parse not implemented')
-    if variables == None: variables = sorted(get_variables(s))
+    #raise Exception('parse not implemented')
+    if variables == None: variables = get_variables(s)
     def simplify(stack):
         if len(stack) == 1: return stack
         if stack[-2] == '(': return stack
-        raise Exception('simplify in parse not implemented')
+        b,op,a = stack.pop(),stack.pop(),stack.pop()
+        if op == '+':
+            stack.append(a.add(b))
+        elif op == '-':
+            stack.append(a.add(b.negate()))
+        elif op == '*':
+            stack.append(a.multiply(b))
+        elif op == '/':
+            raise Exception('parse with divide not implemented')
+            #stack.append(a.divide())
+        return simplify(stack)
 
+    def constant_with_value(val):
+        cur = constant(val)
+        for var in variables[::-1]:
+            cur = polynomial([cur],var)
+        return cur
     def poly_from_char(ch):
         cur = constant(1)
+        for var in variables[::-1]:
+            if var == ch:
+                cur = polynomial([cur.get_constant(0), cur],var)
+            else:
+                cur = polynomial([cur],var)
+        return cur
     stack = []
     i = 0
     while i < len(s):
         ch = s[i]
         if ch == ' ':
+            i += 1
             continue
         elif ch == ')':
             stack = simplify(stack)
@@ -238,31 +283,49 @@ def parse(s,variables = None):
         elif ch == '*' or ch == '/':
             stack.append(ch)
         elif ch == '(':
+            if stack and type(stack[-1]) == type(polynomial([constant(0)],'x')):
+                 stack.append('*')
             stack.append(ch)
         elif ch == '^':
             stack.append(ch)
         elif ch.isdigit():
             st = i
-            while s[i+1].isdigit(): i += 1
+            while i+1 < len(s) and s[i+1].isdigit(): i += 1
             n = int(s[st:i+1])
-            NOT DONE
-            pass
+            if stack and stack[-1] == '^':
+                stack[-2] = stack[-2].power(n)
+                stack.pop()
+            elif stack and type(stack[-1]) == type(polynomial([constant(0)],'x')):
+                stack.append('*')
+                stack.append(constant_with_value(n))
+            else:
+                stack.append(constant_with_value(n))
         elif ch.isalpha():
-            pass
+            if stack and type(stack[-1]) == type(polynomial([constant(0)],'x')):
+                stack.append('*')
+            stack.append(poly_from_char(ch))
         else:
             raise Exception('parse not implemented for character {}.'.format(ch))
         i += 1
+    stack = simplify(stack)
+    return stack[0]
 
 def get_variables(s):
-    raise Exception('get_variables not implemented')
+    return (sorted(list(set([ch for ch in s if ch.isalpha()])))[::-1])
 
 '''TESTING'''
 if __name__ == '__main__':
-    c0,c1 = constant(0),constant(1)
-    p1 = polynomial([c0,c1],'x')
-    p2 = polynomial([p1],'y')
+    s = '7x + (x+1)(y^2+2y+4)(z-7) + 8xy'
+    print(s)
+    p = parse(s,['z','y','x'])
+    p.PRINT()
+    s1 = 'x^2+2x+1'
+    s2 = '2xy'
+    p1 = parse(s1)
+    p2 = parse(s2)
+    p3 = p1.add(p2)
+    p4 = p1.multiply(p2)
+    p1.PRINT()
     p2.PRINT()
-    p2.power(3).PRINT()
-    p3 = polynomial([polynomial([constant(0)],'x'),polynomial([constant(1)],'x')],'y')
     p3.PRINT()
-    p2.multiply(p3).power(3).PRINT()
+    p4.PRINT()
