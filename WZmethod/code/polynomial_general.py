@@ -10,6 +10,12 @@ class constant:
         self.is_zero = (value == 0)
         self.variables = []
 
+    def convert_polynomial(self,variables):
+        return parse(self.to_string(),variables)
+
+    def evaluate(self,variable,value):
+        return self.coefficients[0]
+
     def get_constant(self,value):
         return constant(value)
 
@@ -81,6 +87,15 @@ class polynomial:
         assert variable not in self.coefficients[0].variables, 'Duplicate variable name.'
         self.variables = [variable] + self.coefficients[0].variables
 
+    def evaluate(self,variable,value):
+        if variable == self.variables[0]:
+            out = self.coefficients[0]
+            for i in range(1,self.degree+1):
+                out = out.add(self.coefficients[i].multiply(constant(value).power(i)))
+            return out
+        return polynomial([c.evaluate(variable,value) for c in self.coefficients],
+                            self.variables[0])
+
     def convert_polynomial(self,variables):
         for var in self.variables:
             assert var in variables, 'Cannot convert {} to {}, because {} is missing.'\
@@ -123,9 +138,12 @@ class polynomial:
         out = []
         for i,c in enumerate(reversed(self.coefficients)):
             if c.is_zero and self.degree > 0: continue
-            if i: out.append('+')
+            coeff_string = c.to_string()
+            negative = coeff_string[0] == '-'
+            if negative: coeff_string = c.negate().to_string()
+            if i or negative: out.append('-' if negative else '+')
             out.append('{}{}{}{}{}{}'.format('(' if len(self.variables)>1 else '',
-                                    c.to_string() if (len(self.variables)>1 or c.to_string()!='1' or i==self.degree) else '',
+                                    coeff_string if (len(self.variables)>1 or coeff_string!='1' or i==self.degree) else '',
                                     ')' if len(self.variables)>1 else '',
                                     self.variables[0] if i<self.degree else '',
                                     '^' if i<self.degree-1 else '',
@@ -239,10 +257,19 @@ def print_stack(stack):
 def parse(s,variables = None):
     #raise Exception('parse not implemented')
     if variables == None: variables = get_variables(s)
+    else:
+        for var in get_variables(s):
+            assert var in variables, 'Missing variable {} for parsing.'.format(var)
     def simplify(stack):
         if len(stack) == 1: return stack
         if stack[-2] == '(': return stack
+        #print_stack(stack)
         b,op,a = stack.pop(),stack.pop(),stack.pop()
+        if a == '(':
+            stack.append(a)
+            assert op == '-', 'Something is weird.'
+            stack.append(b.negate())
+            return simplify(stack)
         if op == '+':
             stack.append(a.add(b))
         elif op == '-':
@@ -267,7 +294,8 @@ def parse(s,variables = None):
             else:
                 cur = polynomial([cur],var)
         return cur
-    stack = []
+    stack = [constant_with_value(0)]
+    if s[0] != '-': stack.append('+')
     i = 0
     while i < len(s):
         ch = s[i]
@@ -329,3 +357,31 @@ if __name__ == '__main__':
     p2.PRINT()
     p3.PRINT()
     p4.PRINT()
+    print('============================')
+    p1 = parse('(2k-n-1)(n+2-k)')
+    p2 = parse('k(2k-n+2j-3)')
+    p1.PRINT()
+    p2.PRINT()
+    g = p1.gcd(p2)
+    g.PRINT()
+    g.evaluate('j',1).PRINT()
+    print('============================')
+    p1 = parse('(2k-n-1)(n+2-k)')
+    p2 = parse('(k+j)(2k-n+2j-3)')
+    p1.PRINT()
+    p2.PRINT()
+    g = p1.gcd(p2)
+    g.PRINT()
+    g.evaluate('j',1).PRINT()
+    print('============================')
+    p1 = parse('0x+0*(x+y)')
+    p1.PRINT()
+    p1 = parse('x^2y')
+    p1.multiply(constant(2)).PRINT()
+    p1.multiply(constant(2)).evaluate('x',1).PRINT()
+    p1.multiply(constant(2)).evaluate('x',2).PRINT()
+    p1.multiply(constant(2)).evaluate('y',2).PRINT()
+    print('==============================')
+    p1 = parse('x+2')
+    p1.PRINT()
+    p1.evaluate('x',1).PRINT()
