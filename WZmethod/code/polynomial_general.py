@@ -10,6 +10,7 @@ class constant:
         self.is_zero = (value == 0)
         self.variables = []
         self.is_constant = True
+        self.is_one = (value == 1)
 
     def convert_polynomial(self,variables):
         return parse(self.to_string(),variables)
@@ -88,6 +89,7 @@ class polynomial:
         assert variable not in self.coefficients[0].variables, 'Duplicate variable name.'
         self.variables = [variable] + self.coefficients[0].variables
         self.is_constant = (self.degree==0 and self.coefficients[0].is_constant)
+        self.is_one = (self.degree==0 and self.coefficients[0].is_one)
 
     def get_zeros(self,variable):
         assert variable in self.variables, 'Not possible to find zeros with variable {}, because the variables are {}'.format(variable,self.variables)
@@ -269,12 +271,14 @@ class polynomial:
         q1,r1,f1 = r0.divide(other)
         q,r,f = q0.multiply(polynomial([f1],self.variables[0])).add(q1),r1,f0.multiply(f1)
         #return (q0.multiply(polynomial([f1],self.variables[0])).add(q1),r1,f0.multiply(f1))
+
         g = q.gcd_list().gcd(f).gcd(r.gcd_list())
         for i in range(q.degree+1):
             q.coefficients[i] = q.coefficients[i].divide(g)[0]
         for i in range(r.degree+1):
             r.coefficients[i] = r.coefficients[i].divide(g)[0]
         f = f.divide(g)[0]
+
         return (q,r,f)
 
     def modulo(self,other):
@@ -292,10 +296,18 @@ class polynomial:
             return self.gcd_simple(other)
         vars = self.get_common_variables(other)
         return self.convert_polynomial(vars).gcd(other.convert_polynomial(vars))
+    '''
+    def gcd_simple(self,other):
+        #print('GCD\n{}\n{}\n'.format(self.to_string(),other.to_string()))
+        if other.is_zero: return self
+        q,r,f = self.divide(other)
+        if f.is_one: return other.gcd(r)
+        return (self.multiply(f)).gcd(other).multiply(self.gcd(f)).divide(other.gcd(f))[0]
+    '''
     def gcd_simple(self,other):
         assert self.variables == other.variables, 'Trying to gcd polynomials of different variables.'
-        if other.is_zero: return self#.simplify()
-        return other.gcd(self.modulo(other))
+        if other.is_zero: return self
+        return other.gcd(self.modulo(other))#.divide(self.divide(other)[2])[0]
 
 def print_stack(stack):
     print('---------PRINT STACK----------')
@@ -395,6 +407,7 @@ def get_variables(s):
 
 '''TESTING'''
 if __name__ == '__main__':
+    '''
     s = '-7x + (x+1)(y^2+2y+4)(z-7) + 8xy'
     print(s)
     p = parse(s,['z','y','x'])
@@ -482,3 +495,32 @@ if __name__ == '__main__':
     f.PRINT()
     p1.gcd(f).PRINT()
     p2.gcd(p1).multiply(p2.gcd(f)).divide(f.gcd(p1))[0].PRINT()
+    print('==============================')
+    p1 = parse('(k+1)(n+1)(m+1)')
+    p2 = parse('(k+1)(n+1)')
+    p1.gcd(p2).PRINT()
+    print('==============================')
+    '''
+    p1 = parse('(k+j)(2k+2j-3)')
+    p2 = parse('(2k-1)(2-k)')
+    a,b,c = p1.divide(p2)
+    a.PRINT()
+    b.PRINT()
+    c.PRINT()
+    a,b,c = p2.divide(b)
+    a.PRINT()
+    b.PRINT()
+    c.PRINT()
+    #p1.gcd(p2).PRINT()
+    '''
+    a,b,c = p1.divide(p2)
+    a.PRINT()
+    b.PRINT()
+    c.PRINT()
+    p3 = p1.multiply(c)
+    p3.PRINT()
+    p3.gcd(p2).PRINT()
+    p1.gcd(c).PRINT()
+    p2.gcd(c).PRINT()
+    p1.gcd(p2).PRINT()
+    '''
