@@ -9,6 +9,7 @@ class constant:
         self.degree = 0
         self.is_zero = (value == 0)
         self.variables = []
+        self.is_constant = True
 
     def convert_polynomial(self,variables):
         return parse(self.to_string(),variables)
@@ -86,6 +87,57 @@ class polynomial:
         self.is_zero = (self.degree==0 and self.coefficients[0].is_zero)
         assert variable not in self.coefficients[0].variables, 'Duplicate variable name.'
         self.variables = [variable] + self.coefficients[0].variables
+        self.is_constant = (self.degree==0 and self.coefficients[0].is_constant)
+
+    def get_zeros(self,variable):
+        assert variable in self.variables, 'Not possible to find zeros with variable {}, because the variables are {}'.format(variable,self.variables)
+        if variable != self.variables[-1]:
+            new_variable_list = list(self.variables)
+            new_variable_list.remove(variable)
+            new_variable_list.append(variable)
+            return self.convert_polynomial(new_variable_list).get_zeros(variable)
+        if len(self.variables) == 1:
+            if self.degree == 0:
+                return 'all_values' if self.is_zero else []
+            if self.degree == 1:
+                a, b  = self.coefficients[1].coefficients[0],\
+                        self.coefficients[0].coefficients[0]
+                return [b//a] if (b%a==0) else []
+            if self.degree == 2:
+                a,b,c = self.coefficients[2].coefficients[0],\
+                        self.coefficients[1].coefficients[0],\
+                        self.coefficients[0].coefficients[0]
+                out = []
+                if b**2 < 4*a*c: return out
+                if (-b+(b**2-4*a*c)**0.5)/(2*a) == int((-b+(b**2-4*a*c)**0.5)/(2*a)):
+                    out.append(int((-b+(b**2-4*a*c)**0.5)/(2*a)))
+                if (-b-(b**2-4*a*c)**0.5)/(2*a) == int((-b-(b**2-4*a*c)**0.5)/(2*a)):
+                    out.append(int((-b-(b**2-4*a*c)**0.5)/(2*a)))
+                return out
+            out = []
+            for value in range(-100,101):
+                if self.evaluate(variable,value).is_zero:
+                    out.append(value)
+            return out if out else 'high_degree'
+        i = 0
+        while i < self.degree + 1:
+            if type(self.coefficients[i].get_zeros(variable)) == list:
+                break
+            else:
+                i += 1
+        if i == self.degree + 1:
+            L = []
+            for value in range(-100,101):
+                if self.evaluate(variable,value).is_zero:
+                    L.append(value)
+            if not L: return 'high_degree'
+        else:
+            L = self.coefficients[i].get_zeros(variable)
+        out = []
+        for l in L:
+            if self.evaluate(variable,l).is_zero:
+                out.append(l)
+        return out
 
     def evaluate(self,variable,value):
         if variable == self.variables[0]:
@@ -115,9 +167,9 @@ class polynomial:
         return cur
 
     def simplify(self):
-        raise Exception('simplify not implemented')
+        raise Exception('simplify not checked')
         g = self.gcd_list()
-        return polynomial([c.divide(g) for c in self.coefficients])
+        return polynomial([c.divide(g)[0] for c in self.coefficients],self.variables[0])
 
     def power(self,n):
         if n == 0:
@@ -343,7 +395,7 @@ def get_variables(s):
 
 '''TESTING'''
 if __name__ == '__main__':
-    s = '7x + (x+1)(y^2+2y+4)(z-7) + 8xy'
+    s = '-7x + (x+1)(y^2+2y+4)(z-7) + 8xy'
     print(s)
     p = parse(s,['z','y','x'])
     p.PRINT()
@@ -365,6 +417,7 @@ if __name__ == '__main__':
     g = p1.gcd(p2)
     g.PRINT()
     g.evaluate('j',1).PRINT()
+    print(g.evaluate('j',1).is_zero)
     print('============================')
     p1 = parse('(2k-n-1)(n+2-k)')
     p2 = parse('(k+j)(2k-n+2j-3)')
@@ -373,6 +426,7 @@ if __name__ == '__main__':
     g = p1.gcd(p2)
     g.PRINT()
     g.evaluate('j',1).PRINT()
+    print(g.evaluate('j',1).is_zero)
     print('============================')
     p1 = parse('0x+0*(x+y)')
     p1.PRINT()
@@ -385,3 +439,46 @@ if __name__ == '__main__':
     p1 = parse('x+2')
     p1.PRINT()
     p1.evaluate('x',1).PRINT()
+    print(p1.evaluate('x',1).is_zero)
+    print('==============================')
+    p1 = parse('x^2+2x+1')
+    print(p1.get_zeros('x'))
+    p2 = parse('2x+6')
+    print(p2.get_zeros('x'))
+    p3 = parse('3x+4')
+    print(p3.get_zeros('x'))
+    p4 = parse('0',['x'])
+    print(p4.get_zeros('x'))
+    p5 = parse('1',['x'])
+    print(p5.get_zeros('x'))
+    p6 = parse('x^3+1')
+    print(p6.get_zeros('x'))
+    print('==============================')
+    p1 = parse('(x-1)(x-2)(x-3)(y-3)(y-4)(z-5)(z-6)')
+    p1.PRINT()
+    print(p1.get_zeros('x'))
+    print(p1.get_zeros('y'))
+    print(p1.get_zeros('z'))
+    print('==============================')
+    p1 = parse('x-3')
+    p2 = parse('x-2')
+    p1.gcd(p2).PRINT()
+    print(type(p1.gcd(p2)))
+    print('==============================')
+    p1 = parse('-x^2')
+    p1.PRINT()
+    print('==============================')
+    p1 = parse('(k+1)(2k-n-1)')
+    p2 = parse('(2k-n-1)(n+2-k)')
+    g1 = p1.gcd(p2)
+    g2 = p2.gcd(p1)
+    p1.PRINT()
+    p2.PRINT()
+    g1.PRINT()
+    g2.PRINT()
+    q,r,f = p2.divide(p1)
+    q.PRINT()
+    r.PRINT()
+    f.PRINT()
+    p1.gcd(f).PRINT()
+    p2.gcd(p1).multiply(p2.gcd(f)).divide(f.gcd(p1))[0].PRINT()

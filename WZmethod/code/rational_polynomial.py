@@ -1,3 +1,4 @@
+from polynomial_general import *
 class rational_polynomial:
     def __init__(self,numerator,denominator):
         variables = numerator.get_common_variables(denominator)
