@@ -307,7 +307,9 @@ class polynomial:
     def gcd_simple(self,other):
         assert self.variables == other.variables, 'Trying to gcd polynomials of different variables.'
         if other.is_zero: return self
-        return other.gcd(self.modulo(other))#.divide(self.divide(other)[2])[0]
+        g = other.gcd(self.modulo(other))
+        return g.multiply(self.gcd_list().gcd(other.gcd_list())).divide(g.gcd_list())[0]
+        #return other.gcd(self.modulo(other))
 
 def print_stack(stack):
     print('---------PRINT STACK----------')
@@ -500,7 +502,7 @@ if __name__ == '__main__':
     p2 = parse('(k+1)(n+1)')
     p1.gcd(p2).PRINT()
     print('==============================')
-    '''
+
     p1 = parse('(k+j)(2k+2j-3)')
     p2 = parse('(2k-1)(2-k)')
     a,b,c = p1.divide(p2)
@@ -512,7 +514,7 @@ if __name__ == '__main__':
     b.PRINT()
     c.PRINT()
     #p1.gcd(p2).PRINT()
-    '''
+
     a,b,c = p1.divide(p2)
     a.PRINT()
     b.PRINT()
@@ -523,4 +525,18 @@ if __name__ == '__main__':
     p1.gcd(c).PRINT()
     p2.gcd(c).PRINT()
     p1.gcd(p2).PRINT()
+
+    p1 = parse('10x^2+10x')
+    p2 = parse('6x')
+    p1.PRINT()
+    p2.PRINT()
+    g = p1.gcd(p2)
+    g = g.multiply(p1.gcd_list().gcd(p2.gcd_list())).divide(g.gcd_list())[0]
+    g.PRINT()
     '''
+
+    p1 = parse('(x+1)(y+1)(z+1)')
+    p2 = parse('(z+1)(y+1)')
+    p1.PRINT()
+    p2.PRINT()
+    p1.gcd(p2).PRINT()
