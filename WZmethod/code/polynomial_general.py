@@ -329,6 +329,9 @@ def parse(s,variables = None):
     def simplify(stack):
         if len(stack) == 1: return stack
         if stack[-2] == '(': return stack
+        if stack[-1] == '(':
+            stack.append(constant_with_value(0))
+            return stack
         #print_stack(stack)
         b,op,a = stack.pop(),stack.pop(),stack.pop()
         if a == '(':
