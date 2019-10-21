@@ -44,38 +44,58 @@ class constant:
         return other.variables
 
     def equals(self,other):
-        if other.variables != self.variables: return False
+        if self.variables == other.variables:
+            return self.equals_simple(other)
+        vars = self.get_common_variables(other)
+        return self.convert_polynomial_vars(vars).equals(other.convert_polynomial(vars))
+    def equals_simple(self,other):
+        assert self.variables == other.variables, 'Trying to check equality polynomials of different variables.'
         return self.coefficients[0] == other.coefficients[0]
 
     def add(self,other):
+        if self.variables == other.variables:
+            return self.add_simple(other)
+        return self.convert_polynomial(other.variables).add(other)
+    def add_simple(self,other):
         assert self.variables == other.variables, 'Trying to add polynomials of different variables.'
         return constant(self.coefficients[0]+other.coefficients[0])
-    def add_simple(self,other): return self.add(other)
 
     def multiply(self,other):
+        if self.variables == other.variables:
+            return self.multiply_simple(other)
+        return self.convert_polynomial(other.variables).multiply(other)
+    def multiply_simple(self,other):
         assert self.variables == other.variables, 'Trying to multiply polynomials of different variables.'
         return constant(self.coefficients[0]*other.coefficients[0])
-    def multiply_simple(self,other): return self.multiply(other)
 
     def divide(self,other):
+        if self.variables == other.variables:
+            return self.divide_simple(other)
+        return self.convert_polynomial(other.variables).divide(other)
+    def divide_simple(self,other):
         # Returns (q,r,f) such that f*self/other = q + r/other. (f is a constant)
         assert self.variables == other.variables, 'Trying to divide polynomials of different variables.'
         return (constant(self.coefficients[0]//other.coefficients[0]),
                 constant(self.coefficients[0]%other.coefficients[0]),
                 constant(1))
-    def divide_simple(self,other): return self.divide(other)
 
     def modulo(self,other):
+        if self.variables == other.variables:
+            return self.modulo_simple(other)
+        return self.convert_polynomial(other.variables).modulo(other)
+    def modulo_simple(self,other):
         assert self.variables == other.variables, 'Trying to modulo polynomials of different variables.'
         q,r,f = self.divide(other)
         return r
-    def modulo_simple(self,other): return self.modulo(other)
 
     def gcd(self,other):
+        if self.variables == other.variables:
+            return self.gcd_simple(other)
+        return self.convert_polynomial(other.variables).gcd(other)
+    def gcd_simple(self,other):
         assert self.variables == other.variables, 'Trying to gcd polynomials of different variables. {} {}'.format(self.variables,other.variables)
         if other.is_zero: return self
         return other.gcd(self.modulo(other))
-    def gcd_simple(self,other): return self.gcd(other)
 
 '''Polynomial class'''
 class polynomial:
@@ -212,6 +232,11 @@ class polynomial:
         return sorted(list(set(self.variables)|set(other.variables)))[::-1]
 
     def equals(self,other):
+        if self.variables == other.variables:
+            return self.equals_simple(other)
+        vars = self.get_common_variables(other)
+        return self.convert_polynomial_vars(vars).equals(other.convert_polynomial(vars))
+    def equals_simple(self,other):
         assert self.variables == other.variables, 'Trying to check equality polynomials of different variables.'
         if self.degree != other.degree: return False
         for i in range(self.degree+1):
