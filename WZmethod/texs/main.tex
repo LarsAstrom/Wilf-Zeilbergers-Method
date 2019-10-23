@@ -1,185 +1,144 @@
-\documentclass[a4paper, 12pt]{article}
-\setcounter{secnumdepth}{2}
-\setcounter{tocdepth}{2}
-
-%% Språk och font
-\usepackage[english]{babel}
-%\usepackage[utf8x]{inputenc}
+\documentclass{LTHthesis}
+%\documentclass[svenska]{LTHthesis} % Om rapporten är på svenska, så är det
+                                    % den här raden som skall användas, och
+                                    % den föregående skall tas bort.
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{biblatex}
-\usepackage{dirtytalk}
-
-%% Sätter pappersstorlek och marginaler
-\usepackage[a4paper,top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm,marginparwidth=1.75cm]{geometry}
-
-%% Gör att figurer namnges efter kapitel
-\usepackage{chngcntr}
-\counterwithin{figure}{section}
-
-\iffalse
-%% Gör att nytt kapitel => ny sida
-\usepackage{titlesec}
-\newcommand{\sectionbreak}{\clearpage}
-\let\stdsection\section
-\renewcommand\section{\newpage\stdsection}
-\fi
-
-%% Användbara paket
-\usepackage{amsmath}
-\usepackage{amssymb}
+\usepackage[utf8]{inputenc}  %% Comment if you are not using utf8
+\usepackage{mathptmx, helvet}
 \usepackage{graphicx}
-\usepackage{subcaption}
-\usepackage{caption}
-\usepackage{float}
 \usepackage[colorinlistoftodos]{todonotes}
-\usepackage[colorlinks=true, allcolors=black]{hyperref}
-\usepackage{enumerate}
-\usepackage{amsthm}
-\usepackage{textcomp}
-\usepackage{gensymb}
-\usepackage{csquotes}
-\let\micro\micro
-\let\perthousand\perthousand
-\usepackage{listings}
-\lstset{
-  basicstyle=\ttfamily,
-  columns=fullflexible,
-  frame=single,
-  breaklines=true,
-  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
-}
 
-%% Sats-environment
+%Theorems
 \theoremstyle{definition}
-\newtheorem{exmp}{Exempel}[section]
-\newtheorem*{lsn}{Lösning}
-\newtheorem{sats}{Sats}[section]
-\newtheorem{definition}{Definition}[section]
-\newtheorem*{anm}{Anmärkning}
-\newtheorem{uppg}{}[subsection]
+\newtheorem{example}{Example}[chapter]
+\newtheorem*{solution}{Solution}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem*{remark}{Remark}
 
-%% Figurer
-\usepackage{siunitx}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{10pt}
-\setlength{\fboxsep}{.5\fboxsep}
-\newcommand{\mrel}{\mathrel{\bigcirc}}
 
-%% För tabeller
-\usepackage{array}
-\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-
-%% Titel och författare
-\title{Template}
-\author{Lars Åström}
-%\date{} %För inget datum
-
-%\linespread{1.25}, for increased spacing
+\addbibresource{mybib.bib}  %%  Comment if you don't want to use bibtex.
 
 \begin{document}
-\maketitle
+\begin{titlepages}
+\author{Lars Åström}
+\title{Wilf Zeilberger method}
+\year{2019}
+\month{December}
+\TFRT{TODO}  %%  You will get the number from the department.
+\printer{Media-Tryck}  %% Probably. You may get other information from the department.
+\end{titlepages}
+\chapter*{Abstract}
+
+\chapter*{Preface}
+
+\tableofcontents
+
+\chapter{Introduction}
+
+
+\chapter{Background}
+
+\chapter{Theory}
+\section{Wilf Zeilberger method}
+Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The methodology in the proof  is that assume we want to prove %~\cite{gf}
+\begin{equation}\label{Eq: Theory,PS}
+  \sum_{k=-\infty}^\infty A(n,k) = B(n).
+\end{equation}
+Then we let
+\begin{equation}
+  F(n,k)=\frac{A(n,k)}{B(n)}
+\end{equation}
+Now equation \ref{Eq: Theory,PS} becomes
+\begin{equation}\label{Eq: Theory,WZ}
+  \sum_{k=-\infty}^\infty F(n,k) = 1
+\end{equation}
+The way we want to prove this is by first proving
+\begin{equation}\label{Eq: Theory,WZ2}
+  \sum_{k=-\infty}^\infty F(n+1,k)-F(n,k) = 0
+\end{equation}
+and then calculate the left hand side of \ref{Eq: Theory,WZ} for one $n$, usually but not always $n=0$. Then we get that
+\begin{equation}
+  \sum_{k=-\infty}^\infty F(n+1,k)=\sum_{k=-\infty}^\infty F(n,k)
+\end{equation}
+which in turns gives us that
+\begin{equation}
+  \sum_{k=-\infty}^\infty F(n,k) = c,
+\end{equation}
+where $c$ is a constant, for all values of $n$ and thus equal to the result of our previous calculations. The trick we use to prove equation \ref{Eq: Theory,WZ2} is to find another function $G(n,k)$ which satisfies:
+\begin{enumerate}[i)]
+  \item
+  \begin{equation}\label{Eq: Theory,first condition}
+    F(n+1,k)-F(n,k)=G(n,k+1)-G(n,k)
+  \end{equation}
+  \item
+  \begin{equation}\label{Eq: Theory,second condition}
+    \lim_{k\to\pm\infty}G(n,k)=0, \forall n
+  \end{equation}
+\end{enumerate}
+If these two conditions are fulfilled, then equation \ref{Eq: Theory,WZ2} is fulfilled since by replacing $F(n+1,k)-F(n,k)$ with $G(n,k+1)-G(n,k)$ we get a telescopic sum:
+\begin{equation*}
+\begin{split}
+\sum_{k=-\infty}^\infty F(n+1,k)-F(n,k) & = \sum_{k=-\infty}^\infty G(n,k+1)-G(n,k) = \\
+ & = \lim_{M\to\infty} \sum_{k=-M}^M G(n,k+1)-G(n,k) = \\
+ & = \lim_{M\to\infty} \big[G(n,M+1)-G(n,-M)\big] = 0.
+\end{split}
+\end{equation*}
+If we summarize the method we have the following steps:
+\begin{enumerate}
+  \item Start with equation on the form $$\sum_{k=-\infty}^\infty A(n,k) = B(n).$$
+  \item Let $$F(n,k)=\frac{A(n,k)}{B(n)}.$$
+  \item Find $G(n,k)$ such that equations \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} are fulfilled.
+  \item Show that $\sum_{k=-\infty}^\infty F(0,k)=1$.
+\end{enumerate}
+We can formalize the concepts in the method like this.
+\begin{definition}
+  A pair of functions $(F,G)$ that satisfy equations \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} are said to ''certify'' an identity like \ref{Eq: Theory,WZ} (or is simply called a ''certifying pair''). We can also speak of a ''proof certificate'' $R(n,k)$ of an identity. That is a function such that $G(n,k)=R(n,k)F(n,k-1)$ gives that $(F,G)$ is a certifying pair to the identity.
+\end{definition}
+Let us show an short example of how the method can work.
+\begin{example}
+  Show that $$\sum_{k=0}^n \binom{n}{k} = 2^n.$$
+\end{example}
+\begin{solution}
+  We will use the method and do all the steps mentioned above.
+  \begin{enumerate}
+    \item We have $A(n,k)=\binom{n}{k}$ and $B(n)=2^n$.
+    \item Let $$F(n,k)=\frac{A(n,k)}{B(n)}=\frac{\binom{n}{k}}{2^n}.$$
+    \item With $$G(n,k)=-\frac{\binom{n}{k-1}}{2^{n+1}},$$ we have that
+      \begin{equation*}
+        \begin{split}
+          F(n+1,k)-F(n,k) & = \frac{\binom{n+1}{k}}{2^{n+1}}-\frac{\binom{n}{k}}{2^{n}}= \\
+          & = \frac{1}{2^{n+1}}\binom{n}{k}\Bigg(\frac{n+1}{n+1-k}-2\Bigg) = \\
+          & = \frac{1}{2^{n+1}}\binom{n}{k}\Bigg(\frac{k}{n+1-k}-1\Bigg) = \\
+          & = \frac{1}{2^{n+1}}\Bigg(\binom{n}{k-1}-\binom{n}{k}\Bigg) = \\
+          & = G(n,k+1)-G(n,k)
+        \end{split}
+      \end{equation*}
+      Furthermore, we have that $G(n,k) = 0$ when $k<0$ and $k>n$.
+    \item Lastly we need to show that $$\sum_{k=0}^n \frac{\binom{n}{k}}{2^n}=1$$ for some $n$. If we choose $n=0$ we see that this equality holds. Therefore the equality holds for all $n$.
+  \end{enumerate}
+\end{solution}
+Now that we have seen an example, hopefully the methodology is clear. What still is not clear is how to find the function $G(n,k)$. This is in general a hard task to do by hand, but is certainly managable by using a computer since there are algorithms -- for instance Gosper's algorithm -- that can derive $G(n,k)$ in certain cases. This implementation is what this thesis is contributing to do. %~\cite{gf}
+
+\section{Gosper's algorithm}
+
+
+\section{Polynomials}
+
+\section{Division, modulo and GCD}
+
+\chapter{Implementation}
+
+\chapter{Results}
+
+\chapter{Discussion and conclusions}
+
+%\bibliography{mybib.bib}{}
+%\bibliographystyle{plain}
+%\printbibliography  %% Comment if you don't want to use bibtex
+
+\chapter{Attachments}
+
+\chapter{Popular scientific paper}
 
 \end{document}
-
-\iffalse
-%% För tre figurer med samma siffra.
-\begin{figure}[H]
-\centering
-\begin{subfigure}[b]{.3\textwidth}
-\centering
-\includegraphics[width=.9\hsize]{AG1RatLinje_HittaM1lsn.png}
-\caption{}\label{Fig: AG1RatLinje HittaM1lsn}
-\end{subfigure}
-\begin{subfigure}[b]{.3\textwidth}
-\centering
-\includegraphics[width=.9\hsize]{AG1RatLinje_HittaM2lsn.png}
-\caption{}
-\end{subfigure}
-\begin{subfigure}[b]{.3\textwidth}
-\centering
-\includegraphics[width=.9\hsize]{AG1RatLinje_HittaM3lsn.png}
-\caption{}\label{Fig: AG1RatLinje HittaM3lsn}
-\end{subfigure}
-\caption{}
-\end{figure}
-
-%% För två figurer med olika siffror.
-\begin{figure}[H]
-\centering
-\begin{minipage}{.5\textwidth}
-\centering
-\includegraphics[width=.4\linewidth]{image1}
-\captionof{figure}{A figure}
-\label{fig:test1}
-\end{minipage}
-\begin{minipage}{.5\textwidth}
-\centering
-\includegraphics[width=.4\linewidth]{image1}
-\captionof{figure}{Another figure}
-\label{fig:test2}
-\end{minipage}
-\end{figure}
-
-%% För en figur.
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{xxx.png}
-\caption{}\label{}
-\end{figure}
-
-%% För en figur med 3*2 subfigurer
-\begin{figure}[t!] % "[t!]" placement specifier just for this example
-\begin{subfigure}{0.48\textwidth}
-\includegraphics[width=\linewidth]{pic1.pdf}
-\caption{First subfigure} \label{fig:a}
-\end{subfigure}\hspace*{\fill}
-\begin{subfigure}{0.48\textwidth}
-\includegraphics[width=\linewidth]{pic2.pdf}
-\caption{Second subfigure} \label{fig:b}
-\end{subfigure}
-
-\medskip
-\begin{subfigure}{0.48\textwidth}
-\includegraphics[width=\linewidth]{pic3.pdf}
-\caption{Third subfigure} \label{fig:c}
-\end{subfigure}\hspace*{\fill}
-\begin{subfigure}{0.48\textwidth}
-\includegraphics[width=\linewidth]{pic4.pdf}
-\caption{Fourth subfigure} \label{fig:d}
-\end{subfigure}
-
-\medskip
-\begin{subfigure}{0.48\textwidth}
-\includegraphics[width=\linewidth]{pic5.pdf}
-\caption{Fifth subfigure} \label{fig:e}
-\end{subfigure}\hspace*{\fill}
-\begin{subfigure}{0.48\textwidth}
-\includegraphics[width=\linewidth]{pic6.pdf}
-\caption{Sixth subfigure} \label{fig:f}
-\end{subfigure}
-
-\caption{My complicated figure} \label{fig:1}
-\end{figure}
-
-%%För att göra matriser:
-\[
-\begin{bmatrix}
-    x_{11} & x_{12} & x_{13} & \dots  & x_{1n} \\
-    x_{21} & x_{22} & x_{23} & \dots  & x_{2n} \\
-    \vdots & \vdots & \vdots & \ddots & \vdots \\
-    x_{d1} & x_{d2} & x_{d3} & \dots  & x_{dn}
-\end{bmatrix}
-\]
-
-%Tabell
-\begin{center}
-        \begin{tabular}{c|c|c|c}
-            Data set & Base 1 & Base 2 & Base 3 \\ \hline
-            Training data & 821 & 860 & 945 \\ \hline
-            Test data & 795 & 649 & 697 \\ \hline
-        \end{tabular}    
-    \end{center}
-\fi

@@ -1,0 +1,160 @@
+\documentclass[a4paper]{article}
+\usepackage[T1]{fontenc}        % För svenska bokstäver
+%\usepackage[swedish]{babel}    %Svenska skrivregler och rubriker
+%\usepackage[dvips]{graphics}
+\usepackage{epsfig}
+
+
+\title{A title}
+\author{X Jobbare}
+%\date{}
+
+\def\svd {Singular Value Decomposition}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Här skriver jag in mitt abstract.
+\end{abstract}
+
+\pagebreak
+.
+\pagebreak
+
+\tableofcontents
+
+\pagebreak
+.
+\pagebreak
+
+\section{Introduction}
+
+Allmän problemformulering \svd lakjsfdl.
+
+Previous work
+
+Overview of the thesis
+In chapter 2 some background material is ...
+
+
+\subsection{Background}
+
+\subsection{Aim of the thesis}
+
+% Here is a figure
+\begin{figure}
+\begin{center}
+\epsfig{figure=figs/trafik.eps,width=5cm}
+% lägg till figurbilden
+\caption{The figure illustrates ...}
+\label{f_traffic}
+\end{center}
+\end{figure}
+
+
+As can be seen in Figure~\ref{f_traffic} the xxx.
+
+% Here is a table
+\begin{table}[htbp]
+  \begin{center}
+    \begin{tabular}{|l|r|}
+      \hline
+      Cars & 0.4178 \\
+      \hline
+      Multiple cars & 0.0375 \\
+      Pedestrians & 0.1684 \\
+      Multiple Pedestrians & 0.1247 \\
+      Bicycles & 0.1004 \\
+      Multiple Bicycles & 0.0081 \\
+      Multiple objects of mixed classes & 0.0314 \\
+      Others & 0.1116 \\
+      \hline
+    \end{tabular}
+    \caption{The distribution of tracks of different classes.}
+    \label{t_class_hist}
+  \end{center}
+\end{table}
+
+% This is an equation without equation numbering
+$$ f(Z=z \, | \, K = k) = \frac{1}{N} \sum_{k=1}^N N(o_i,\sigma_i)
+\enspace .$$
+
+Here $z = (x,y) = \int_0^5 e^x dx$ denotes the position of an object, $k$ denotes its
+class. $N(o,\sigma$ is the propability density function of the normal
+distributin.
+
+It now follows that
+$$z = (x,y) = \int_0^5 e^x dx, $$
+where $z$ denotes temperature and
+$$z = (x,y) = \int_0^5 e^x dx. $$
+
+Similar to the above we have
+\begin{equation}
+  z = (x,y) = \int_0^5 e^x dx .
+  \label{minekvation}
+  \end{equation}
+
+According to  (\ref{minekvation}) this xxx.
+
+\subsection{Related work}
+
+Several methods for estimating and updating the background images have
+been used.  One such method \cite{stauffer-ccvpr-99} is based on
+modeling the probability distribution of each background pixel as a
+mixture of Gaussians using the EM algorithm.  The dominant component
+is considered to be the background and is used for estimating
+foreground pixels.
+
+\section{Methods}
+
+\section{Geometry}
+
+\subsection{Homogenous coordinates}
+A straightforward way of representing a point on a plane is by
+using two numbers \((x,y)\). This notation is known as euclidian
+coordinates and the meaning of such a coordinate pair is probably
+familiar to everyone and requires no further explanation. It turns
+out however that a slightly different representation of points
+provide great simplifications to the notation of many relations in
+projective geometry. F.g. a line on a plane can be represented by
+three numbers \((a,b,c)\) such that a point \((x,y)\) on the line
+satisfies the equation \(ax+by+c=0\). If instead of \((x,y)\) we
+represent the point by \((x,y,1)\), the equation can be written as
+a product of two vectors: \(a,b,c)\cdot(x,y,1)^{\top}=0\). We also
+see that multiplying \((x,y,1)\) by a scalar, \(\alpha\), will
+give rise to a new representation \((\alpha x,\alpha y,\alpha)\)
+which satisfies the equation just as well. In fact, using
+homogenous coordinates, the two representations \((x,y,1)\) and
+\(\alpha(x,y,1)\) are equivalent and represent the same point for
+any non-zero scalar \(\alpha\). An arbitrary 3-vector \((x,y,w)\)
+in homogenous coordinates represents the point \((x / w,y / w)\)
+in euclidian coordinates.
+
+\subsection{The camera equation}
+A simple mathematical description of a projective camera is given
+by the \emph{pinhole camera model}, shown in figure 2.1.
+
+%\begin{figure}
+%    \begin{center}
+%        \includegraphics{pinhole.eps}
+%    \end{center}
+%    \caption{Pinhole camera model}
+%\end{figure}
+%\resizebox{!}{20mm}{\includegraphics{pinhole.eps}}
+
+Som man kan se i \cite{alvarez-guichard-etal-crasp-92} så är.
+
+
+\section{Results}
+
+\section{Conclusions}
+
+\section*{Acknowledgements}
+
+\bibliographystyle{plain}
+\bibliography{vision.newkeys}
+
+
+
+\end{document}
