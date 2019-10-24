@@ -1,4 +1,4 @@
-\section{Wilf Zeilberger method}
+\section{Wilf-Zeilberger's method}
 Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The methodology in the proof  is that assume we want to prove %~\cite{gf}
 \begin{equation}\label{Eq: Theory,PS}
   \sum_{k=-\infty}^\infty A(n,k) = B(n).
@@ -79,8 +79,177 @@ Let us show an short example of how the method can work.
 Now that we have seen an example, hopefully the methodology is clear. What still is not clear is how to find the function $G(n,k)$. This is in general a hard task to do by hand, but is certainly managable by using a computer since there are algorithms -- for instance Gosper's algorithm -- that can derive $G(n,k)$ in certain cases. This implementation is what this thesis is contributing to do. %~\cite{gf}
 
 \section{Gosper's algorithm}
+Gosper's algorithm is an algorithm that can be used to find an sum when certain conditions are fulfilled for the sum. The setting of the problem that is solved using the algorithm is that we want to find $S_k$ where
+\begin{equation}\label{Eq: Theory,Gosper1}
+  \sum_{k=1}^n a_k = S_n-S_0.
+\end{equation}
+This is the same thing as finding $S_n$ such that
+\begin{equation}\label{Eq: Theory,Gosper2}
+  a_k = S_k - S_{k-1}.
+\end{equation}
+The algorithm provides those $S_k$ such that
+\begin{equation}
+  \frac{S_k}{S_{k-1}} = \text{rational function of } k.
+\end{equation}
+Note that all the time when we write $x_a$ in this section, this denotes a polynomial $x$ evaluated in $a$, or $x(a)$. For instance $S_k$ denotes that the polynomial $S(k)$. We are only using this notation to make it easier to read. Note that this means that $x$ is a function of the variable $a$, but does not mean that it is a one variable function of $a$ -- it can be a function of several variables but we are just interested in the variable $a$ while the others are viewed as constants. This will actually be the cast amost all the time, since $a_k=F(n+1,k)-F(n,k)$ (where $F$ comes from Wilf-Zeilberger's method) will be used most of the time. Also here, note that $F(n,k)$ only denotes that $F$ is a function of $n$ and $k$, but it might be of more variables as well.
 
+For the sake of making the thesis more easily readable and for completeness, we will provide a quite thorough derivation of the algorithm -- even though it is perfectly described in the original paper by Gosper (1978). This will mostly focus on the steps of the algorithm, but also include the proofs of claims that are made during the steps. Firstly we will describe the main steps and thereafter we will provide the proofs.
+
+First of all we need to show the connection between the formulation of Wilf-Zeilberger's method and how Gosper's algorithm takes part in it. Gosper's algorithm will solve the third step in Wilf-Zeilbergers method, namely to find a $G(n,k)$ such that conditions \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} will be fulfilled. The first condition is that
+\begin{equation}
+  F(n+1,k)-F(n,k) = G(n,k+1)-G(n,k).
+\end{equation}
+By looking at $n$ as a constant we define $a_k=F(n+1,k)-F(n,k)$. Thereafter we use Gosper's algorithm to find a $S_k$ such that
+\begin{equation}
+  a_k = S_k-S_{k-1}.
+\end{equation}
+Once we have that, we let $G(n,k) = S_{k-1}$ and we have obtained our function $G(n,k)$.
+
+The steps of Gosper's algorithm are:
+\begin{enumerate}
+  \item Finding polynomials $p_k,q_k,r_k$ such that
+  \begin{equation}\label{Eq: Theory,Gosper,step1}
+    \frac{a_k}{a_{k-1}} = \frac{p_k}{p_{k-1}}\frac{q_k}{r_k}
+  \end{equation}
+  and $\gcd(q_k,r_{k+j})=1, \forall j\geq 0$.
+  \item Finding polynomial $f_k$ such that
+  \begin{equation}\label{Eq: Theory,Gosper,step2}
+    p_k=q_{k+1}f_k-r_kf_{k-1}.
+  \end{equation}
+  \item Let
+  \begin{equation}\label{Eq: Theory,Gosper,S}
+    S_k=\frac{q_{k+1}}{p_k}f_ka_k.
+  \end{equation}
+\end{enumerate}
+The reason this algorithm will provide a solution is that with $S_k$ given by \ref{Eq: Theory,Gosper,S} we have
+\begin{equation}\label{Eq: Theory,Gosper,sksk1}
+  S_k-S_{k-1} = \frac{q_{k+1}}{p_k}f_ka_k-\frac{q_{k}}{p_{k-1}}f_{k-1}a_{k-1}.
+\end{equation}
+By factoring out $\frac{a_k}{p_k}$ in \ref{Eq: Theory,Gosper,sksk1}, and using \ref{Eq: Theory,Gosper,step1} followed by \ref{Eq: Theory,Gosper,step2} gives us:
+\begin{equation}
+  \begin{split}
+    S_k-S_{k-1} & = \frac{a_k}{p_k}\Big(q_{k+1}f_k-\frac{q_k}{p_{k-1}}f_{k-1}p_k\frac{a_{k-1}}{a_k}\Big) = \\
+    & =\frac{a_k}{p_k}\Big(q_{k+1}f_k-\frac{q_k}{p_{k-1}}f_{k-1}p_k\frac{p_{k-1}}{p_k}\frac{r_k}{q_k}\Big)= \\
+    & = \frac{a_k}{p_k}\Big(q_{k+1}f_k-r_kf_{k-1}\Big) = \frac{a_k}{p_k}p_k = a_k,
+  \end{split}
+\end{equation}
+which is exactly what we wanted to be true for $S_k$.
+
+Now, we have quite a few details to derive in each step -- both how the step is done more precisely and furthermore explaining why all the polynomials actually need to be polynomials and not rational polynomials instead.
+
+\subsection{How to get polynomials $p,q,r$ in equation \ref{Eq: Theory,Gosper,step1}}
+First of all, we need to prove that it is possible to find polynomials $p,q,r$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled. Since $\frac{S_k}{S_{k-1}}$ is a rational function of $k$, then
+\begin{equation}
+  \frac{a_k}{a_{k-1}}=\frac{S_k-S_{k-1}}{S_{k-1}-S_{k-2}}=\frac{\frac{S_k}{S_{k-1}}-1}{1-\frac{S_{k-2}}{S_{k-1}}}
+\end{equation}
+is a rational function of $k$ as well. Therefore we will be able to find polynomials such that \ref{Eq: Theory,Gosper,step1} is fulfilled. Left is to show how to find polynomials such that $gcd(q_k,r_{k+j})=1 \forall j\geq 1$ as well.
+
+We do this in a series of steps. First we let $p_k=1$ and $q_k, r_k$ be the numerator and denominator of $\frac{a_k}{a_k-1}$, respectively. Then if $gcd(q_k,r_{k+j})=1, \forall j\geq 0$ we are done. Otherwise we replace the polynomials by
+\begin{equation}
+  \begin{split}
+    q_k^\prime & \leftarrow \frac{q_k}{g_k}, \\
+    r_k^\prime & \leftarrow \frac{r_k}{g_{k-j}}, \\
+    p_k^\prime & \leftarrow p_kg_kg_{k-1}\ldots g_{k-j+1},
+  \end{split}
+\end{equation}
+where $g_k=gcd(q_k,r_{k+j})$ for the smallest $j\geq 0$ such that $gcd(q_k,r_{k+j})\neq 1$. Then we can see that we still have that
+\begin{equation}
+  \frac{a_k}{a_{k-1}} = \frac{p_k^\prime}{p_{k-1}^\prime}\frac{q_k^\prime}{r_k^\prime}
+\end{equation}
+and the degree of the polynomials $q_k, r_k$ are smaller. We then iterate this procedure as long as there exists a $j$ such that $gcd(q_k,r_{k+j})>1$. Then when this procedure finishes, we will obtain $q_k,r_k,p_k$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled and $gcd(q_k,r_{k+j})=1 \forall j\geq 0$.
+
+\subsection{How to get polynomial $f$ in equation \ref{Eq: Theory,Gosper,step2}}
+The proof provided here is just due to Gosper's paper and mostly very similar. First of all, we need to prove that $f$ is a polynomial and not a rational polynomial. Therefore assume that $f_k=\frac{c_k}{d_k}$ where $gcd(c_k,d_k)=1$. Then by plugging this into \ref{Eq: Theory,Gosper,step2} and multiplying by $d_kd_{k-1}$ gives us:
+\begin{equation}\label{Eq: Theory,8prime}
+  d_kd_{k-1}p_k = c_kd_{k-1}q_{k+1} - d_kc_{k-1}r_k.
+\end{equation}
+Let $j$ be the largest integer such that
+\begin{equation}\label{Eq: Theory,10a}
+  gcd(d_k,d_{k+j})=g_k\neq 1
+\end{equation}
+Since $g_k|d_{k+j}$ we get that
+\begin{equation}\label{Eq: Theory,10b}
+  gcd(d_{k-1},d_{k+j})=1=gcd(d_{k-1},g_{k+j}).
+\end{equation}
+By just shifting $k$ by $-j-1$ in \ref{Eq: Theory,10a} we get that
+\begin{equation}\label{Eq: Theory,10c}
+  gcd(d_{k-j-1},d_{k-1})=g_{k-j-1}\neq 1
+\end{equation}
+By shifting $k$ by $j$ in \ref{Eq: Theory,10b} we get that
+\begin{equation}
+  gcd(d_{k-j-1},d_k) = 1 = gcd(g_{k-j-1},d_k),
+\end{equation}
+again since $g_{k-j-1}|d_{k-j-1}$.
+
+Now we consider equation \ref{Eq: Theory,8prime} upon dividing by first $g_k$ and then $g_{k-j-1}$. Clearly $g_k|d_kd_{k-1}p_k$, since $g_k|d_k$. This means that
+\begin{equation}
+  g_k|c_kd_{k-1}q_{k+1}-d_kc_{k-1}r_k.
+\end{equation}
+Furthermore $g_k|d_kc_{k-1}r_k$ since $g_k|d_k$, which gives us that
+\begin{equation}
+  g_k|c_kd_{k-1}q_{k+1}.
+\end{equation}
+By equation \ref{Eq: Theory,10b} we get $gcd(d_{k-1},g_k)=1$ and since $g_k|d_k$ and $gcd(c_k,d_k)=1$ we get $gcd(c_k,g_k)=1$. This means that
+\begin{equation}
+  g_k|q_{k+1} \implies g_{k-1}|q_k.
+\end{equation}
+
+Similarly $g_{k-j-1}|d_kd_{k-1}p_k$, since $g_{k-j-1}|d_{k-1}$. This means that
+\begin{equation}
+  g_{k-j-1}|c_kd_{k-1}q_{k+1}-d_kc_{k-1}r_k.
+\end{equation}
+Furthermore $g_{k-j-1}|c_kd_{k-1}q_{k+1}$ since $g_{k-j-1}|d_{k-1}$, which gives us that
+\begin{equation}
+  g_k|d_kc_{k-1}r_k.
+\end{equation}
+By equation \ref{Eq: Theory,10d} we get $gcd(d_k,g_{k-j-1})=1$ and by $gcd(c_{k-1},d_{k-1})=1$ together with $g_{k-j-1}|d_{k-1}$ we get $gcd(c_{k-1},g_{k-j-1})=1$. This means that
+\begin{equation}
+  g_{k-j-1}|r_k \implies g_{k-1}|r_{k+j}.
+\end{equation}
+But now we have $g_{k-1}$ divides both $r_{k+j}$ where $j\geq 0$ and $q_k$. From the first step of Gosper's algorithm we know that $gcd(r_{k+j},q_k)=1, \forall j\geq 0$ meaning that $g_k=1$. This means that for all $j\geq 0$ we have that
+\begin{equation}
+  gcd(d_k,d_{k+j})=1.
+\end{equation}
+By putting $j=0$ we get that
+\begin{equation}
+  d_k = gcd(d_k,d_k) = 1.
+\end{equation}
+Hence $d_k=1$ for all $k$ and thus $f_k$ is a polynomial.
+
+Now, let us derive how to get the polynomial $f_k$ such that \ref{Eq: Theory,Gosper,step2} is fulfilled.
 
 \section{Polynomials}
 
-\section{Division, modulo and GCD}
+\subsection{Division, modulo and GCD}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+l

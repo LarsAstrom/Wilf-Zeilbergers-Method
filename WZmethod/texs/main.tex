@@ -8,6 +8,15 @@
 \usepackage{graphicx}
 \usepackage[colorinlistoftodos]{todonotes}
 
+%To get numbered subsections
+\setcounter{secnumdepth}{5}
+
+%Setting paragraph indent and skips
+\usepackage{siunitx}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{10pt}
+\setlength{\fboxsep}{.5\fboxsep}
+
 %Theorems
 \theoremstyle{definition}
 \newtheorem{example}{Example}[chapter]
@@ -35,33 +44,33 @@
 \tableofcontents
 
 \chapter{Introduction}
-\include{texs/introduction.tex}
+\include{texs/introduction}
 
 \chapter{Background}
-\include{texs/background.tex}
+\include{texs/background}
 
 \chapter{Theory}
-\input{texs/theory.tex}
+\input{texs/theory}
 
 \chapter{Implementation}
-\input{texs/implementation.tex}
+\input{texs/implementation}
 
 \chapter{Results}
-\input{texs/results.tex}
+\input{texs/results}
 
 \chapter{Discussion and conclusions}
-\input{texs/discussion.tex}
+\input{texs/discussion}
 
 %\bibliography{mybib.bib}{}
 %\bibliographystyle{plain}
 %\printbibliography  %% Comment if you don't want to use bibtex
 \chapter*{References}
-\input{texs/references.tex}
+\input{texs/references}
 
 \chapter*{Attachments}
-\input{texs/attachments.tex}
+\input{texs/attachments}
 
 \chapter*{Popular scientific paper}
-\input{texs/popular.tex}
+\input{texs/popular}
 
 \end{document}
