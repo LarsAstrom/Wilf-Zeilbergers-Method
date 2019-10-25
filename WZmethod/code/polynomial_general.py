@@ -568,3 +568,9 @@ if __name__ == '__main__':
     p1.PRINT()
     p2.PRINT()
     p1.gcd(p2).PRINT()
+
+    p1 = parse('2x^2')
+    p2 = parse('3x')
+    p1.PRINT()
+    p2.PRINT()
+    p1.gcd(p2).PRINT()

@@ -159,64 +159,89 @@ where $g_k=gcd(q_k,r_{k+j})$ for the smallest $j\geq 0$ such that $gcd(q_k,r_{k+
 and the degree of the polynomials $q_k, r_k$ are smaller. We then iterate this procedure as long as there exists a $j$ such that $gcd(q_k,r_{k+j})>1$. Then when this procedure finishes, we will obtain $q_k,r_k,p_k$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled and $gcd(q_k,r_{k+j})=1 \forall j\geq 0$.
 
 \subsection{How to get polynomial $f$ in equation \ref{Eq: Theory,Gosper,step2}}
-The proof provided here is just due to Gosper's paper and mostly very similar. First of all, we need to prove that $f$ is a polynomial and not a rational polynomial. Therefore assume that $f_k=\frac{c_k}{d_k}$ where $gcd(c_k,d_k)=1$. Then by plugging this into \ref{Eq: Theory,Gosper,step2} and multiplying by $d_kd_{k-1}$ gives us:
-\begin{equation}\label{Eq: Theory,8prime}
-  d_kd_{k-1}p_k = c_kd_{k-1}q_{k+1} - d_kc_{k-1}r_k.
-\end{equation}
-Let $j$ be the largest integer such that
-\begin{equation}\label{Eq: Theory,10a}
-  gcd(d_k,d_{k+j})=g_k\neq 1
-\end{equation}
-Since $g_k|d_{k+j}$ we get that
-\begin{equation}\label{Eq: Theory,10b}
-  gcd(d_{k-1},d_{k+j})=1=gcd(d_{k-1},g_{k+j}).
-\end{equation}
-By just shifting $k$ by $-j-1$ in \ref{Eq: Theory,10a} we get that
-\begin{equation}\label{Eq: Theory,10c}
-  gcd(d_{k-j-1},d_{k-1})=g_{k-j-1}\neq 1
-\end{equation}
-By shifting $k$ by $j$ in \ref{Eq: Theory,10b} we get that
-\begin{equation}\label{Eq: Theory,10d}
-  gcd(d_{k-j-1},d_k) = 1 = gcd(g_{k-j-1},d_k),
-\end{equation}
-again since $g_{k-j-1}|d_{k-j-1}$.
+The proof provided here is just due to Gosper's paper and mostly very similar. First of all, we need to prove that $f$ is a polynomial and not a rational polynomial.
+\begin{proof}
+  Assume that $f_k=\frac{c_k}{d_k}$ where $gcd(c_k,d_k)=1$. Then by plugging this into \ref{Eq: Theory,Gosper,step2} and multiplying by $d_kd_{k-1}$ gives us:
+  \begin{equation}\label{Eq: Theory,8prime}
+    d_kd_{k-1}p_k = c_kd_{k-1}q_{k+1} - d_kc_{k-1}r_k.
+  \end{equation}
+  Let $j$ be the largest integer such that
+  \begin{equation}\label{Eq: Theory,10a}
+    gcd(d_k,d_{k+j})=g_k\neq 1
+  \end{equation}
+  Since $g_k|d_{k+j}$ we get that
+  \begin{equation}\label{Eq: Theory,10b}
+    gcd(d_{k-1},d_{k+j})=1=gcd(d_{k-1},g_{k+j}).
+  \end{equation}
+  By just shifting $k$ by $-j-1$ in \ref{Eq: Theory,10a} we get that
+  \begin{equation}\label{Eq: Theory,10c}
+    gcd(d_{k-j-1},d_{k-1})=g_{k-j-1}\neq 1
+  \end{equation}
+  By shifting $k$ by $j$ in \ref{Eq: Theory,10b} we get that
+  \begin{equation}\label{Eq: Theory,10d}
+    gcd(d_{k-j-1},d_k) = 1 = gcd(g_{k-j-1},d_k),
+  \end{equation}
+  again since $g_{k-j-1}|d_{k-j-1}$.
 
-Now we consider equation \ref{Eq: Theory,8prime} upon dividing by first $g_k$ and then $g_{k-j-1}$. Clearly $g_k|d_kd_{k-1}p_k$, since $g_k|d_k$. This means that
-\begin{equation}
-  g_k|c_kd_{k-1}q_{k+1}-d_kc_{k-1}r_k.
-\end{equation}
-Furthermore $g_k|d_kc_{k-1}r_k$ since $g_k|d_k$, which gives us that
-\begin{equation}
-  g_k|c_kd_{k-1}q_{k+1}.
-\end{equation}
-By equation \ref{Eq: Theory,10b} we get $gcd(d_{k-1},g_k)=1$ and since $g_k|d_k$ and $gcd(c_k,d_k)=1$ we get $gcd(c_k,g_k)=1$. This means that
-\begin{equation}
-  g_k|q_{k+1} \implies g_{k-1}|q_k.
-\end{equation}
+  Now we consider equation \ref{Eq: Theory,8prime} upon dividing by first $g_k$ and then $g_{k-j-1}$. Clearly $g_k|d_kd_{k-1}p_k$, since $g_k|d_k$. This means that
+  \begin{equation}
+    g_k|c_kd_{k-1}q_{k+1}-d_kc_{k-1}r_k.
+  \end{equation}
+  Furthermore $g_k|d_kc_{k-1}r_k$ since $g_k|d_k$, which gives us that
+  \begin{equation}
+    g_k|c_kd_{k-1}q_{k+1}.
+  \end{equation}
+  By equation \ref{Eq: Theory,10b} we get $gcd(d_{k-1},g_k)=1$ and since $g_k|d_k$ and $gcd(c_k,d_k)=1$ we get $gcd(c_k,g_k)=1$. This means that
+  \begin{equation}
+    g_k|q_{k+1} \implies g_{k-1}|q_k.
+  \end{equation}
 
-Similarly $g_{k-j-1}|d_kd_{k-1}p_k$, since $g_{k-j-1}|d_{k-1}$. This means that
-\begin{equation}
-  g_{k-j-1}|c_kd_{k-1}q_{k+1}-d_kc_{k-1}r_k.
-\end{equation}
-Furthermore $g_{k-j-1}|c_kd_{k-1}q_{k+1}$ since $g_{k-j-1}|d_{k-1}$, which gives us that
-\begin{equation}
-  g_k|d_kc_{k-1}r_k.
-\end{equation}
-By equation \ref{Eq: Theory,10d} we get $gcd(d_k,g_{k-j-1})=1$ and by $gcd(c_{k-1},d_{k-1})=1$ together with $g_{k-j-1}|d_{k-1}$ we get $gcd(c_{k-1},g_{k-j-1})=1$. This means that
-\begin{equation}
-  g_{k-j-1}|r_k \implies g_{k-1}|r_{k+j}.
-\end{equation}
-But now we have $g_{k-1}$ divides both $r_{k+j}$ where $j\geq 0$ and $q_k$. From the first step of Gosper's algorithm we know that $gcd(r_{k+j},q_k)=1, \forall j\geq 0$ meaning that $g_k=1$. This means that for all $j\geq 0$ we have that
-\begin{equation}
-  gcd(d_k,d_{k+j})=1.
-\end{equation}
-By putting $j=0$ we get that
-\begin{equation}
-  d_k = gcd(d_k,d_k) = 1.
-\end{equation}
-Hence $d_k=1$ for all $k$ and thus $f_k$ is a polynomial.
+  Similarly $g_{k-j-1}|d_kd_{k-1}p_k$, since $g_{k-j-1}|d_{k-1}$. This means that
+  \begin{equation}
+    g_{k-j-1}|c_kd_{k-1}q_{k+1}-d_kc_{k-1}r_k.
+  \end{equation}
+  Furthermore $g_{k-j-1}|c_kd_{k-1}q_{k+1}$ since $g_{k-j-1}|d_{k-1}$, which gives us that
+  \begin{equation}
+    g_k|d_kc_{k-1}r_k.
+  \end{equation}
+  By equation \ref{Eq: Theory,10d} we get $gcd(d_k,g_{k-j-1})=1$ and by $gcd(c_{k-1},d_{k-1})=1$ together with $g_{k-j-1}|d_{k-1}$ we get $gcd(c_{k-1},g_{k-j-1})=1$. This means that
+  \begin{equation}
+    g_{k-j-1}|r_k \implies g_{k-1}|r_{k+j}.
+  \end{equation}
+  But now we have $g_{k-1}$ divides both $r_{k+j}$ where $j\geq 0$ and $q_k$. From the first step of Gosper's algorithm we know that $gcd(r_{k+j},q_k)=1, \forall j\geq 0$ meaning that $g_k=1$. This means that for all $j\geq 0$ we have that
+  \begin{equation}
+    gcd(d_k,d_{k+j})=1.
+  \end{equation}
+  By putting $j=0$ we get that
+  \begin{equation}
+    d_k = gcd(d_k,d_k) = 1.
+  \end{equation}
+  Hence $d_k=1$ for all $k$ and thus $f_k$ is a polynomial.
+\end{proof}
 
-Now, let us derive how to get the polynomial $f_k$ such that \ref{Eq: Theory,Gosper,step2} is fulfilled. \todo{CONTINUE THIS DERIVATION} \todo{CAN WE FIND THE DEGREE?}
+Now, let us derive how to get the polynomial $f_k$ such that \ref{Eq: Theory,Gosper,step2} is fulfilled. It is possible to get a bound for the degree of $f_k$ with respect to $k$. This is derived in the paper by Gosper (1978) and for the interested reader the details can be found there. The results is that
+\begin{equation}
+  deg(f_k)\leq deg(p_k) - max(deg(q_{k+1}+r_k),deg(q_{k+1}-r_k)) + 1.
+\end{equation}
+In some cases the degree can be further limited (without the extra $+1$) but we are mostly interested in that we have a bound -- not the extra added (small) constant.
+
+We will now firstly show that there is a way to get the polynomial $f_k$ given that the degree of $f_k$ is less than $N$ for all variables in $f_k$. This is done by assigning
+\begin{equation}\label{Eq: Theory,general polynomial}
+  f_k = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}k^{i_1}\prod_{j=2}^m v_j^{i_j}\Big),
+\end{equation}
+where $m$ is the number of variables in $f_k$, the variables of $f_k$ are named $v_j$ for $1\leq j\leq m$ where $v_1=k$, $a_\vec{i}$ are the coefficients and $\vec{i}=(i_2,i_3,\ldots,i_m)$ goes through all combinations of degrees in the range $0\leq deg(v_j)=i_j\leq N$ for all the different variables. The number $i_1$ is the exponent of $k$ and also goes through all the values for in the range $0\leq i_1\leq N$. This exponent is treaded slightly different just because it is the exponent of $k$.
+
+Then from this we can derive what the polynomial $f_{k-1}$ is. First we write the polynomial $f_{k-1}$ on the same form as in \ref{Eq: Theory,general polynomial} but with other coefficients:
+\begin{equation}\label{Eq: Theory,general polynomial k-1}
+  f_{k-1} = \sum_{\vec{i}\in (0,1,\ldots,N)^m} \Big(b_\vec{i,i_1}k^{i_1}\prod_{j=2}^m v_j^{i_j}\Big).
+\end{equation}
+Now we will derive the expression for $b_{\vec{i},i_1}$ in terms of $a_{\vec{i},i_1}$. If we replace $k$ by $k-1$ in \ref{Eq: Theory,general polynomial} we get
+\begin{equation}\label{Eq: Theory,general polynomial}
+  \begin{split}
+    f_k & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}(k-1)^{i_1}\prod_{j=2}^m v_j^{i_j}\Big) = \\
+    & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}\Bigg(\sum_{u=0}^{i_1} \binom{i_1}{u}k^u (-1)^{i_1-u}\Bigg)\prod_{j=2}^m v_j^{i_j}\Big)
+  \end{split}
+\end{equation}
 
 \section{Polynomials}
 
