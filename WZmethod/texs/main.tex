@@ -8,10 +8,20 @@
 \usepackage{graphicx}
 \usepackage[colorinlistoftodos]{todonotes}
 
+%To write pseudo code
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\newcommand{\inp}[1]{\hspace*{\algorithmicindent}\textbf{Input:} #1\\}
+\newcommand{\outp}[1]{\hspace*{\algorithmicindent}\textbf{Output:} #1\\}
+\let\oldforall\forall
+\renewcommand{\forall}{\hspace*{2mm}\oldforall}
+
 %\newcommand{\vect}[1]{\boldsymbol{#1}}
 %Bold vector: \vec{x}
 %\usepackage{amsbsy}
 \renewcommand{\vec}[1]{\mathbf{#1}}
+%BigO
+%\renewcommand{\bigO}[0]{\mathcal{O}}
 
 %To get numbered subsections
 \setcounter{secnumdepth}{5}
@@ -48,22 +58,22 @@
 
 \tableofcontents
 
-\chapter{Introduction}
+\chapter{Introduction}\label{Ch: Introduction}
 \include{texs/introduction}
 
-\chapter{Background}
+\chapter{Background}\label{Ch: Background}
 \include{texs/background}
 
-\chapter{Theory}
+\chapter{Theory}\label{Ch: Theory}
 \input{texs/theory}
 
-\chapter{Implementation}
+\chapter{Implementation}\label{Ch: Implementation}
 \input{texs/implementation}
 
-\chapter{Results}
+\chapter{Results}\label{Ch: Results}
 \input{texs/results}
 
-\chapter{Discussion and conclusions}
+\chapter{Discussion and conclusions}\label{Ch: Discussion and conclusions}
 \input{texs/discussion}
 
 %\bibliography{mybib.bib}{}

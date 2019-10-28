@@ -1,3 +1,116 @@
+\section{Polynomials}
+In the thesis we are continuously discussing polynomials. We are always using polynomials with integer coefficients -- which we also generalize to include rational coefficients by looking at fractions of polynomials with integer coefficients. Therefore, from now on whenever we talk about polynomials they are assumed to have integer coefficients as long as otherwise is not stated.
+
+We will now have a discussion on what operations we want to be able to perform on the polynomials both theoreticly and partly implementation wise. Therefore there will not be a specific subchapter regarding polynomials later on in chapter \ref{Ch: Implementation}. But first we need to describe how a polynomial can be implemented and stored in the code -- and this is how it was implemented in this thesis.
+
+A polynomial, say $p(n)$, can be seen as a list of coefficients $[a_0,a_1,\ldots,a_d]$. This represents the polynomial
+\begin{equation}\label{Eq: Theory,polynomials,general polynomial}
+  p(n) = a_0+a_1 n + \ldots + a_d n^d.
+\end{equation}
+This is fairly simple if the polynomial only has one variable. As soon as we introduce polynomials with more than one variable -- which is the case in all examples where Wilf-Zeilbergers method is used -- it gets a bit more complicated. The way we will visualize polynomials of more than one variable is to try to keep the very same structure as in \ref{Eq: Theory,polynomials,general polynomial}, namely we store a polynomial $p(n)$ as a list of coefficients $[a_0,a_1,\ldots,a_d]$, but instead of having $a_i$ just representing integers they are instead themselves polynomials. In order to show how this can be done, lets show an example.
+\begin{example}\label{Ex: polynomial, recursive}
+  Lets look at the polynomial
+  \begin{equation*}
+    \begin{split}
+      p(k,m,n) = &1+3n+2n^2-m-2mn-2mn^2+3m^2+3m^2n+3m^2n^2+\\
+      &3k-3kn+2kn^2+km-2kmn-km^2+2k^2-k^2n-k^2n^2+\\
+      &3k^2m-3k^2mn-2k^2mn^2-3k^2m^2-k^2m^2n-3k^2m^2n^2.
+    \end{split}
+  \end{equation*}
+  This will be stored as
+  \begin{equation*}
+    \begin{split}
+      p(k,m,n) = & -((3k^2+3k-3)m^2-(2k+1)m-(3k^2-k+3))n^2+\\
+      &((k^2-1)m^2-(k^2-2k+2)m-(2k+2))n+\\
+      &((2k^2+2)m^2+(2k-1)m+(k^2-k-3))
+    \end{split}
+  \end{equation*}
+  Note that this can be written as
+  \begin{equation*}
+    p(k,m,n) = p_2(k,m)n^2+p_1(k,m)n+p_0,
+  \end{equation*}
+  where
+  \begin{equation*}
+    \begin{split}
+      p_0(k,m) &= ((2k^2+2)m^2+(2k-1)m+(k^2-k-3))\\
+      p_1(k,m) &= ((k^2-1)m^2-(k^2-2k+2)m-(2k+2))\\
+      p_2(k,m) &= -((3k^2+3k-3)m^2-(2k+1)m-(3k^2-k+3)).
+    \end{split}
+  \end{equation*}
+  Now since our definition of polynomials is recursive, each of $p_0(k,m),p_1(k,m),p_2(k,m)$ is written as $q_2(k)m^2+q_1(k)m+q_0(k)$ for polynomials $q_0,q_1,q_2$. For instance for $p_1$ we have
+  \begin{equation*}
+    p_1(k,m) = q_2(k)m^2+q_1(k)m+q_0(k),
+  \end{equation*}
+  where
+  \begin{equation*}
+    \begin{split}
+      q_0(k) & = -(2k+2) \\
+      q_1(k) & = -(k^2-2k+2) \\
+      q_2(k) & = (k^2-1)
+    \end{split}
+  \end{equation*}
+  Lastly we have the polynomials $q_0,q_1,q_2$ which have integers as coefficients.
+\end{example}
+As we saw in example \ref{Ex: polynomial, recursive} we define all polynomials as in equation \ref{Eq: Theory,polynomials,general polynomial} where the coefficients $a_i$ are polynomials or integers, where it is only integers in the base case.
+
+Note that in this case we wrote the polynomial with $n$ ''outmost'' in the representation of $p$. There was no specific reason for this, and the choice is not very important when only looking at one polynomial at a time. When we are using several polynomials at the same time, for instance if we want to add two polynomials, the structure is crucial. Therefore we will define some concepts regarding the representation of a polynomial.
+
+\begin{definition}
+  A polynomial $p$ is said to have the variable order $\vec{x}=(x_1,x_2,\ldots,x_m)$ if it is stored as
+  \begin{equation}
+    p(\vec{x}) = \sum_{i_1=0}^{d_1}\Bigg(\sum_{i_2=0}^{d_2}\Big(\sum_{i_3=0}^{d_3}\ldots\Big)x_2^{i_2}\Bigg)x_1^{i_1}.
+  \end{equation}
+  Note that the same polynomial can be expressed in various different ways, and we say that two variable orders, $\vec{x}$ and $\vec{y}$, are different if $|\vec{x}|\neq|\vec{y}|$ (where $|\vec{z}|$ denotes the length of the vector $\vec{z}$) or there exist an integer $i$ such that $x_i\neq y_i$.
+\end{definition}
+\begin{remark}
+  Note that if the polynomial $p$ has variable order $\vec{x}$ such that $|\vec{x}|=1$, then the coefficients of $p$ are integers.
+\end{remark}
+
+Here we can note that $d_i$ is the degree of $p$ with respect to $x_i$. Furthermore we note that we can express a polynomial $p$ with the variable order $\vec{x}=(x_1,\ldots,x_m)$ even though $p$ does not have all the variables $x_j$ in its expression. If $p$ does not depend on $x_j$ that will be seen in that $d_j=0$. A polynomial $p$ cannot, however, be expressed with the variable order $\vec{x}$ if not all its variables are in $\vec{x}$. A last note is that we can convert a polynomial $p$ with variable order $\vec{x}$ to any variable order $\vec{y}$ as long as $x_i\in\vec{y} \forall x_i\in\vec{x}$.
+
+There are of course many operations that are needed when operating with polynomials; addition, subtraction, multiplication, division, modulo, gcd, checking for equality, finding roots and evaluating at a point. In the implementation all of them are defined recursively. We will show how this is done for all the most straight forward operations here, while the more complicated operations -- division, modulo and gcd -- are described later in section \ref{Ch: div,mod,gcd}.
+
+First we define how we write that a polynomial is constructed:
+\begin{definition}
+  When we construct a polynomial $p$ of a variable $x$ then we write this as
+  \begin{equation}
+    p = polynomial(\vec{a},"x"),
+  \end{equation}
+  where $\vec{a}=(a_0,a_1,\ldots,a_d)$. This means that
+  \begin{equation}
+    p(x) = a_0 + a_1 x + \ldots + a_d x^d.
+  \end{equation}
+  Note that we have not specified what $a_i$ are; they can be either integers or polynomials -- but if they are polynomials they have to have the same variable order. Also note that once we have the polynomial $p$ we will use the notation $p[i]$ to reference the $i$-th variable, namely $a_i$. If we reference $p[j]$ where $j\ge d$, then this is defined as $p[j]=0 \forall j\ge d$.
+\end{definition}
+
+We also define the degree of a polynomial:
+\begin{definition}
+  Let the polynomial $p$ have variable order $\vec{x}=(x_1,\ldots,x_m)$. Then we define the degree of $p$, denoted $deg(p)$, as the largest exponent of $x_1$ in the expression for $p$.
+\end{definition}
+
+For all the operations we will use two polynomials $f$ and $g$. These are polynomials of at least the variable $k$, but can also be of other variables as well. We will now provide procedures that show how all the previously mentioned operations should work. Note that the procedures are assuming that the polynomials are on the same form, meaning that they assume the polynomials are of the same variables in the same order.
+
+\begin{algorithm}
+  \caption{Addition}
+  \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
+  \outp{Polynomial $h$ such that $h=f+g$}
+  \begin{algorithmic}[1]
+    \Procedure{Add}{$f,g$}
+      \If{$|\vec{x}|=1$}
+        \State $a\gets [ ]$
+        \For{$i\gets 0,\ldots,max(deg(f),deg(g))$}
+          \State $a[i]\gets f[i]+g[i]$
+        \EndFor
+      \Else
+
+      \EndIf
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{Division, modulo and GCD}\label{Ch: div,mod,gcd}
+
+
 \section{Wilf-Zeilberger's method}
 Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The methodology in the proof  is that assume we want to prove %~\cite{gf}
 \begin{equation}\label{Eq: Theory,PS}
@@ -233,48 +346,66 @@ where $m$ is the number of variables in $f_k$, the variables of $f_k$ are named 
 
 Then from this we can derive what the polynomial $f_{k-1}$ is. First we write the polynomial $f_{k-1}$ on the same form as in \ref{Eq: Theory,general polynomial} but with other coefficients:
 \begin{equation}\label{Eq: Theory,general polynomial k-1}
-  f_{k-1} = \sum_{\vec{i}\in (0,1,\ldots,N)^m} \Big(b_\vec{i,i_1}k^{i_1}\prod_{j=2}^m v_j^{i_j}\Big).
+  f_{k-1} = \sum_{\vec{i}\in (0,1,\ldots,N)^m} \Big(b_{\vec{i},i_1}k^{i_1}\prod_{j=2}^m v_j^{i_j}\Big).
 \end{equation}
 Now we will derive the expression for $b_{\vec{i},i_1}$ in terms of $a_{\vec{i},i_1}$. If we replace $k$ by $k-1$ in \ref{Eq: Theory,general polynomial} we get
-\begin{equation}\label{Eq: Theory,general polynomial}
+\begin{equation}\label{Eq: Theory,general polynomial k-1 plugged in}
   \begin{split}
     f_k & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}(k-1)^{i_1}\prod_{j=2}^m v_j^{i_j}\Big) = \\
-    & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}\Bigg(\sum_{u=0}^{i_1} \binom{i_1}{u}k^u (-1)^{i_1-u}\Bigg)\prod_{j=2}^m v_j^{i_j}\Big)
+    & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}\Bigg(\sum_{u=0}^{i_1} \binom{i_1}{u}k^u (-1)^{i_1-u}\Bigg)\prod_{j=2}^m v_j^{i_j}\Big) = \\
+    & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Bigg(\sum_{u=0}^{i_1} a_{\vec{i},i_1}\binom{i_1}{u}(-1)^{i_1-u}k^u\Bigg) \prod_{j=2}^m v_j^{i_j}
   \end{split}
 \end{equation}
+Now we can see that the term $k^{i_1^\prime}\prod_{j=2}^m v_j^{i_j}$ from \ref{Eq: Theory,general polynomial k-1} ($i_1^\prime$ denotes a specific $i_1$) appears in \ref{Eq: Theory,general polynomial k-1 plugged in} in several places -- namely when $i_1\in\{i_1^\prime,i_1^\prime+1,\ldots,N\}$. This means that we get
+\begin{equation}\label{Eq: Theory,fk-1 coefficients}
+  b_{\vec{i},i_1} = \sum_{s=i_1}^N a_{\vec{i},s}\binom{s}{i_1}(-1)^{s-i_1}
+\end{equation}
+Now we have all the background we need in order to set up the system of equations and then solve for $a_{\vec{i},i_1}$. This is done by noticing that the left and right hand sides of the equation
+\begin{equation}\label{Eq: Theory,f equation}
+  p_k=q_{k+1}f_k - r_k f_{k-1}
+\end{equation}
+In order to ease the formulation of the equation system, let $\vec{\hat{i}}=(\vec{i},i_1)$, let $\ll$ denote that a vector is pointwise smaller than or equal to e.g. $(1,2,3)\ll(2,3,3)$ and let $\vec{i}-\vec{j}$ denote the pointwise difference between $\vec{i}$ and $\vec{j}$, e.g. $(2,3,3)-(1,2,3)=(1,1,0)$. Finally we also denote the coefficients in front of $k^{i_1}\prod_{j=2}^N v_j^{i_j}$ in the polynomials $p_k, q_{k+1}, r_k$ by $r_\vec{\hat{i}}, q_\vec{\hat{i}}, r_\vec{\hat{i}}$, respectively. This gives us that
+\begin{equation}\label{Eq: Theory,equation system1}
+  p_\vec{\hat{i}} = \sum_{\substack{\vec{\hat{j}}\\\vec{\hat{j}}\ll\vec{\hat{i}}\\\vec{\hat{j^\prime}}=\vec{\hat{i}}-\vec{\hat{j}}}} a_{\vec{\hat{j}}}q_{\vec{\hat{j^\prime}}} - \sum_{\substack{\vec{\hat{j}}\\\vec{\hat{j}}\ll\vec{\hat{i}}\\\vec{\hat{j^\prime}}=\vec{\hat{i}}-\vec{\hat{j}}}} b_{\vec{\hat{j}}}r_{\vec{\hat{j^\prime}}},
+\end{equation}
+where $b_{\vec{\hat{j}}}$ is given by \ref{Eq: Theory,fk-1 coefficients}. Note that at this point in the algorithm all the numbers $p_\vec{\hat{i}},q_\vec{\hat{i}},r_\vec{\hat{i}}$ are simply constants. This means that we can formulate a system of equations
+\begin{equation}\label{Eq: Theory,equation system2}
+  Ma=P,
+\end{equation}
+where $M$ is the matrix that is given by the right hand side of \ref{Eq: Theory,equation system1}, $a$ consists of all coefficients $a_{\vec{\hat{j}}}$ and $P$ is the left hand side of \ref{Eq: Theory,equation system1}. Note that each row in this system of equations correspond to a different $\vec{\hat{i}}$. Here we go through all $\vec{\hat{i}}$ that are relevant -- meaning all $\vec{\hat{i}}$ with degree smaller than what either of the sides of equation \ref{Eq: Theory,equation system1} can have. This means that we have an overdetermined system of equations. Furthermore we demand that all the coefficients of $f_k$ have to be integers. This means that it is not certain that we will get a solution, but in case we do we have found $f_k$. If we do not get a solution that can be because of two different reasons:
+\begin{enumerate}[i)]
+  \item We chose a too small maximal degree $N$ for the polynomial $f_k$.
+  \item There does not exist a solution, hence the identity cannot be shown by Wilf-Zeilbergers method.
+\end{enumerate}
+In the paper by Gosper (1978) the first reason for not finding a $f_k$ does not exists, since the paper proves an upper limit on the degree of $f_k$ with respect to $k$. This cannot be done for other variables, for instance with $p_k=q_{k+1}=r_k=1$ any polynomial $f_k$ on the form $f_k=n^c+k$ satisfies \ref{Eq: Theory,f equation}. \todo[inline]{Is it possible to show if there exists a solution there exist one with limited degree}
 
-\section{Polynomials}
+In the system \ref{Eq: Theory,equation system2}, $M$ can be constructed to have dimension $L\times (N^m)$, where $L=max(deg(p_k)+1,max(deg(q_{k+1}),deg(r_k))+N+1)$. Here $deg(g)$ denotes the largest degree in any variable of the polynomial $g$. The reason for this limit is that the row with highest degree for any variable can be chosen to be $L$, since the degree of either side of the equation \ref{Eq: Theory,equation system1} is at most $L$.
 
-\subsection{Division, modulo and GCD}
+The time complexity for this system of equations is $\mathcal{O}(L\cdot N^{2m})$, since we perform the following algorithm:
+\begin{algorithm}
+  \caption{Gaussian Elimination}
+  \inp{Matrix $M$, vector $P$}
+  \outp{Vector $x$ such that $Mx=P$}
+  \begin{algorithmic}[1]
+    \Procedure{GaussianElimination}{$M,P$}
+      \State $r\gets \text{Number of rows in M}$
+      \State $c\gets \text{Number of columns in M}$
+      \For{$row\gets1,\ldots,c$}
+        \State $i\gets $ first row with row number $\geq row $ and $M[i][c]\neq 0$
+        \If{No such $i$ exists}
+          \State Continue loop
+        \EndIf
+        \State $swap(M[row],M[i])$ \label{Extra linear term, start}
+        \State $swap(P[row],P[i])$
+        \For{$row_2\gets row+1,\ldots,L$}
+          \State $g\gets gcd(M[row][c],M[row_2][c])$
+          \State $M[row_2] \gets M[row_2]\cdot M[row][c]/g - M[row]\cdot M[row_2][c]/g$
+          \State $P[row_2] \gets P[row_2]\cdot M[row][c]/g - P[row]\cdot M[row_2][c]/g$ \label{Extra linear term, end}
+        \EndFor
+      \EndFor
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+Here we can clearly see that we have two loops, which are of size $c=N^m$ and $r=L$, respectively. The reason for the last $N^m$-factor is that when we perform row \ref{Extra linear term, start}--\ref{Extra linear term, end} we do this elementwise, hence once for each column.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-l
+This means that the time complexity is exponential in the number of variables. In general exponential time complexities are not desired at all -- since they grow very fast. In this thesis however we are working with identities that just involve a few (less than 5) different variables. Therefore this time complexity is acceptable. This means that given that given the limit on $m$ we have a polynomial time complexity for obtaining $f_k$.

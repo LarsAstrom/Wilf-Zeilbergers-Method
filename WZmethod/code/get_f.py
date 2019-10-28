@@ -2,6 +2,7 @@ from collections import defaultdict
 from gaussianelemination import *
 from polynomial_general import *
 from gosper import *
+from random import randint as RI
 
 def polynomial2dict(p,variables=None):
     if variables != None:
@@ -42,6 +43,7 @@ def dict2polynomial(d,v):
         out2.append(')')
         out.append(''.join(map(str,out2)))
     s = '+'.join(out)
+    print(s)
     return parse(s)
 
 def fac(n):
@@ -239,3 +241,10 @@ if __name__ == '__main__':
             print('DOES NOT WORK')
             print('==============================')
         '''
+
+    d = {}
+    for k in range(3):
+        for m in range(3):
+            for n in range(3):
+                d[(k,m,n)] = RI(-3,3)
+    dict2polynomial(d,['k','m','n']).PRINT()
