@@ -14,7 +14,8 @@
 \newcommand{\inp}[1]{\hspace*{\algorithmicindent}\textbf{Input:} #1\\}
 \newcommand{\outp}[1]{\hspace*{\algorithmicindent}\textbf{Output:} #1\\}
 \let\oldforall\forall
-\renewcommand{\forall}{\hspace*{2mm}\oldforall}
+\renewcommand{\forall}{\hspace*{2mm}\oldforall\hspace*{1mm}}
+\newcommand{\emptyvec}{[\hspace*{1mm}]}
 
 %\newcommand{\vect}[1]{\boldsymbol{#1}}
 %Bold vector: \vec{x}
@@ -37,6 +38,7 @@
 \newtheorem{example}{Example}[chapter]
 \newtheorem*{solution}{Solution}
 \newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
 \newtheorem{definition}{Definition}[chapter]
 \newtheorem*{remark}{Remark}
 

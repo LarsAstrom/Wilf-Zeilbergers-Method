@@ -63,12 +63,15 @@ Note that in this case we wrote the polynomial with $n$ ''outmost'' in the repre
   Note that the same polynomial can be expressed in various different ways, and we say that two variable orders, $\vec{x}$ and $\vec{y}$, are different if $|\vec{x}|\neq|\vec{y}|$ (where $|\vec{z}|$ denotes the length of the vector $\vec{z}$) or there exist an integer $i$ such that $x_i\neq y_i$.
 \end{definition}
 \begin{remark}
+  If the polynomial $p$ has variable order $\vec{x}=(x_1,x_2,\ldots,x_m)$, then the coefficients of $p$ have variable order $\vec{x^\prime}=(x_2,\ldots,x_m)$.
+\end{remark}
+\begin{remark}
   Note that if the polynomial $p$ has variable order $\vec{x}$ such that $|\vec{x}|=1$, then the coefficients of $p$ are integers.
 \end{remark}
 
 Here we can note that $d_i$ is the degree of $p$ with respect to $x_i$. Furthermore we note that we can express a polynomial $p$ with the variable order $\vec{x}=(x_1,\ldots,x_m)$ even though $p$ does not have all the variables $x_j$ in its expression. If $p$ does not depend on $x_j$ that will be seen in that $d_j=0$. A polynomial $p$ cannot, however, be expressed with the variable order $\vec{x}$ if not all its variables are in $\vec{x}$. A last note is that we can convert a polynomial $p$ with variable order $\vec{x}$ to any variable order $\vec{y}$ as long as $x_i\in\vec{y} \forall x_i\in\vec{x}$.
 
-There are of course many operations that are needed when operating with polynomials; addition, subtraction, multiplication, division, modulo, gcd, checking for equality, finding roots and evaluating at a point. In the implementation all of them are defined recursively. We will show how this is done for all the most straight forward operations here, while the more complicated operations -- division, modulo and gcd -- are described later in section \ref{Ch: div,mod,gcd}.
+There are of course many operations that are needed when operating with polynomials; addition, negate, subtraction, multiplication, division, modulo, gcd (greatest common divisor), checking for equality, finding roots and evaluating at a point. In the implementation all of them are defined recursively. We will show how this is done for all the most straight forward operations here, while the more complicated operations -- division, modulo and gcd -- are described later in section \ref{Ch: div,mod,gcd}.
 
 First we define how we write that a polynomial is constructed:
 \begin{definition}
@@ -88,31 +91,352 @@ We also define the degree of a polynomial:
   Let the polynomial $p$ have variable order $\vec{x}=(x_1,\ldots,x_m)$. Then we define the degree of $p$, denoted $deg(p)$, as the largest exponent of $x_1$ in the expression for $p$.
 \end{definition}
 
-For all the operations we will use two polynomials $f$ and $g$. These are polynomials of at least the variable $k$, but can also be of other variables as well. We will now provide procedures that show how all the previously mentioned operations should work. Note that the procedures are assuming that the polynomials are on the same form, meaning that they assume the polynomials are of the same variables in the same order.
+For all the operations we will use two polynomials $f$ and $g$. These are polynomials with the variable order $\vec{x}$. We will now provide procedures that show how all the previously mentioned operations should work. Note that the procedures are assuming that the polynomials have the same variable order, if this is not the case then the polynomials first are converted into a common variable order.
 
-\begin{algorithm}
+All the procedures try to follow the same structure, which is quite recursive. All procedures have a base case, usually when $|\vec{x}|=1$, and in all other cases recursive calls are made. A note to be made here is that recursive calls are not computationally heavy in theory but might take time if many are made, especially if the depth is large, in practice. In this thesis however, the depth is very small -- usually less than 5 -- since the depth comes from the number of variables in the polynomials. Therefore the recursion is not expected to cause any problems computationally.
+
+\begin{algorithm}[H]
   \caption{Addition}
   \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
   \outp{Polynomial $h$ such that $h=f+g$}
   \begin{algorithmic}[1]
     \Procedure{Add}{$f,g$}
-      \If{$|\vec{x}|=1$}
-        \State $a\gets [ ]$
-        \For{$i\gets 0,\ldots,max(deg(f),deg(g))$}
-          \State $a[i]\gets f[i]+g[i]$
-        \EndFor
-      \Else
+      \State $\vec{a}\gets \emptyvec$
+      \For{$i\gets 0,\ldots,max(deg(f),deg(g))$}
+        \If{$|\vec{x}|=1$}
+          \State $\vec{a}[i]\gets f[i]+g[i]$
+        \Else
+          \State $\vec{a}[i]\gets$ \Call{Add}{$f[i],g[i]$}
+        \EndIf
+      \EndFor
+      \State \Return $polynomial(\vec{a},\vec{x}[0])$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
 
+\begin{algorithm}[H]
+  \caption{Negatation}
+  \inp{Polynomial $f$ with variable order $\vec{x}$}
+  \outp{Polynomial $h$ such that $h=-f$}
+  \begin{algorithmic}[1]
+    \Procedure{Negate}{$f$}
+      \State $\vec{a}\gets \emptyvec$
+      \For{$i\gets 0,\ldots,deg(f)$}
+        \If{$|\vec{x}|=1$}
+          \State $\vec{a}[i]\gets -f[i]$
+        \Else
+          \State $\vec{a}[i]\gets$ \Call{Negate}{$f[i]$}
+        \EndIf
+      \EndFor
+      \State \Return $polynomial(\vec{a},\vec{x}[0])$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \caption{Subtraction}
+  \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
+  \outp{Polynomial $h$ such that $h=f-g$}
+  \begin{algorithmic}[1]
+    \Procedure{Subtract}{$f,g$}
+      \State $g^\prime\gets$ \Call{Negate}{$g$}
+      \State \Return \Call{Add}{$f,g^\prime$}
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \caption{Multiplication}
+  \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
+  \outp{Polynomial $h$ such that $h=f\cdot g$}
+  \begin{algorithmic}[1]
+    \Procedure{Multiply}{$f,g$}
+      \State $\vec{a}\gets \emptyvec$
+      \For{$i\gets 0,\ldots,deg(f)+deg(g)$}
+        \State $\vec{a}[i]\gets 0$
+      \EndFor
+      \For{$i\gets 0,\ldots,deg(f)$}
+        \For{$j\gets 0,\ldots,deg(g)$}
+          \If{$|\vec{x}|=1$}
+            \State $\vec{a}[i+j]\gets \vec{a}[i+j] + f[i]\cdot g[j]$
+          \Else
+            \State $y_{i,j}\gets$ \Call{Multiply}{$f[i],g[j]$}
+            \State $\vec{a}[i+j]\gets$ \Call{Add}{$\vec{a}[i+j],y_{i,j}$}
+          \EndIf
+        \EndFor
+      \EndFor
+      \State \Return $polynomial(\vec{a},\vec{x}[0])$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \caption{Equality}
+  \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
+  \outp{$True$ if $f$ and $g$ are equal, otherwise $False$}
+  \begin{algorithmic}[1]
+    \Procedure{Equals}{$f,g$}
+      \If{$deg(f)\neq deg(g)$}
+        \State \Return $False$
+      \EndIf
+      \For{$i\gets 0,\ldots,deg(f)$}
+        \If{$|\vec{x}|=1$ AND $f[i]\neq g[i]$}
+          \State \Return $False$
+        \ElsIf{$|\vec{x}|>1$ AND $not$ \Call{Equals}{$f[i],g[i]$}}
+          \State \Return $False$
+        \EndIf
+      \EndFor
+      \State \Return $True$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \caption{Evaluating at a point}
+  \inp{Polynomials $f$, with variable order $\vec{x}$, variable $v\in\vec{x}$ and value $y$}
+  \outp{Polynomial $h$ that is $f$ evaluated at $v=y$}
+  \begin{algorithmic}[1]
+    \Procedure{Evaluate}{$f,v,y$}
+      \If{$\vec{x}[0]=v$}
+        \State $g\gets f[0]$
+        \For{$i\gets 1,\ldots,deg(f)$}
+          \State $h\gets$ \Call{Multiply}{$f[i],y^i$}
+          \State $g\gets$ \Call{Add}{$g,h$}
+        \EndFor
+        \State \Return $g$
+      \Else
+        \State $\vec{a}\gets\emptyvec$
+        \For{$i\gets 0,\ldots,deg(f)$}
+          \State $\vec{a}[i]\gets$ \Call{Evaluate}{$f[i],v,y$}
+        \EndFor
+        \State \Return $polynomial(\vec{a},\vec{x}[0])$
+      \EndIf
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+The next procedure is used to find roots of a polynomial. Here if the polynomial is only dependent on one variable, meaning $|\vec{x}|=1$, then we solve this equation (we call this function $SolveEquation$). In the implementation of the program only solving equations up to degree 2 is implemented, but the program also tries to insert values in the range $(-100,100)$ and sees if any of these are roots. We do not include the procedure for $SolveEquation$ in the report, since it is just solving a second degree equation and additionally trying a bunch of different small values.
+\begin{algorithm}[H]
+  \caption{Finding roots}
+  \inp{Polynomial $f$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
+  \outp{Integers $x^\prime$ such that $x_m=x^\prime \implies f=0$}
+  \begin{algorithmic}[1]
+    \Procedure{Roots}{$f$}
+      \If{$|\vec{x}|=1$}
+        \State \Return \Call{SolveEquation}{$f$}
+      \Else
+        \State $\vec{a}\gets \Call{Roots}{f[0]}$
+        \For{$i\gets 1,\ldots,deg(f)$}
+          \State $\vec{b}\gets \emptyvec$
+          \ForAll{$a^\prime\in \vec{a}$}
+            \If{\Call{Evaluate}{$f[i],x_m,a^\prime$}=0}
+              \State $\vec{b}[size(\vec{b})]\gets a^\prime$
+            \EndIf
+          \EndFor
+          \State $\vec{a}\gets \vec{b}$
+        \EndFor
+        \State \Return $\vec{a}$
       \EndIf
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
 
 \subsection{Division, modulo and GCD}\label{Ch: div,mod,gcd}
+Now we come to the slightly more complicated operations that we need to perform on polynomials. First we define GCD for polynomials a bit more carefully, which we do in a few steps.
+\begin{definition}\label{Def: divide}
+  A polynomial $g$ is said to divide another polynomial $a$ if there exists a polynomial $q$ such that $a=g\cdot q$. We will use the notation $g|a$ to denote that $g$ divides $a$.
+\end{definition}
+\begin{definition}\label{Def: common divisor}
+  A polynomial $g$ is called a \textit{common divisor} to two polynomials $a$ and $b$ if $g|a$ and $g|b$.
+\end{definition}
+\begin{definition}\label{Def: greatest common divisor}
+  We say that a polynomial $g$ is the \textit{greatest common divisor} (GCD) to two polynomials if
+  \begin{enumerate}
+    \item $g$ is a common divisor to $a$ and $b$
+    \item For all common divisors $g^\prime$ to $a$ and $b$ we have that $g^\prime|g$.
+  \end{enumerate}
+\end{definition}
+In general performing division, modulo and gcd is fairly straight forward even on polynomials. Usually one might have the following structure on the implementation:
+\begin{equation}\label{Eq: Theory,standard divide}
+  DIVIDE(a,b) \rightarrow (q,r) \text{ such that } a=b\cdot q + r, deg(r) < deg(b),
+\end{equation}
+\begin{equation}
+  MODULO(a,b) \rightarrow r \text{ where } DIVIDE(a,b) = (q,r),
+\end{equation}
+\begin{equation}\label{Eq: Theory,standard gcd}
+  GCD(a,b) \rightarrow a \text{ if } b=0 \text{ otherwise } GCD(b,MODULO(a,b)),
+\end{equation}
+where $\rightarrow$ indicates what the function returns.
 
+This implementation scheme is fairly straight forward, even though the divide function might be a bit messy. The problem we encounter in this thesis though, is that we cannot necessarily find polynomials $q,r$ such that \ref{Eq: Theory,standard divide} is satisfied. The reason for this is that we are working with integer coefficients and not in a ring. In order to show the problems we encounter we will use a common example throughout this section to show what the problem is and how we solve it.
+\begin{example}
+  Consider dividing $a(x)=x^2+2x+1$ by $b(x)=2x$. Assume we have $q,r$ that fulfill \ref{Eq: Theory,standard divide}. Then we need to have $deg(r)<deg(b)=deg(2x)=1$. This means that $r(x)=c$, where $c$ is an integer constant. This gives us
+  \begin{equation}\label{Eq: poly,divide,ex1}
+    x^2+2x+1=(2x)q(x)+c.
+  \end{equation}
+  Furthermore we have that $deg(\text{Left hand side})=2$, hence $deg(q)=1$. Let $q(x)=c_0+c_1x$, then \ref{Eq: poly,divide,ex1} becomes
+  \begin{equation}
+    x^2+2x+1=(2x)(c_1x+c_0)+c=2c_1x^2+2c_0x+c.
+  \end{equation}
+  By looking at degree 2 we get $2c_1=1$, which of course does not have any solutions for integers $c_1$.
+\end{example}
+
+The way we solve this is to instead of giving two polynomials $q,r$ when we divide $a$ by $b$ we also give a third parameter, $f$, which is a factor of the same type as the coefficients in $a$ and $b$. The condition that needs to be fulfilled is
+\begin{equation}\label{Eq: Theory,divide condition}
+  DIVIDE(a,b) \rightarrow (q,r,f) \text{ such that } f\cdot a=b\cdot q + r, deg(r) < deg(b).
+\end{equation}
+Now we will show that it actually is possible to find $q,r,f$ such that \ref{Eq: Theory,divide condition} holds.
+\begin{theorem}
+  Let $a(x_1),b(x_1)$ be polynomials of the same variable order $\vec{x}=(x_1,\ldots,x_m)$. Then it is possible to find polynomials $q,r,f$, where $q,r$ have variable order $\vec{x}$ and $f$ has variable order $\vec{x^\prime}=(x_2,\ldots,x_m)$, such that
+  \begin{equation}\label{Eq: Theory,theorem,divide}
+    f\cdot a(x_1)=q(x_1)b(x_1) + r(x_1),
+  \end{equation}
+  and $deg(r)<deg(b)$.
+\end{theorem}
+\begin{proof}
+  Let $a=a_0+a_1x_1+\ldots+a_cx_1^c$ and $b=b_0+b_1x_1+\ldots+b_dx_1^d$, where $c,d$ are the degrees of $a$ and $b$, respectively. If $c<d$ then we can use $q=0, r=a, f=1$ and we have that \ref{Eq: Theory,theorem,divide} is fulfilled.
+
+  Now assume that $c\geq d$. We will now show that we can find $a^\prime,q_0,f_0$ such that
+  \begin{equation}
+    f_0a(x_1) = q_0(x_1)b(x_1) + a^\prime(x_1).
+  \end{equation}
+  This is obtained by choosing $f_0=b_d, q_0=a_cx^{c-d}$ and $a^\prime(x_1)=b_da(x_1)-a_cx^{c-d}b(x_1)$. This gives us
+  \begin{equation}\label{Eq: Theory,aprime}
+    \begin{split}
+      a^\prime(x_1) & = b_da(x_1)-a_cx^{c-d}b(x_1) = b_d(a_0+\ldots+a_cx^c)-a_cx^{c-d}(b_0+\ldots+b_dx^d) \\
+      & = b_d(a_0+\ldots+a_{c-1}x^{c-1})-a_cx^{c-d}(b_0+\ldots+b_{d-1}x^{d-1})
+    \end{split}
+  \end{equation}
+  Now we can clearly see that $deg(a^\prime)<c$, which means we have reduced the problem by (at least) 1 in the degree of $a$. We continue to do this until the degree of $a$ is less than the degree of $b$, and then we collect the results. If we have that
+  \begin{equation}
+    DIVIDE(a^\prime,b) \rightarrow (q^\prime,r^\prime,f^\prime),
+  \end{equation}
+  then since $a^\prime$ is given by \ref{Eq: Theory,aprime} we get
+  \begin{equation}
+    \begin{split}
+      f^\prime\cdot a^\prime & =q^\prime\cdot b + r^\prime \hspace{2cm}\implies \\
+      f^\prime (b_da-a_cx^{c-d}b) & =q^\prime\cdot b + r^\prime \hspace{2cm} \implies \\
+      (fb_d)a & = (q^\prime + a_cx^{c-d})b + r^\prime,
+    \end{split}
+  \end{equation}
+  and thus we get
+  \begin{equation}
+    DIVIDE(a,b) \rightarrow (q,r,f) = (q^\prime + a_cx^{c-d},r^\prime,fb_d).
+  \end{equation}
+  Now we have shown the theorem, and provided the method for dividing polynomials at once.
+\end{proof}
+\begin{definition}
+  When we divide polynomial $a$ by polynomial $b$ (both having variable order $\vec{x}=(x_1,\ldots,x_m)$) we are given three things:
+  \begin{itemize}
+    \item $q$, a polynomial with variable order $\vec{x}$, which is called the ''quotient'',
+    \item $r$, a polynomial with variable order $\vec{x}$, which is called the ''remainder'',
+    \item $f$, a polynomial with variable order $(x_2,\ldots,x_m)$, which is called the ''factor''.
+  \end{itemize}
+  These polynomials fulfill equation \ref{Eq: Theory,divide condition}.
+\end{definition}
+\begin{remark}
+  One important thing to note is that the definition of how we divide is not unique, if $q,r,f$ are all multiplied by a polynomial $s$ with variable order $(x_2,\ldots,x_m)$ then equation \ref{Eq: Theory,divide condition} will still be fulfilled.
+\end{remark}
+
+Now we have defined division and will soon move over to calculating the greatest common divisor, but first we have a look at what happens to our example.
+\begin{example}
+  Consider dividing $a(x)=x^2+2x+1$ by $b(x)=2x$. Now we see that $q=x+2,r=2,f=2$ gives us a solution where $0=deg(r)<deg(b)=1$.
+\end{example}
+
+We will show a theorem which states how the greatest common divisor is computed, but first we need a little bit of notation.
+\begin{definition}
+  Let $p$ be a polynomial with variable order $\vec{x}=(x_1,\ldots,x_m)$. If we write $p$ as $p(x_1)=p_0+p_1x_1+\ldots p_dx_1^d$, then we denote the greatest common divisor of all the coefficients $p_i, 0\leq i\leq d$ by $gcd_c(p)$.
+\end{definition}
+\begin{theorem}\label{Thm: gcd}
+  Let $g$ denote the greatest common divisor of polynomials $a$ and $b$. Then we can compute this by the following:
+  \begin{enumerate}
+    \item If $b=0$, then $g=a$,
+    \item Otherwise $g$ is given by
+    \begin{equation}\label{Eq: gcd}
+      g=\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b)),
+    \end{equation}
+    where $g^\prime$ is the greatest common divisor of $b$ and $r$, where $r$ is the remainder when $a$ is divided by $b$, which means
+    \begin{equation}
+      DIVIDE(a,b) \rightarrow (q,r,f).
+    \end{equation}
+  \end{enumerate}
+\end{theorem}
+Before we prove theorem \ref{Thm: gcd} we show the reasoning behind why we get this more complicated version of gcd in \ref{Eq: gcd} instead of the much easier version in \ref{Eq: Theory,standard gcd}. We start by showing the example and see what happens if we naïvely using the new division combined with \ref{Eq: Theory,standard gcd}.
+\begin{example}\label{Ex: gcd}
+  Consider computing the greatest common divisor of $a(x)=x^2+2x+1$ and $b(x)=2x$ using \ref{Eq: Theory,standard gcd}.
+  \begin{equation}
+    gcd(x^2+2x+1,2x)=gcd(2x,2)=gcd(2,0)=2,
+  \end{equation}
+  since
+  \begin{equation}
+    \begin{split}
+      DIVIDE(x^2+2x+1,2x) & \rightarrow (q,r,f)=(x+2,2,2) \\
+      DIVIDE(2x,2) & \rightarrow (q,r,f)=(x,0,1).
+    \end{split}
+  \end{equation}
+  But now we see that we have the greatest common divisor being 2, but 2 does not divide $a(x)$. This highlights a problem with using \ref{Eq: Theory,standard gcd} for gcd.
+
+  Now let us consider using \ref{Eq: gcd} instead. This gives us (working backwards in steps)
+  \begin{equation}
+    \begin{split}
+      gcd(2,0) &= 2 \\
+      gcd(2x,2) = \frac{gcd(2,0)}{gcd_c(gcd(2,0))}\cdot gcd(gcd_c(2x),gcd_c(2))= \frac{2}{2}\cdot gcd(2,2) &= 2 \\
+      gcd(x^2+2x+1,2x) =\frac{gcd(2x,2)}{gcd_c(gcd(2x,2))}\cdot gcd(gcd_c(x^2+2x+1),gcd_c(2x)) & = \\ = \frac{2}{2}\cdot gcd(1,2) & = 1.
+    \end{split}
+  \end{equation}
+  Using \ref{Eq: gcd} seems to work on this example. We need, however to prove it in general and to prove it regardless of which $q,r,f$ are used for $DIVIDE(a,b)$.
+\end{example}
+As we saw in example \ref{Ex: gcd} if we try to naïvely use \ref{Eq: Theory,standard gcd} to compute the gcd, but with the new definition of how we divide, then that results in a too large divisor since the factor $f$ allows the divisor to be larger. This can be seen by looking at the formula for dividing $a$ by $b$. We have that
+\begin{equation}\label{Eq: Theory, gcd, explanation}
+  f\cdot a(x_1)=b(x_1)\cdot q(x_1) + r(x_1).
+\end{equation}
+Now the greatest common divisor of $b$ and $r$ will divide the right hand side $f\cdot a(x_1)$ but not necessarily $a(x_1)$. With this insight in mind, we will now prove theorem \ref{Thm: gcd}, but first we need a lemma.
+\begin{lemma}
+  Let $p$ be a polynomial $p(x_1)=p_0+\ldots+p_dx_1^d$ with variable order $\vec{x}=(x_1,\ldots,x_m)$ and $f$ be a polynomial with variable order $(x_2,\ldots,x_m)$ such that $f|p$. Then we have that $f|p_i\forall 0\leq i\leq d$.
+\end{lemma}
+\begin{proof}
+  We know that $f|p$, which is equivalent to $p=fp^\prime$ for some polynomial $p^\prime$. Let $p^\prime=p_0^\prime+\ldots+p_c^\prime x_1^c$. Now first of all, since $f$ does not depend on $x_1$ we have that $deg(p)=deg(p^\prime)=d$. Furthermore we have that
+  \begin{equation}\label{Eq: lemma proof}
+    \begin{split}
+      p_0+p_1x_1+\ldots+p_dx_1^d=p=fp &=f(p_0^\prime+p_1^\prime x_1+\ldots+p_d^\prime x_1^d)= \\
+      &=(fp_0^\prime)+(fp_1^\prime)x_1+\ldots+(fp_d^\prime)x_1^d
+    \end{split}
+  \end{equation}
+  Now by looking at the terms for each degree of $x_1$ in \ref{Eq: lemma proof} we see that
+  \begin{equation}
+    p_i=fp_i^\prime \iff f|p_i, \forall 0\leq i\leq d.
+  \end{equation}
+\end{proof}
+\begin{proof}[Theorem \ref{Thm: gcd}]
+  \todo[inline]{finish it}
+  We done $gcd(b,r)$ by $g^\prime$. This gives us that, since $g^\prime|b$ and $g^\prime|r$, $g^\prime$ divides the left hand side of \ref{Eq: Theory, gcd, explanation}. But since the right hand side is equal to the left hand side, we know that $g^\prime|fa$. This in turns implies that we can factor $g$ into two parts, $g_f,g_a$, such that $g=g_ag_f$, $g_a|a$ and $g_f|f$. But now since $f$ has variable order $(x_2,\ldots,x_m)$ then $g_f$ cannot depend on $x_1$.
+\end{proof}
+Although the procedures of division and gcd are partly already described in the theorems and proofs in this section we will finish this section by formalize the procedures of division and gcd, by providing the pseudocode.
+\todo[inline]{Write algos}
+\begin{algorithm}[H]
+  \caption{Division}
+  \inp{Polynomial $a$ and $b$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
+  \outp{Polynomials $q,r$ with variable order $\vec{x}=(x_1,\ldots,x_m)$ and polynomial $f$ with variable order $\vec{x}=(x_2,\ldots,x_m)$ such that $f\cdot a=q\cdot b + r$ and $deg(r)<deg(b)$}
+  \begin{algorithmic}[1]
+    \Procedure{Divide}{$a,b$}
+
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+\begin{algorithm}[H]
+  \caption{Greatest common divisor}
+  \inp{Polynomial $a$ and $b$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
+  \outp{Polynomial $g$ with variable order $\vec{x}=(x_1,\ldots,x_m)$ such that
+  $g$ is the greatest common divisor of $a$ and $b$}
+  \begin{algorithmic}[1]
+    \Procedure{GCD}{$a,b$}
+
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
 
 \section{Wilf-Zeilberger's method}
-Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The methodology in the proof  is that assume we want to prove %~\cite{gf}
+Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The methodology in the proof is that assume we want to prove %~\cite{gf}
 \begin{equation}\label{Eq: Theory,PS}
   \sum_{k=-\infty}^\infty A(n,k) = B(n).
 \end{equation}
@@ -382,7 +706,7 @@ In the paper by Gosper (1978) the first reason for not finding a $f_k$ does not 
 In the system \ref{Eq: Theory,equation system2}, $M$ can be constructed to have dimension $L\times (N^m)$, where $L=max(deg(p_k)+1,max(deg(q_{k+1}),deg(r_k))+N+1)$. Here $deg(g)$ denotes the largest degree in any variable of the polynomial $g$. The reason for this limit is that the row with highest degree for any variable can be chosen to be $L$, since the degree of either side of the equation \ref{Eq: Theory,equation system1} is at most $L$.
 
 The time complexity for this system of equations is $\mathcal{O}(L\cdot N^{2m})$, since we perform the following algorithm:
-\begin{algorithm}
+\begin{algorithm}[H]
   \caption{Gaussian Elimination}
   \inp{Matrix $M$, vector $P$}
   \outp{Vector $x$ such that $Mx=P$}
@@ -399,13 +723,16 @@ The time complexity for this system of equations is $\mathcal{O}(L\cdot N^{2m})$
         \State $swap(P[row],P[i])$
         \For{$row_2\gets row+1,\ldots,L$}
           \State $g\gets gcd(M[row][c],M[row_2][c])$
-          \State $M[row_2] \gets M[row_2]\cdot M[row][c]/g - M[row]\cdot M[row_2][c]/g$
-          \State $P[row_2] \gets P[row_2]\cdot M[row][c]/g - P[row]\cdot M[row_2][c]/g$ \label{Extra linear term, end}
+          \State $M[row_2] \gets M[row_2]\cdot (M[row][c]/g) - M[row]\cdot (M[row_2][c]/g)$
+          \State $P[row_2] \gets P[row_2]\cdot (M[row][c]/g) - P[row]\cdot (M[row_2][c]/g)$ \label{Extra linear term, end}
         \EndFor
       \EndFor
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+\begin{remark}
+  In the code we multiply a row vector by an integer. This means that we perform elementwise multiplication with this integer.
+\end{remark}
 Here we can clearly see that we have two loops, which are of size $c=N^m$ and $r=L$, respectively. The reason for the last $N^m$-factor is that when we perform row \ref{Extra linear term, start}--\ref{Extra linear term, end} we do this elementwise, hence once for each column.
 
 This means that the time complexity is exponential in the number of variables. In general exponential time complexities are not desired at all -- since they grow very fast. In this thesis however we are working with identities that just involve a few (less than 5) different variables. Therefore this time complexity is acceptable. This means that given that given the limit on $m$ we have a polynomial time complexity for obtaining $f_k$.
