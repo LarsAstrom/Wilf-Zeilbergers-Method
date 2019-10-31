@@ -11,10 +11,13 @@
 %To write pseudo code
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\MakeRobust{\Call}
 \newcommand{\inp}[1]{\hspace*{\algorithmicindent}\textbf{Input:} #1\\}
 \newcommand{\outp}[1]{\hspace*{\algorithmicindent}\textbf{Output:} #1\\}
 \let\oldforall\forall
 \renewcommand{\forall}{\hspace*{2mm}\oldforall\hspace*{1mm}}
+\let\oldexists\exists
+\renewcommand{\exists}{\hspace*{2mm}\oldexists\hspace*{1mm}}
 \newcommand{\emptyvec}{[\hspace*{1mm}]}
 
 %\newcommand{\vect}[1]{\boldsymbol{#1}}

@@ -390,8 +390,18 @@ As we saw in example \ref{Ex: gcd} if we try to naïvely use \ref{Eq: Theory,sta
 \begin{equation}\label{Eq: Theory, gcd, explanation}
   f\cdot a(x_1)=b(x_1)\cdot q(x_1) + r(x_1).
 \end{equation}
-Now the greatest common divisor of $b$ and $r$ will divide the right hand side $f\cdot a(x_1)$ but not necessarily $a(x_1)$. With this insight in mind, we will now prove theorem \ref{Thm: gcd}, but first we need a lemma.
-\begin{lemma}
+Now the greatest common divisor of $b$ and $r$ will divide the right hand side $f\cdot a(x_1)$ but not necessarily $a(x_1)$. With this insight in mind, we will now prove theorem \ref{Thm: gcd}, but first we need a few lemmas.
+\begin{lemma}\label{Lemma0}
+  Let $a,b,d$ be polynomials such that $d|(a\cdot b)$. Then we can factor $d$ into two polynomials $d_a,d_b$ such that
+  \begin{enumerate}
+    \item $d = d_a\cdot d_b$
+    \item $d_a|a, d_b|b$
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  Let $d_a = gcd(a,d)$. Then we get that $d_a|a, d_a|d \iff \exists a^\prime,d^\prime: d=d_ad^\prime, a=d_aa^\prime$ and $gcd(a^\prime,d^\prime)=1$. We know that $d|(a\cdot b) \iff \exists x: a\cdot b=d\cdot x$. Now we replace $a$ and $d$ by $d_aa^\prime, d=d_ad^\prime$ which gives us $a^\prime\cdot b=d^\prime \cdot x$, where $gcd(a^\prime,d^\prime)=1$. Therefore $d^\prime|b$, and thus we can choose $d_b=d^\prime$.
+\end{proof}
+\begin{lemma}\label{Lemma1}
   Let $p$ be a polynomial $p(x_1)=p_0+\ldots+p_dx_1^d$ with variable order $\vec{x}=(x_1,\ldots,x_m)$ and $f$ be a polynomial with variable order $(x_2,\ldots,x_m)$ such that $f|p$. Then we have that $f|p_i\forall 0\leq i\leq d$.
 \end{lemma}
 \begin{proof}
@@ -407,22 +417,106 @@ Now the greatest common divisor of $b$ and $r$ will divide the right hand side $
     p_i=fp_i^\prime \iff f|p_i, \forall 0\leq i\leq d.
   \end{equation}
 \end{proof}
-\begin{proof}[Theorem \ref{Thm: gcd}]
-  \todo[inline]{finish it}
-  We done $gcd(b,r)$ by $g^\prime$. This gives us that, since $g^\prime|b$ and $g^\prime|r$, $g^\prime$ divides the left hand side of \ref{Eq: Theory, gcd, explanation}. But since the right hand side is equal to the left hand side, we know that $g^\prime|fa$. This in turns implies that we can factor $g$ into two parts, $g_f,g_a$, such that $g=g_ag_f$, $g_a|a$ and $g_f|f$. But now since $f$ has variable order $(x_2,\ldots,x_m)$ then $g_f$ cannot depend on $x_1$.
+\begin{lemma}\label{Lemma2}
+  Let $p$ and $d$ be polynomials with variable order $\vec{x}=(x_1,\ldots,x_m)$, $gcd_c(d)=1$ and $f$ be a polynomial with variable order $(x_2,\ldots,x_m)$ such that $d|p$ and $f|p$. Then we have that $(d\cdot f)|p$.
+\end{lemma}
+\begin{proof}
+  We know that $f|p$, hence we can write $p$ as $p=fp^\prime$. We know that $d|p=fp^\prime$ and thus we can due to lemma \ref{Lemma0} factor $g$ into $d_f,d_{p^\prime}$ such that $d=d_f\cdot d_{p^\prime}$ and $d_f|f,d_{p^\prime}|p$. But since $f$ has variable order $(x_2,\ldots,x_m)$ then $d_f$ cannot depend on $x_1$ and thus can be expressed with variable order $(x_2,\ldots,x_m)$. Furthermore $d_f|d$, which together with lemma \ref{Lemma1} gives us that $d_f|d_i$ for all coefficients $d_i$ of $d$. Therefore $d_f|gcd_c(d)=1\implies d_f=1$. Thus $d=d_{p^\prime}|p^\prime$ and therefore $(d\cdot f)|p$
 \end{proof}
-Although the procedures of division and gcd are partly already described in the theorems and proofs in this section we will finish this section by formalize the procedures of division and gcd, by providing the pseudocode.
-\todo[inline]{Write algos}
+Now we are ready to finish this section with the proof of theorem \ref{Thm: gcd}.
+\begin{proof}[Theorem \ref{Thm: gcd}]
+  Recall that $gcd(b,r)$ is denoted by $g^\prime$. We will show this theorem in two steps. First of all we want to prove that
+  \begin{equation}
+    g=\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b)),
+  \end{equation}
+  in fact is a divisor of $a$ and $b$. After that we will show that
+  \begin{equation}
+    d|a, d|b \implies d\Big|\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b)).
+  \end{equation}
+
+  We start with the first part. Since $g^\prime|b$ and $g^\prime|r$, $g^\prime$ divides the right hand side of \ref{Eq: Theory, gcd, explanation}. But the left hand side is equal to the left hand side, thus we know that $g^\prime|fa$. This in turns implies that we (due to lemma \ref{Lemma0}) can factor $g$ into two parts, $g_f,g_a$, such that $g^\prime=g_ag_f$, $g_a|a$ and $g_f|f$. But now since $f$ has variable order $(x_2,\ldots,x_m)$ then $g_f$ cannot depend on $x_1$.
+
+  We will now show that $\frac{g^\prime}{gcd_c(g^\prime)}|a$. We know that since $g_f$ is of variable order $(x_2,\ldots,x_m)$ and $g_f|g^\prime$, then by lemma \ref{Lemma1} we get that $g_f|g_i^\prime$ for all coefficients $g_i^\prime$ in $g^\prime$. This means that $g_f|gcd_c(g^\prime)$. We also know that
+  \begin{equation}
+    \frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd_c(g^\prime) = g^\prime = g_f\cdot g_a,
+  \end{equation}
+  therefore we get that $\frac{g^\prime}{gcd_c(g^\prime)}|g_a$, and thus $\frac{g^\prime}{gcd_c(g^\prime)}|a$. Furthermore
+  \begin{equation}
+    gcd_c\Big(\frac{g^\prime}{gcd_c(g^\prime)}\Big)=1.
+  \end{equation}
+  We also clearly see that $gcd(gcd_c(a),gcd_c(b))|gcd_c(a)$ and $gcd_c(a)|a$. Therefore $gcd(gcd_c(a),gcd_c(b))$ divides $a$. Now we use lemma \ref{Lemma2} and conclude that with
+  \begin{equation}
+    \begin{split}
+      p&=a, \\
+      d&=\frac{g^\prime}{gcd_c(g^\prime)}, \\
+      f&=gcd(gcd_c(a),gcd_c(b))
+    \end{split}
+  \end{equation}
+  plugged into lemma \ref{Lemma2} we get that
+  \begin{equation}
+    \frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b)) | a
+  \end{equation}
+  Furthermore we see that
+  \begin{equation}
+    \frac{g^\prime}{gcd_c(g^\prime)}\Big|g^\prime,g^\prime|b \implies \frac{g^\prime}{gcd_c(g^\prime)}\Big|b.
+  \end{equation}
+  Therefore, again according to lemma \ref{Lemma2} we get that
+  \begin{equation}
+    \frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b)) | b.
+  \end{equation}
+  This finished the first part of the proof. Now we need to show that
+  \begin{equation}
+    d|a,d|b\implies d\Big|\Big(\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b))\Big),
+  \end{equation}
+  where $d$ is a polynomial with variable order $\vec{x}=(x_1,\ldots,x_m)$.
+
+  First we note that any polynomial that divides $a$ and $b$ also divide $r$, which is clear by looking at equation \ref{Eq: Theory, gcd, explanation}. We now factor $d$ into $d_1\cdot d_2$, where $d_1=\frac{d}{gcd_c(d)}, d_2=gcd_c(d)$. We will now show that $d_1|\frac{g^\prime}{gcd_c(g^\prime)}$ and $d_2|gcd(gcd_c(a),gcd_c(b))$.
+
+  We have that $d_1|d, d|g^\prime \implies d_1\Big|\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd_c(g^\prime)$. Now lemma \ref{Lemma0} gives us that $d_1$ can be factored into $d_{11},d_{12}$ such that $d_{11}\Big|\frac{g^\prime}{gcd_c(g^\prime)}$ and $d_{12}|gcd_c(g^\prime)$. But $d_{12}|gcd_c(g^\prime)$ means that $d_{12}$ has variable order $(x_2,\ldots,x_m)$ But this gives us that $d_{12}=1$ since $d_1=\frac{d}{gcd_c(d)}$ (otherwise we would have a larger common divisor for the coefficients of $d$ than $gcd_c(d)$). Hence $d_1=d_{11}\Big|\frac{g^\prime}{gcd_c(g^\prime)}$.
+
+  Next we show that $d_2|gcd(gcd_c(a),gcd_c(b))$. We know that $d_2|d, d|a, d|b \implies d_2|a, d_2|b$. Furthermore $d_2$ has variable order $(x_2,\ldots,x_m)$, therefore lemma \ref{Lemma1} gives us that $d_2|a_i$ for all coefficients $a_i$ in $a$, and $d_2|b_i$ for all coefficients $b_i$ in $b$. This gives us that $d_2|gcd_c(a), d_2|gcd_c(b)$, therefore $d_2$ is a common divisor of $gcd_c(a),gcd_c(b)$, hence $d_2|gcd(gcd_c(a),gcd_c(b))$.
+
+  This finished the proof for that the greatest common divisor of polynomials $a,b$ is
+  \begin{equation}
+    g=\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b)),
+  \end{equation}
+  where $g^\prime=gcd(b,r), DIVIDE(a,b) \rightarrow (q,r,f)$.
+\end{proof}
+Although the procedures of division and gcd are partly already described in the theorems and proofs in this section we will finish this section by formalize the procedures of division, gcd and gcd\textsubscript{C}, by providing the pseudocode.
+
 \begin{algorithm}[H]
   \caption{Division}
   \inp{Polynomial $a$ and $b$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
   \outp{Polynomials $q,r$ with variable order $\vec{x}=(x_1,\ldots,x_m)$ and polynomial $f$ with variable order $\vec{x}=(x_2,\ldots,x_m)$ such that $f\cdot a=q\cdot b + r$ and $deg(r)<deg(b)$}
   \begin{algorithmic}[1]
     \Procedure{Divide}{$a,b$}
-
+      \If{$deg(a)<deg(b)$}
+        \State \Return $(0,a,1)$
+      \EndIf
+      \State $f_0\gets \vec{b}[0]$
+      \State $\vec{c}\gets \emptyvec$
+      \State $\vec{c}[deg(a)-deg(b)]\gets a[deg(a)]$
+      \State $q_0\gets polynomial(c,\vec{x}[0])$
+      \State $r_0\gets$ \Call{Add}{\Call{Multiply}{$f_0,a$},\Call{Multiply}{$q_0,b$}}
+      \State $q_1,r_1,f_1 \gets$ \Call{Divide}{$r_0,b$}
+      \State $q,r,f\gets$ \Call{Add}{\Call{Multiply}{$f_1,q_0$} ,$q_1$},$r_1$,\Call{Multiply}{$f_0,f_1$}
+      \State \Return $(q,r,f)$
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+\begin{remark}
+  In the actual implementation of division a small extra step is added. In this step all coefficients in $q,r$ as well as the polynomial $f$ are divided by $g$ where
+  \begin{equation}
+    g = gcd(gcd_c(q),gcd_c(r),f).
+  \end{equation}
+  This step is not necessary, but ensures that $q,r,f$ do not have unnecessarily large coefficients. The reason it is not included is that adding this step most likely adds more confusion than value.
+\end{remark}
+Now we have gcd and gcd\textsubscript{C} left to write pseudocode for. Since all the code is very recursive here, it seems to be the case that we get infinite recursive calls. This will not be the case, however, since all the time we either:
+\begin{enumerate}
+  \item Decrease the degree of some polynomial
+  \item Decrease the size of the variable order.
+\end{enumerate}
+The fact that one of these are true is easily checked in all the procedures.
 \begin{algorithm}[H]
   \caption{Greatest common divisor}
   \inp{Polynomial $a$ and $b$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
@@ -430,10 +524,31 @@ Although the procedures of division and gcd are partly already described in the 
   $g$ is the greatest common divisor of $a$ and $b$}
   \begin{algorithmic}[1]
     \Procedure{GCD}{$a,b$}
-
+      \If{$b=0$}
+        \State \Return $a$
+      \EndIf
+      \State $q_0,r_0,f_0\gets$ \Call{Divide}{$a,b$}
+      \State $g^\prime\gets$ \Call{GCD}{$b,r_0$}
+      \State $q^\prime,r^\prime,f^\prime\gets$ \Call{Divide}{$g^\prime$,\Call{GCD\textsubscript{C}}{$g^\prime$}}
+      \State \Return \Call{Multiply}{$q^\prime$,\Call{GCD}{\Call{GCD\textsubscript{C}}{$a$},\Call{GCD\textsubscript{C}}{$b$}}}
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+\begin{algorithm}[H]
+  \caption{Greatest common coefficient divisor}
+  \inp{Polynomial $a$ with variable order $\vec{x}=(x_1,\ldots,x_m)$}
+  \outp{Polynomial $g$ with variable order $\vec{x}=(x_2,\ldots,x_m)$ such that $g$ is the greatest common divisor of all coeffiecients $a_i$ in $a$}
+  \begin{algorithmic}[1]
+    \Procedure{GCD\textsubscript{C}}{$a$}
+      \State $g\gets a[0]$
+      \For{$i\gets 1,\ldots,deg(a)$}
+        \State $g\gets$ \Call{GCD}{$g,a[i]$}
+      \EndFor
+      \State \Return $g$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+These procedure descriptions conclude a quite theory heavy section about polynomials. Next will follow Wilf-Zeilberger's method, and will decribe how the method works.
 
 \section{Wilf-Zeilberger's method}
 Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The methodology in the proof is that assume we want to prove %~\cite{gf}
