@@ -60,6 +60,9 @@ class constant:
         assert self.variables == other.variables, 'Trying to add polynomials of different variables.'
         return constant(self.coefficients[0]+other.coefficients[0])
 
+    def subtract(self,other):
+        return self.add(other.negate())
+
     def multiply(self,other):
         if self.variables == other.variables:
             return self.multiply_simple(other)
@@ -258,6 +261,9 @@ class polynomial:
             c[i] = c[i].add(other.coefficients[i])
         return polynomial(c,self.variables[0])
 
+    def subtract(self,other):
+        return self.add(other.negate())
+        
     def multiply(self,other):
         if self.variables == other.variables:
             return self.multiply_simple(other)
