@@ -47,7 +47,7 @@ class constant:
         if self.variables == other.variables:
             return self.equals_simple(other)
         vars = self.get_common_variables(other)
-        return self.convert_polynomial_vars(vars).equals(other.convert_polynomial(vars))
+        return self.convert_polynomial(vars).equals(other.convert_polynomial(vars))
     def equals_simple(self,other):
         assert self.variables == other.variables, 'Trying to check equality polynomials of different variables.'
         return self.coefficients[0] == other.coefficients[0]
@@ -218,10 +218,13 @@ class polynomial:
             coeff_string = c.to_string()
             negative = coeff_string[0] == '-'
             if negative: coeff_string = c.negate().to_string()
+            use_paran = len(self.variables) > 1 and ('+' in coeff_string or '-' in coeff_string) and i != self.degree
+            use_coeff_string = (i==self.degree or coeff_string != '1')
             if i or negative: out.append('-' if negative else '+')
-            out.append('{}{}{}{}{}{}'.format('(' if len(self.variables)>1 else '',
-                                    coeff_string if (len(self.variables)>1 or coeff_string!='1' or i==self.degree) else '',
-                                    ')' if len(self.variables)>1 else '',
+            out.append('{}{}{}{}{}{}'.format('(' if use_paran else '',
+                                    #coeff_string if (len(self.variables)>1 or coeff_string!='1' or i==self.degree) else '',
+                                    coeff_string if use_coeff_string else '',
+                                    ')' if use_paran else '',
                                     self.variables[0] if i<self.degree else '',
                                     '^' if i<self.degree-1 else '',
                                     self.degree-i if i<self.degree-1 else ''))
@@ -238,7 +241,7 @@ class polynomial:
         if self.variables == other.variables:
             return self.equals_simple(other)
         vars = self.get_common_variables(other)
-        return self.convert_polynomial_vars(vars).equals(other.convert_polynomial(vars))
+        return self.convert_polynomial(vars).equals(other.convert_polynomial(vars))
     def equals_simple(self,other):
         assert self.variables == other.variables, 'Trying to check equality polynomials of different variables.'
         if self.degree != other.degree: return False
@@ -263,7 +266,7 @@ class polynomial:
 
     def subtract(self,other):
         return self.add(other.negate())
-        
+
     def multiply(self,other):
         if self.variables == other.variables:
             return self.multiply_simple(other)
@@ -567,7 +570,6 @@ if __name__ == '__main__':
     g = p1.gcd(p2)
     g = g.multiply(p1.gcd_list().gcd(p2.gcd_list())).divide(g.gcd_list())[0]
     g.PRINT()
-    '''
 
     p1 = parse('(x+1)(y+1)(z+1)')
     p2 = parse('(z+1)(y+1)')
@@ -580,3 +582,7 @@ if __name__ == '__main__':
     p1.PRINT()
     p2.PRINT()
     p1.gcd(p2).PRINT()
+    '''
+
+    p1 = parse('mn+m+1')
+    p1.PRINT()

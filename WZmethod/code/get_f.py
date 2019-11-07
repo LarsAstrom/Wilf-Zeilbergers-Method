@@ -109,7 +109,7 @@ def get_degree(p):
 #Takes p(k),q(k),r(k) as inputs. Returns f(k)
 #such that p(k)=q(k+1)f(k)-r(k)f(k-1)
 #max_degree is the maximal degree in any variable for f.
-def get_f(p,q,r,max_degree=1):
+def get_f(p,q,r,max_degree=5):
     variables = p.get_common_variables(q.multiply(r))
     p,q,r = parse(p.to_string(),variables),parse(q.to_string(),variables),parse(r.to_string(),variables)
     l = max_degree + 1
