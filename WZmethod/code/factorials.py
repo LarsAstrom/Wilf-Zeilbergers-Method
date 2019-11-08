@@ -1,4 +1,6 @@
 from polynomial_general import *
+from gosper import *
+from get_f import *
 def fac(n):
     return n*fac(n-1) if n else 1
 
@@ -32,16 +34,19 @@ class factorial:
 class power:
     def __init__(self,base,exponent):
         self.base = base
-        self.exponent = exponent
+        self.exponent = parse(exponent.to_string())
         assert type(self.base) == int, 'Base has to be int, not {}'.format(type(self.base))
-        assert type(self.exponent) == polynomial, 'Exponent has to be polynomial, not {}'.format(type(self.exponent))
+        assert type(self.exponent) in [polynomial,constant], 'Exponent has to be polynomial, not {}'.format(type(self.exponent))
 
     def inverse(self):
         return power(self.base,self.exponent.negate())
 
     def multiply(self,other):
         if self.base == other.base:
-            return power(self.base,self.exponent.add(other.exponent))
+            exp = self.exponent.add(other.exponent)
+            if exp.is_constant:
+                return constant(pow(self.base,parse(exp.to_string()).coefficients[0]))
+            return power(self.base,exp)
         elif self.exponent.equals(other.exponent):
             return power(self.base*other.base,self.exponent)
         return None
@@ -93,6 +98,10 @@ class expression_mult:
                         break
             if not done: facs.append(f)
         self.factors = facs
+
+    def is_polynomial(self):
+        self.simplify()
+        return len(self.factors) == 1 and type(self.factors[0]) in [constant,polynomial]
 
     def negate(self):
         return expression_mult(self.factors+[constant(-1)])
@@ -163,7 +172,19 @@ class expression_add:
 
     ''' Collect all terms '''
     def simplify(self):
-        return
+        addends = []
+        polynomial_id = None
+        for addend in self.addends:
+            if addend.is_polynomial():
+                if polynomial_id != None:
+                    addends[polynomial_id] = expression_mult([addends[polynomial_id].factors[0]\
+                                                                .add(addend.factors[0])])
+                else:
+                    polynomial_id = len(addends)
+                    addends.append(addend)
+            else:
+                addends.append(addend)
+        self.addends = addends
 
     def negate(self):
         return expression_add([addend.negate() for addend in self.addends])
@@ -204,6 +225,8 @@ class expression_rat:
         self.simplify()
 
     def simplify(self):
+        self.num.simplify()
+        self.den.simplify()
         candidates = [factor for factor in self.den.addends[0].factors]
         for expr_m in self.num.addends:
             candidates2 = []
@@ -405,6 +428,7 @@ if __name__ == '__main__':
     nck1.PRINT()
     print('\n\n\n\n\n\n\n\n\n\n')
     nck.divide(nck1).PRINT()
+    nck1.divide(nck).PRINT()
 
     em = expression_mult([factorial(parse('n')),factorial(parse('n-k+1'))])
     d = em.is_divisible(factorial(parse('n-k')))
@@ -432,8 +456,25 @@ if __name__ == '__main__':
     t2.PRINT()
     t3.PRINT()
     t4.PRINT()
-    out1 = t1.subtract(t2)
-    out1.PRINT()
-    exit()
+    print('\n\n\n\n\n\n\n\n\n\n')
+    ak = t1.subtract(t2)
+    ak.PRINT()
+    #exit()
     out = t1.subtract(t2).divide(t3.subtract(t4))
     out.PRINT()
+
+    q,r,p = gosper(out.num.addends[0].factors[0],out.den.addends[0].factors[0],'k')
+    f = get_f(p,q,r)
+    p.PRINT()
+    q.PRINT()
+    r.PRINT()
+    f.PRINT()
+    ak.PRINT()
+    '''
+
+    num = expression_add([expression_mult([factorial(parse('n+1')),power(2,parse('n'))]),
+                            expression_mult([parse('-n+k-1'),factorial(parse('n')),power(2,parse('n+1'))])])
+    for em in num.addends:
+        d = em.divide(power(2,parse('2n+1')))
+        d.PRINT()
+    '''
