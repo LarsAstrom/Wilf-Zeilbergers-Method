@@ -69,7 +69,30 @@ class expression_mult:
 
     ''' Collect all terms '''
     def simplify(self):
-        return
+        facs = []
+        include_1 = True
+        for f in self.factors:
+            if not (type(f) in [polynomial,constant] and f.equals(constant(1))):
+                include_1 = False
+        for f in self.factors:
+            if type(f) == factorial:
+                facs.append(f)
+                continue
+            if type(f) in [polynomial,constant] and f.equals(constant(1)) and (not include_1):
+                continue
+            done = False
+            for i in range(len(facs)):
+                if type(f) in [constant,polynomial] and type(facs[i]) in [constant,polynomial]:
+                    facs[i] = facs[i].multiply(f)
+                    done = True
+                    break
+                if type(f) == type(facs[i]) == power:
+                    if facs[i].multiply(f) != None:
+                        facs[i] = facs[i].multiply(f)
+                        done = True
+                        break
+            if not done: facs.append(f)
+        self.factors = facs
 
     def negate(self):
         return expression_mult(self.factors+[constant(-1)])
@@ -86,6 +109,7 @@ class expression_mult:
             change = False
             for i in range(len(factors)):
                 d = try_divide(factors[i],left)
+                if d == None: continue
                 if type(d) != constant and not (type(d) == polynomial and d.equals(parse('1'))):
                     changed = True
                     if type(factors[i]) in [polynomial,factorial]:
@@ -99,8 +123,24 @@ class expression_mult:
                     out.append(d)
         return out
 
+    # Requires self is divisible by other.
     def divide(self,other):
-        pass
+        left = other
+        factors = list(self.factors)
+        while not (type(left) in [polynomial,constant] and left.equals(constant(1))):
+            for i in range(len(factors)):
+                d = try_divide(factors[i],left)
+                if d == None: continue
+                if type(d) != constant and not (type(d) == polynomial and d.equals(parse('1'))):
+                    if type(factors[i]) in [polynomial,factorial]:
+                        factors[i] = factors[i].divide(d)[0]
+                    else:
+                        factors[i] = factors[i].divide(d)
+                    if type(left) in [polynomial,factorial]:
+                        left = left.divide(d)[0]
+                    else:
+                        left = left.divide(d)
+        return expression_mult(factors)
 
     def to_string(self):
         out = ['(']
@@ -117,7 +157,7 @@ class expression_add:
         self.addends = addends
         assert type(self.addends) == list, 'Addends need to be a list, not {}'.format(type(self.addends))
         for addend in self.addends:
-            assert type(addend) == type(expression_mult(None,set_constant=1)),\
+            assert type(addend) == type(expression_mult([constant(1)])),\
                     'Addends need to be expression_mult, not {}'.format(type(addend))
         self.simplify()
 
@@ -165,7 +205,7 @@ class expression_rat:
 
     def simplify(self):
         candidates = [factor for factor in self.den.addends[0].factors]
-        for expr_m in self.num:
+        for expr_m in self.num.addends:
             candidates2 = []
             for cand in candidates:
                 new_cands = expr_m.is_divisible(cand)
@@ -173,7 +213,7 @@ class expression_rat:
                     if type(new_cand) not in [polynomial,constant] or not new_cand.equals(constant(1)):
                         candidates2.append(new_cand)
             candidates = candidates2
-        for expr_m in self.den:
+        for expr_m in self.den.addends:
             candidates2 = []
             for cand in candidates:
                 new_cands = expr_m.is_divisible(cand)
@@ -183,9 +223,9 @@ class expression_rat:
             candidates = candidates2
         if not candidates: return
         d = candidates[0]
-        for i in range(len(self.num)):
+        for i in range(len(self.num.addends)):
             self.num.addends[i] = self.num.addends[i].divide(d)
-        for i in range(len(self.den)):
+        for i in range(len(self.den.addends)):
             self.den.addends[i] = self.den.addends[i].divide(d)
         self.simplify()
 
@@ -242,11 +282,17 @@ def try_divide(a,b):
 # Returns True if polynomial p is a constant, that is positive, otherwise False.
 def is_positive_constant(p):
     c = parse(p.to_string())
-    if type(c) != constant: return False
-    return c.coefficients[0] >= 0
+    return type(c) == constant and c.coefficients[0] >= 0
 
 def binom(n,k):
-    pass
+    num = expression_add([expression_mult([factorial(parse(n))])])
+    den = expression_add([expression_mult([factorial(parse(k)),factorial(parse('{}-({})'.format(n,k)))])])
+    return expression_rat(num,den)
+
+def to_expr_r(factor):
+    num = expression_add([expression_mult([factor])])
+    den = expression_add([expression_mult([constant(1)])])
+    return expression_rat(num,den)
 
 if __name__ == '__main__':
     '''
@@ -333,7 +379,7 @@ if __name__ == '__main__':
     em1.PRINT()
     f1.PRINT()
     em1.is_divisible(f1).PRINT()
-    '''
+
     em1 = expression_mult([parse('(n+1)(n+2)'),parse('(n+2)(n+3)'),parse('(n+4)(n+5)')])
     p1 = parse('(n+1)(n+3)')
     p2 = parse('(n+3)^2')
@@ -345,3 +391,49 @@ if __name__ == '__main__':
     L = em1.is_divisible(f1)
     print(len(L))
     for l in L: l.PRINT()
+
+    f1 = factorial(parse('n-k+1'))
+    f2 = factorial(parse('n-k'))
+    n,d = f1.divide(f2)
+    n.PRINT()
+    d.PRINT()
+    '''
+
+    nck = binom('n','k')
+    nck.PRINT()
+    nck1 = binom('n','k-1')
+    nck1.PRINT()
+    print('\n\n\n\n\n\n\n\n\n\n')
+    nck.divide(nck1).PRINT()
+
+    em = expression_mult([factorial(parse('n')),factorial(parse('n-k+1'))])
+    d = em.is_divisible(factorial(parse('n-k')))
+    print(len(d))
+    for dd in d: dd.PRINT()
+
+    d = try_divide(factorial(parse('n-k+1')),factorial(parse('n-k')))
+    d.PRINT()
+
+    p1 = parse('n-k+1')
+    p1.PRINT()
+
+    print('TESTING TESTING TESTING')
+    b1 = binom('n+1','k')
+    b2 = binom('n','k')
+    b3 = binom('n+1','k-1')
+    b4 = binom('n','k-1')
+    p1 = to_expr_r(power(2,parse('n+1')))
+    p2 = to_expr_r(power(2,parse('n')))
+    t1 = b1.divide(p1)
+    t2 = b2.divide(p2)
+    t3 = b3.divide(p1)
+    t4 = b4.divide(p2)
+    t1.PRINT()
+    t2.PRINT()
+    t3.PRINT()
+    t4.PRINT()
+    out1 = t1.subtract(t2)
+    out1.PRINT()
+    exit()
+    out = t1.subtract(t2).divide(t3.subtract(t4))
+    out.PRINT()

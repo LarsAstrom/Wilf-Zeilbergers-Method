@@ -218,8 +218,9 @@ class polynomial:
             coeff_string = c.to_string()
             negative = coeff_string[0] == '-'
             if negative: coeff_string = c.negate().to_string()
-            use_paran = len(self.variables) > 1 and ('+' in coeff_string or '-' in coeff_string) and i != self.degree
+            use_paran = len(self.variables) > 1 and ('+' in coeff_string or '-' in coeff_string)
             use_coeff_string = (i==self.degree or coeff_string != '1')
+            #use_paran = use_coeff_string
             if i or negative: out.append('-' if negative else '+')
             out.append('{}{}{}{}{}{}'.format('(' if use_paran else '',
                                     #coeff_string if (len(self.variables)>1 or coeff_string!='1' or i==self.degree) else '',
