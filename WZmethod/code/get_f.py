@@ -63,10 +63,10 @@ def get_B(p,L,variables):
         out.append(pd[tuple(cur)])
     return out
 
-def get_A(q,r,L,l,variables):
-    qd,_ = polynomial2dict(parse(q.to_string().replace('k','(k+1)')),variables)
+def get_A(q,r,L,l,variables,variable='k'):
+    qd,_ = polynomial2dict(parse(q.to_string().replace(variable,'({}+1)'.format(variable))),variables)
     rd,_ = polynomial2dict(r,variables)
-    kvar_index = variables.index('k')
+    kvar_index = variables.index(variable)
     V = len(variables)
     A = [[0]*(l**V) for _ in range(L**V)]
     #Adding to A due to factor q_{k+1}f_k.
@@ -109,7 +109,7 @@ def get_degree(p):
 #Takes p(k),q(k),r(k) as inputs. Returns f(k)
 #such that p(k)=q(k+1)f(k)-r(k)f(k-1)
 #max_degree is the maximal degree in any variable for f.
-def get_f(p,q,r,max_degree=5):
+def get_f(p,q,r,max_degree=5,variable='k'):
     variables = p.get_common_variables(q.multiply(r))
     p,q,r = parse(p.to_string(),variables),parse(q.to_string(),variables),parse(r.to_string(),variables)
     l = max_degree + 1
@@ -120,8 +120,8 @@ def get_f(p,q,r,max_degree=5):
     x = gauss(A,B)
     if x == None: return None
     ret = to_polynomial(x,l,variables)
-    qf = parse(q.to_string().replace('k','(k+1)')).multiply(ret)
-    rf = parse(ret.to_string().replace('k','(k-1)')).multiply(r)
+    qf = parse(q.to_string().replace(variable,'({}+1)'.format(variable))).multiply(ret)
+    rf = parse(ret.to_string().replace(variable,'({}-1)'.format(variable))).multiply(r)
     assert p.equals(qf.add(rf.negate())), 'Error for p={}, q={}, r={}. Got f={} which is wrong.'.format(p.to_string(),q.to_string(),r.to_string(),f.to_string())
     return ret
 

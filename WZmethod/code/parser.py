@@ -1,5 +1,11 @@
-def get_F(s):
+def get_A(s):
     pass
+
+def get_B(s):
+    pass
+
+def get_F(s):
+    return '({})/({})'.format(get_A(s),get_B(s))
 
 def get_ak(F):
     return '({})-({})'.format(F.replace('n','(n+1)'),F)

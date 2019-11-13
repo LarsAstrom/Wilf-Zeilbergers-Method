@@ -649,8 +649,10 @@ if __name__ == '__main__':
     s8 = 'B[k,c]/B[n+1,c+1]'
     s9 = 'B[r+k,k]/B[r+n+1,n]'
     s10= 'B[m-k,n-k]/B[m+1,n]'
+    s11= 'B[n,k]P[3,k]/P[4,n]'
+    s12= 'B[n,k]P[4,k]/P[5,n]'
 
-    s = [s1,s2,s3,s4,s5,s6,s7,s8,s9,s10]
+    s = [s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12]
     # s = [s2]
     for i,ss in enumerate(s):
         print('TEST {}'.format(i+1))
