@@ -4,10 +4,22 @@ from get_f import *
 def fac(n):
     return n*fac(n-1) if n else 1
 
+def is_polynomial(x):
+    return type(x) in [constant,polynomial]
+
+def is_factorial(x):
+    return type(x) == factorial
+
+def is_power(x):
+    return type(x) == power
+
+def is_factor(x):
+    return (is_polynomial(x) or is_factorial(x) or is_power(x))
+
 class factorial:
     def __init__(self,value):
         self.value = value
-        assert type(self.value) == polynomial, 'Value has to be polynomial, not {}'.format(type(self.value))
+        assert is_polynomial(self.value), 'Value has to be polynomial, not {}'.format(type(self.value))
 
     def divide(self,other):
         if is_positive_constant(self.value.subtract(other.value)):
@@ -36,7 +48,7 @@ class power:
         self.base = base
         self.exponent = parse(exponent.to_string())
         assert type(self.base) == int, 'Base has to be int, not {}'.format(type(self.base))
-        assert type(self.exponent) in [polynomial,constant], 'Exponent has to be polynomial, not {}'.format(type(self.exponent))
+        assert is_polynomial(self.exponent), 'Exponent has to be polynomial, not {}'.format(type(self.exponent))
 
     def inverse(self):
         return power(self.base,self.exponent.negate())
@@ -68,8 +80,7 @@ class expression_mult:
         self.factors = factors
         assert type(self.factors) == list, 'Factors need to be a list, not {}'.format(type(self.factors))
         for factor in self.factors:
-            assert type(factor) in [constant,polynomial,factorial,power],\
-                        'Factor cannot be {}'.format(type(factor))
+            assert is_factor(factor), 'Factor cannot be {}'.format(type(factor))
         self.simplify()
 
     ''' Collect all terms '''
@@ -77,21 +88,21 @@ class expression_mult:
         facs = []
         include_1 = True
         for f in self.factors:
-            if not (type(f) in [polynomial,constant] and f.equals(constant(1))):
+            if not (is_polynomial(f) and f.equals(constant(1))):
                 include_1 = False
         for f in self.factors:
-            if type(f) == factorial:
+            if is_factorial(f):
                 facs.append(f)
                 continue
-            if type(f) in [polynomial,constant] and f.equals(constant(1)) and (not include_1):
+            if is_polynomial(f) and f.equals(constant(1)) and (not include_1):
                 continue
             done = False
             for i in range(len(facs)):
-                if type(f) in [constant,polynomial] and type(facs[i]) in [constant,polynomial]:
+                if is_polynomial(f) and is_polynomial(facs[i]):
                     facs[i] = facs[i].multiply(f)
                     done = True
                     break
-                if type(f) == type(facs[i]) == power:
+                if is_power(f) and is_power(facs[i]):
                     if facs[i].multiply(f) != None:
                         facs[i] = facs[i].multiply(f)
                         done = True
@@ -101,7 +112,7 @@ class expression_mult:
 
     def is_polynomial(self):
         self.simplify()
-        return len(self.factors) == 1 and type(self.factors[0]) in [constant,polynomial]
+        return len(self.factors) == 1 and is_polynomial(self.factors[0])
 
     def negate(self):
         return expression_mult(self.factors+[constant(-1)])
@@ -121,11 +132,11 @@ class expression_mult:
                 if d == None: continue
                 if type(d) != constant and not (type(d) == polynomial and d.equals(parse('1'))):
                     changed = True
-                    if type(factors[i]) in [polynomial,factorial]:
+                    if is_polynomial(factors[i]) or is_factorial(factors[i]):
                         factors[i] = factors[i].divide(d)[0]
                     else:
                         factors[i] = factors[i].divide(d)
-                    if type(left) in [polynomial,factorial]:
+                    if is_polynomial(left) or is_factorial(left):
                         left = left.divide(d)[0]
                     else:
                         left = left.divide(d)
@@ -136,7 +147,7 @@ class expression_mult:
     def divide(self,other):
         left = other
         factors = list(self.factors)
-        while not (type(left) in [polynomial,constant] and left.equals(constant(1))):
+        while not (is_polynomial(left) and left.equals(constant(1))):
             for i in range(len(factors)):
                 d = try_divide(factors[i],left)
                 if d == None: continue
@@ -166,7 +177,7 @@ class expression_add:
         self.addends = addends
         assert type(self.addends) == list, 'Addends need to be a list, not {}'.format(type(self.addends))
         for addend in self.addends:
-            assert type(addend) == type(expression_mult([constant(1)])),\
+            assert type(addend) == expression_mult,\
                     'Addends need to be expression_mult, not {}'.format(type(addend))
         self.simplify()
 
@@ -234,7 +245,7 @@ class expression_rat:
             for cand in candidates:
                 new_cands = expr_m.is_divisible(cand)
                 for new_cand in new_cands:
-                    if type(new_cand) not in [polynomial,constant] or not new_cand.equals(constant(1)):
+                    if (not is_polynomial(new_cand)) or (not new_cand.equals(constant(1))):
                         candidates2.append(new_cand)
             candidates = candidates2
         for expr_m in self.den.addends:
@@ -242,7 +253,7 @@ class expression_rat:
             for cand in candidates:
                 new_cands = expr_m.is_divisible(cand)
                 for new_cand in new_cands:
-                    if type(new_cand) not in [polynomial,constant] or not new_cand.equals(constant(1)):
+                    if (not is_polynomial(new_cand)) or (not new_cand.equals(constant(1))):
                         candidates2.append(new_cand)
             candidates = candidates2
         if not candidates: return
@@ -321,7 +332,7 @@ def binom(n,k):
 def to_expr_r(x):
     if type(x) == expression_rat:
         return x
-    if type(x) in [polynomial,constant,factorial,power]:
+    if is_factor(x):
         num = expression_add([expression_mult([x])])
     if type(x) == expression_mult:
         num = expression_add([x])
