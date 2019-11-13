@@ -1,4 +1,4 @@
-from polynomial_general import *
+from polynomial import *
 from gosper import *
 from get_f import *
 def fac(n):
@@ -44,7 +44,7 @@ class power:
     def multiply(self,other):
         if self.base == other.base:
             exp = self.exponent.add(other.exponent)
-            if exp.is_constant:
+            if is_positive_constant(exp):
                 return constant(pow(self.base,parse(exp.to_string()).coefficients[0]))
             return power(self.base,exp)
         elif self.exponent.equals(other.exponent):
@@ -225,6 +225,7 @@ class expression_rat:
         self.simplify()
 
     def simplify(self):
+        # self.PRINT()
         self.num.simplify()
         self.den.simplify()
         candidates = [factor for factor in self.den.addends[0].factors]
@@ -246,6 +247,9 @@ class expression_rat:
             candidates = candidates2
         if not candidates: return
         d = candidates[0]
+        # print('PRINTING DIVISOR')
+        # d.PRINT()
+        # print('=====================================')
         for i in range(len(self.num.addends)):
             self.num.addends[i] = self.num.addends[i].divide(d)
         for i in range(len(self.den.addends)):
@@ -308,14 +312,149 @@ def is_positive_constant(p):
     return type(c) == constant and c.coefficients[0] >= 0
 
 def binom(n,k):
-    num = expression_add([expression_mult([factorial(parse(n))])])
-    den = expression_add([expression_mult([factorial(parse(k)),factorial(parse('{}-({})'.format(n,k)))])])
+    if type(n) == str: n = parse(n)
+    if type(k) == str: k = parse(k)
+    num = expression_add([expression_mult([factorial(n)])])
+    den = expression_add([expression_mult([factorial(k),factorial(parse('{}-({})'.format(n.to_string(),k.to_string())))])])
     return expression_rat(num,den)
 
-def to_expr_r(factor):
-    num = expression_add([expression_mult([factor])])
+def to_expr_r(x):
+    if type(x) == expression_rat:
+        return x
+    if type(x) in [polynomial,constant,factorial,power]:
+        num = expression_add([expression_mult([x])])
+    if type(x) == expression_mult:
+        num = expression_add([x])
+    if type(x) == expression_add:
+        num = x
     den = expression_add([expression_mult([constant(1)])])
     return expression_rat(num,den)
+
+def parse_general(s):
+    def simplify(stack):
+        if len(stack) == 1: return stack
+        if stack[-2] == '(': return stack
+        if stack[-1] == '(':
+            stack.append(to_expr_r(constant(0)))
+            return stack
+        b,op,a = stack.pop(),stack.pop(),stack.pop()
+        if a == '(':
+            stack.append(a)
+            assert op == '-', 'Something is weird'
+            stack.append(b.negate())
+            return simplify(stack)
+        if op == '+':
+            stack.append(a.add(b))
+        elif op == '-':
+            stack.append(a.subtract(b))
+        elif op == '*':
+            stack.append(a.multiply(b))
+        elif op == '/':
+            stack.append(a.divide(b))
+        else:
+            print('SOMETHING IS GOING WRONG')
+            print('TRYING TO SIMPLIFY AND HAVE a, op, b AS')
+            try:
+                print(type(a))
+                a.PRINT()
+            except:
+                print(a)
+            try:
+                print(type(op))
+                op.PRINT()
+            except:
+                print(op)
+            try:
+                print(type(b))
+                b.PRINT()
+            except:
+                print(b)
+            raise Exception('Parse general error')
+        return simplify(stack)
+
+    to_split = ['B[','F[','P[',']',',','/','*','+','-','(',')']
+    s = s.replace(' ','')
+    for x in to_split:
+        s = s.replace(x,' {} '.format(x))
+    parts = s.split()
+    #print(list(zip(parts,list(range(0,len(parts))))))
+    stack = []
+    i = 0
+    while i < len(parts):
+        #print(i)
+        part = parts[i]
+        if len(part) == 0:
+            i += 1
+            continue
+        assert part != ',' and part != ']', 'Parse general error for string {}'.format(s)
+        if part == '(':
+            if stack and type(stack[-1]) == expression_rat:
+                stack.append('*')
+            stack.append('(')
+            i += 1
+        elif part == ')':
+            stack = simplify(stack)
+            stack = stack[:-2] + stack[-1:]
+            i += 1
+        #DONE TO HERE.
+        elif part == 'B[':
+            if stack and type(stack[-1]) == expression_rat:
+                stack.append('*')
+            j = i+1
+            while parts[j] != ',': j += 1
+            n = parse(''.join(parts[i+1:j]))
+            i = j
+            j = i+1
+            while parts[j] != ']': j += 1
+            k = parse(''.join(parts[i+1:j]))
+            stack.append(to_expr_r(binom(n,k)))
+            i = j+1
+        elif part == 'F[':
+            if stack and type(stack[-1]) == expression_rat:
+                stack.append('*')
+            j = i+1
+            while parts[j] != ']': j += 1
+            stack.append(to_expr_r(factorial(parse(''.join(parts[i+1:j])))))
+            i = j+1
+        elif part == 'P[':
+            if stack and type(stack[-1]) == expression_rat:
+                stack.append('*')
+            j = i+1
+            while parts[j] != ',': j += 1
+            a = int(''.join(parts[i+1:j]))
+            i = j
+            j = i+1
+            while parts[j] != ']': j += 1
+            n = parse(''.join(parts[i+1:j]))
+            stack.append(to_expr_r(power(a,n)))
+            i = j+1
+        elif part in ['/','*']:
+            stack.append(part)
+            i += 1
+        elif part in ['+','-']:
+            stack = simplify(stack)
+            stack.append(part)
+            i += 1
+        else:
+            if stack and type(stack[-1]) == expression_rat:
+                stack.append('*')
+            stack.append(to_expr_r(parse(part)))
+            i += 1
+    # print('\n'*10 + 'PARSE DONE' + '\n'*10)
+    # print(len(stack))
+    # for x in stack:
+    #     try: x.PRINT()
+    #     except: print(x)
+    # print('\n'*10 + 'PARSE DONE' + '\n'*10)
+    stack = simplify(stack)
+    return stack[0]
+
+def get_quotient(fnk):
+    num_string = '({})-({})'.format(fnk.replace('n','(n+1)'),fnk)
+    den_string = num_string.replace('k','(k-1)')
+    quot_string = '({})/({})'.format(num_string,den_string)
+    print(quot_string)
+    return parse_general(quot_string)
 
 if __name__ == '__main__':
     '''
@@ -420,7 +559,7 @@ if __name__ == '__main__':
     n,d = f1.divide(f2)
     n.PRINT()
     d.PRINT()
-    '''
+
 
     nck = binom('n','k')
     nck.PRINT()
@@ -470,11 +609,41 @@ if __name__ == '__main__':
     r.PRINT()
     f.PRINT()
     ak.PRINT()
-    '''
+
 
     num = expression_add([expression_mult([factorial(parse('n+1')),power(2,parse('n'))]),
                             expression_mult([parse('-n+k-1'),factorial(parse('n')),power(2,parse('n+1'))])])
     for em in num.addends:
         d = em.divide(power(2,parse('2n+1')))
         d.PRINT()
+
+    a = parse_general('B[n,k](n^2+kn)/(B[n,k-1](n+kn^2))')
+    a.PRINT()
+    a = parse_general('(B[n,k]n)/B[n,k-1]')
+    a.PRINT()
+    a = parse_general('(B[n,k]n)')
+    a.PRINT()
+    a = parse_general('(n)')
+    a.PRINT()
     '''
+
+
+    s1 = 'B[n,k]/P[2,n]'
+    s2 = '(P[-1,k]B[n,k]B[2k,k]P[4,n-k])/B[2n,n]'
+    s3 = '(B[n,k]B[n,k])/B[2n,n]'
+    s4 = '(P[-1,k]B[2n,n+k])/(F[3n]/F[n])'
+    s5 = '(P[2,k]B[n,k])/P[3,n]'
+    s6 = '(kB[n,k])/(nP[2,n-1])'
+    s7 = '(1/(k(k-1)))/(1-1/n)'
+    s8 = 'B[k,c]/B[n+1,c+1]'
+    s9 = 'B[r+k,k]/B[r+n+1,n]'
+    s10= 'B[m-k,n-k]/B[m+1,n]'
+
+    s = [s1,s2,s3,s4,s5,s6,s7,s8,s9,s10]
+    # s = [s2]
+    for i,ss in enumerate(s):
+        print('TEST {}'.format(i+1))
+        print(ss)
+        q = get_quotient(ss)
+        q.PRINT()
+        print('=============================================\n\n\n\n\n')

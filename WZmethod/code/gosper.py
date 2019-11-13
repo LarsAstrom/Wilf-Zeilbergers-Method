@@ -1,4 +1,4 @@
-from polynomial_general import *
+from polynomial import *
 import sys
 sys.setrecursionlimit(10**6)
 

@@ -1,6 +1,6 @@
 from collections import defaultdict
 from gaussianelemination import *
-from polynomial_general import *
+from polynomial import *
 from gosper import *
 from random import randint as RI
 

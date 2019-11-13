@@ -1,12 +1,12 @@
 from gosper import *
 from get_f import *
-from polynomial_general import *
+from polynomial import *
 
 tex_header = '\\documentclass{article}\n\
 \\usepackage[utf8]{inputenc}\n\
 \\title{Proof}\n\
 \\author{Automatic WZ-method prover}\n\
-\\date{November 2019}\n\
+\\date{}\n\
 \\begin{document}\n\
 \\maketitle\n'
 tex_bottom = '\\end{document}'
