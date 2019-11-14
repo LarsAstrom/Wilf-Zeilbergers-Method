@@ -1,7 +1,7 @@
 from collections import defaultdict
-from gaussianelemination import *
-from polynomial import *
-from gosper import *
+import gaussianelimination
+import polynomial
+import gosper
 from random import randint as RI
 
 def polynomial2dict(p,variables=None):
@@ -17,8 +17,8 @@ def polynomial2dict(p,variables=None):
             d2[tuple(k)] = d[x]
         return d2,variables
 
-    assert type(p) == type(polynomial([constant(0)],'x')), 'Cannot convert {} to dict'.format(p)
-    if type(p.coefficients[0]) == type(constant(0)):
+    assert type(p) == polynomial.polynomial, 'Cannot convert {} to dict'.format(p)
+    if type(p.coefficients[0]) == polynomial.constant:
         d = defaultdict(int)
         for i in range(p.degree+1):
             c = p.coefficients[i]
@@ -44,7 +44,7 @@ def dict2polynomial(d,v):
         out.append(''.join(map(str,out2)))
     s = '+'.join(out)
     print(s)
-    return parse(s)
+    return polynomial.polynomial_parser(s)
 
 def fac(n):
     return n*fac(n-1) if n else 1
@@ -64,7 +64,7 @@ def get_B(p,L,variables):
     return out
 
 def get_A(q,r,L,l,variables,variable='k'):
-    qd,_ = polynomial2dict(parse(q.to_string().replace(variable,'({}+1)'.format(variable))),variables)
+    qd,_ = polynomial2dict(polynomial.polynomial_parser(q.to_string().replace(variable,'({}+1)'.format(variable))),variables)
     rd,_ = polynomial2dict(r,variables)
     kvar_index = variables.index(variable)
     V = len(variables)
@@ -100,10 +100,10 @@ def to_polynomial(x,l,variables):
                                         a if a > 1 else ''))
         out2.append(')')
         out.append(''.join(map(str,out2)))
-    return parse('+'.join(out))
+    return polynomial.polynomial_parser('+'.join(out))
 
 def get_degree(p):
-    if type(p) == type(constant(0)): return 0
+    if type(p) == polynomial.constant: return 0
     return max(p.degree,max(get_degree(c) for c in p.coefficients))
 
 #Takes p(k),q(k),r(k) as inputs. Returns f(k)
@@ -111,29 +111,29 @@ def get_degree(p):
 #max_degree is the maximal degree in any variable for f.
 def get_f(p,q,r,max_degree=5,variable='k'):
     variables = p.get_common_variables(q.multiply(r))
-    p,q,r = parse(p.to_string(),variables),parse(q.to_string(),variables),parse(r.to_string(),variables)
+    p,q,r = polynomial.polynomial_parser(p.to_string(),variables),polynomial.polynomial_parser(q.to_string(),variables),polynomial.polynomial_parser(r.to_string(),variables)
     l = max_degree + 1
     L = l + max(get_degree(q),get_degree(r))
     assert L >= get_degree(p)+1, 'Does not work to get f because to low degree: {}'.format(max_degree)
     B = get_B(p,L,variables)
     A = get_A(q,r,L,l,variables)
-    x = gauss(A,B)
+    x = gaussianelimination.gauss(A,B)
     if x == None: return None
     ret = to_polynomial(x,l,variables)
-    qf = parse(q.to_string().replace(variable,'({}+1)'.format(variable))).multiply(ret)
-    rf = parse(ret.to_string().replace(variable,'({}-1)'.format(variable))).multiply(r)
+    qf = polynomial.polynomial_parser(q.to_string().replace(variable,'({}+1)'.format(variable))).multiply(ret)
+    rf = polynomial.polynomial_parser(ret.to_string().replace(variable,'({}-1)'.format(variable))).multiply(r)
     assert p.equals(qf.add(rf.negate())), 'Error for p={}, q={}, r={}. Got f={} which is wrong.'.format(p.to_string(),q.to_string(),r.to_string(),f.to_string())
     return ret
 
 def try_algo(num,den,variable='k',test_number=None):
     if num == '' or den == '': return
-    num,den = parse(num),parse(den)
+    num,den = polynomial.polynomial_parser(num),polynomial.polynomial_parser(den)
     vars = num.get_common_variables(den)
     num,den = num.convert_polynomial(vars),den.convert_polynomial(vars)
     print('=============TRY ALGO STARTED{}==============='.format(test_number if test_number!= None else ''))
     print('Numerator:  {}\nDenominator: {}\n'.format(num.to_string(),den.to_string()))
-    q,r,p = gosper(num,den,variable)
-    q,r,p = parse(q.to_string()),parse(r.to_string()),parse(p.to_string())
+    p,q,r = gosper.get_pqr(num,den,variable)
+    q,r,p = polynomial.polynomial_parser(q.to_string()),polynomial.polynomial_parser(r.to_string()),polynomial.polynomial_parser(p.to_string())
     print('p: {}\nq: {}\nr: {}\n'.format(p.to_string(),
                                         q.to_string(),
                                         r.to_string()))
@@ -142,28 +142,28 @@ def try_algo(num,den,variable='k',test_number=None):
     print('==============TRY ALGO ENDED================')
 
 if __name__ == '__main__':
-    p1 = parse('1+xy+xy^2+x^2+y')
+    p1 = polynomial.polynomial_parser('1+xy+xy^2+x^2+y')
     x = [1,0,1,1,1,0,0,1,0]
     p2 = to_polynomial(x,3,['x','y'])
     p1.PRINT()
     p2.PRINT()
     print(p1.equals(p2))
     print(get_B(p1,4,['x','y']))
-    p1 = parse('1+k+k^2+ky+k^2y')
+    p1 = polynomial.polynomial_parser('1+k+k^2+ky+k^2y')
     A = get_A(p1,p1,4,3,['k','y'])
     for a in A: print('\t'.join(map(str,a)))
     print('=====================================')
-    p = parse('2k-n-1')
-    q = parse('n+2-k')
-    r = parse('k')
+    p = polynomial.polynomial_parser('2k-n-1')
+    q = polynomial.polynomial_parser('n+2-k')
+    r = polynomial.polynomial_parser('k')
     A = get_A(q,r,3,2,['k','n'])
     for a in A: print('\t'.join(map(str,a)))
     print('-------------------')
     print(get_B(p,3,['k','n']))
     print('=====================================')
-    p = parse('(n+1)^3-2(n+1-k)^2(2n+1)')
-    q = parse('(n+2-k)^2')
-    r = parse('k^2')
+    p = polynomial.polynomial_parser('(n+1)^3-2(n+1-k)^2(2n+1)')
+    q = polynomial.polynomial_parser('(n+2-k)^2')
+    r = polynomial.polynomial_parser('k^2')
     A = get_A(q,r,4,2,['k','n'])
     for a in A: print('\t'.join(map(str,a)))
     print('-------------------')
@@ -175,15 +175,15 @@ if __name__ == '__main__':
     print(B2)
 
     print('TESTING GET DEGREE')
-    print(get_degree(parse('x^2+y+x^3y+x')))
-    print(get_degree(parse('y^2+x+y^3x+y')))
-    print(get_degree(parse('a^4b^3c^2d')))
-    print(get_degree(parse('e^4b^3c^2d')))
+    print(get_degree(polynomial.polynomial_parser('x^2+y+x^3y+x')))
+    print(get_degree(polynomial.polynomial_parser('y^2+x+y^3x+y')))
+    print(get_degree(polynomial.polynomial_parser('a^4b^3c^2d')))
+    print(get_degree(polynomial.polynomial_parser('e^4b^3c^2d')))
 
     print('=================================')
-    p = parse('(n+1)^3-2(n+1-k)^2(2n+1)')
-    q = parse('(n+2-k)^2')
-    r = parse('k^2')
+    p = polynomial.polynomial_parser('(n+1)^3-2(n+1-k)^2(2n+1)')
+    q = polynomial.polynomial_parser('(n+2-k)^2')
+    r = polynomial.polynomial_parser('k^2')
     f = get_f(p,q,r)
     f.PRINT()
 

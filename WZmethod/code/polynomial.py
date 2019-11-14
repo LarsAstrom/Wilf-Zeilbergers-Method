@@ -1,5 +1,4 @@
 '''Imports'''
-from random import randint as RI
 
 '''Constant class'''
 class constant:
@@ -13,7 +12,7 @@ class constant:
         self.is_one = (value == 1)
 
     def convert_polynomial(self,variables):
-        return parse(self.to_string(),variables)
+        return polynomial_parser(self.to_string(),variables)
 
     def evaluate(self,variable,value):
         return self.coefficients[0]
@@ -177,7 +176,7 @@ class polynomial:
         for var in self.variables:
             assert var in variables, 'Cannot convert {} to {}, because {} is missing.'\
                                         .format(self.to_string(),variables,var)
-        return parse(self.to_string(),variables)
+        return polynomial_parser(self.to_string(),variables)
 
     def get_constant(self,value):
         cur = constant(value)
@@ -355,8 +354,7 @@ def print_stack(stack):
             print(a)
     print('------------------------------')
 
-def parse(s,variables = None):
-    #raise Exception('parse not implemented')
+def polynomial_parser(s,variables = None):
     if variables == None: variables = get_variables(s)
     else:
         for var in get_variables(s):
@@ -381,7 +379,7 @@ def parse(s,variables = None):
         elif op == '*':
             stack.append(a.multiply(b))
         elif op == '/':
-            raise Exception('parse with divide not implemented')
+            raise Exception('polynomial_parser with divide not implemented')
             #stack.append(a.divide())
         return simplify(stack)
 
@@ -438,7 +436,7 @@ def parse(s,variables = None):
             stack.append(poly_from_char(ch))
         else:
             print(s)
-            raise Exception('parse not implemented for character {}.'.format(ch))
+            raise Exception('polynomial_parser not implemented for character {}.'.format(ch))
         i += 1
     stack = simplify(stack)
     return stack[0]
@@ -448,15 +446,16 @@ def get_variables(s):
 
 '''TESTING'''
 if __name__ == '__main__':
-    '''
+    p = polynomial_parser('xy + x^2')
+    p.PRINT()
     s = '-7x + (x+1)(y^2+2y+4)(z-7) + 8xy'
     print(s)
-    p = parse(s,['z','y','x'])
+    p = polynomial_parser(s,['z','y','x'])
     p.PRINT()
     s1 = 'x^2+2x+1'
     s2 = '2xy'
-    p1 = parse(s1)
-    p2 = parse(s2)
+    p1 = polynomial_parser(s1)
+    p2 = polynomial_parser(s2)
     p3 = p1.add(p2)
     p4 = p1.multiply(p2)
     p1.PRINT()
@@ -464,8 +463,8 @@ if __name__ == '__main__':
     p3.PRINT()
     p4.PRINT()
     print('============================')
-    p1 = parse('(2k-n-1)(n+2-k)')
-    p2 = parse('k(2k-n+2j-3)')
+    p1 = polynomial_parser('(2k-n-1)(n+2-k)')
+    p2 = polynomial_parser('k(2k-n+2j-3)')
     p1.PRINT()
     p2.PRINT()
     g = p1.gcd(p2)
@@ -473,8 +472,8 @@ if __name__ == '__main__':
     g.evaluate('j',1).PRINT()
     print(g.evaluate('j',1).is_zero)
     print('============================')
-    p1 = parse('(2k-n-1)(n+2-k)')
-    p2 = parse('(k+j)(2k-n+2j-3)')
+    p1 = polynomial_parser('(2k-n-1)(n+2-k)')
+    p2 = polynomial_parser('(k+j)(2k-n+2j-3)')
     p1.PRINT()
     p2.PRINT()
     g = p1.gcd(p2)
@@ -482,48 +481,48 @@ if __name__ == '__main__':
     g.evaluate('j',1).PRINT()
     print(g.evaluate('j',1).is_zero)
     print('============================')
-    p1 = parse('0x+0*(x+y)')
+    p1 = polynomial_parser('0x+0*(x+y)')
     p1.PRINT()
-    p1 = parse('x^2y')
+    p1 = polynomial_parser('x^2y')
     p1.multiply(constant(2)).PRINT()
     p1.multiply(constant(2)).evaluate('x',1).PRINT()
     p1.multiply(constant(2)).evaluate('x',2).PRINT()
     p1.multiply(constant(2)).evaluate('y',2).PRINT()
     print('==============================')
-    p1 = parse('x+2')
+    p1 = polynomial_parser('x+2')
     p1.PRINT()
     p1.evaluate('x',1).PRINT()
     print(p1.evaluate('x',1).is_zero)
     print('==============================')
-    p1 = parse('x^2+2x+1')
+    p1 = polynomial_parser('x^2+2x+1')
     print(p1.get_zeros('x'))
-    p2 = parse('2x+6')
+    p2 = polynomial_parser('2x+6')
     print(p2.get_zeros('x'))
-    p3 = parse('3x+4')
+    p3 = polynomial_parser('3x+4')
     print(p3.get_zeros('x'))
-    p4 = parse('0',['x'])
+    p4 = polynomial_parser('0',['x'])
     print(p4.get_zeros('x'))
-    p5 = parse('1',['x'])
+    p5 = polynomial_parser('1',['x'])
     print(p5.get_zeros('x'))
-    p6 = parse('x^3+1')
+    p6 = polynomial_parser('x^3+1')
     print(p6.get_zeros('x'))
     print('==============================')
-    p1 = parse('(x-1)(x-2)(x-3)(y-3)(y-4)(z-5)(z-6)')
+    p1 = polynomial_parser('(x-1)(x-2)(x-3)(y-3)(y-4)(z-5)(z-6)')
     p1.PRINT()
     print(p1.get_zeros('x'))
     print(p1.get_zeros('y'))
     print(p1.get_zeros('z'))
     print('==============================')
-    p1 = parse('x-3')
-    p2 = parse('x-2')
+    p1 = polynomial_parser('x-3')
+    p2 = polynomial_parser('x-2')
     p1.gcd(p2).PRINT()
     print(type(p1.gcd(p2)))
     print('==============================')
-    p1 = parse('-x^2')
+    p1 = polynomial_parser('-x^2')
     p1.PRINT()
     print('==============================')
-    p1 = parse('(k+1)(2k-n-1)')
-    p2 = parse('(2k-n-1)(n+2-k)')
+    p1 = polynomial_parser('(k+1)(2k-n-1)')
+    p2 = polynomial_parser('(2k-n-1)(n+2-k)')
     g1 = p1.gcd(p2)
     g2 = p2.gcd(p1)
     p1.PRINT()
@@ -537,13 +536,13 @@ if __name__ == '__main__':
     p1.gcd(f).PRINT()
     p2.gcd(p1).multiply(p2.gcd(f)).divide(f.gcd(p1))[0].PRINT()
     print('==============================')
-    p1 = parse('(k+1)(n+1)(m+1)')
-    p2 = parse('(k+1)(n+1)')
+    p1 = polynomial_parser('(k+1)(n+1)(m+1)')
+    p2 = polynomial_parser('(k+1)(n+1)')
     p1.gcd(p2).PRINT()
     print('==============================')
 
-    p1 = parse('(k+j)(2k+2j-3)')
-    p2 = parse('(2k-1)(2-k)')
+    p1 = polynomial_parser('(k+j)(2k+2j-3)')
+    p2 = polynomial_parser('(2k-1)(2-k)')
     a,b,c = p1.divide(p2)
     a.PRINT()
     b.PRINT()
@@ -565,26 +564,25 @@ if __name__ == '__main__':
     p2.gcd(c).PRINT()
     p1.gcd(p2).PRINT()
 
-    p1 = parse('10x^2+10x')
-    p2 = parse('6x')
+    p1 = polynomial_parser('10x^2+10x')
+    p2 = polynomial_parser('6x')
     p1.PRINT()
     p2.PRINT()
     g = p1.gcd(p2)
     g = g.multiply(p1.gcd_list().gcd(p2.gcd_list())).divide(g.gcd_list())[0]
     g.PRINT()
 
-    p1 = parse('(x+1)(y+1)(z+1)')
-    p2 = parse('(z+1)(y+1)')
+    p1 = polynomial_parser('(x+1)(y+1)(z+1)')
+    p2 = polynomial_parser('(z+1)(y+1)')
     p1.PRINT()
     p2.PRINT()
     p1.gcd(p2).PRINT()
 
-    p1 = parse('2x^2')
-    p2 = parse('3x')
+    p1 = polynomial_parser('2x^2')
+    p2 = polynomial_parser('3x')
     p1.PRINT()
     p2.PRINT()
     p1.gcd(p2).PRINT()
-    '''
 
-    p1 = parse('mn+m+1')
+    p1 = polynomial_parser('mn+m+1')
     p1.PRINT()

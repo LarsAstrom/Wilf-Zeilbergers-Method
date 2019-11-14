@@ -1,23 +1,21 @@
-from gosper import *
-from get_f import *
-from polynomial import *
+import parsers
+import gosper
+import get_f
+import polynomial
+import datetime
 
 tex_header = '\\documentclass{article}\n\
 \\usepackage[utf8]{inputenc}\n\
 \\title{Proof}\n\
 \\author{Automatic WZ-method prover}\n\
-\\date{}\n\
+\\date{' + '{}-{}-{}'.format(datetime.date.today().year,datetime.date.today().month,datetime.date.today().day) +\
+'}\n\
 \\begin{document}\n\
 \\maketitle\n'
 tex_bottom = '\\end{document}'
 
 def WZmethod(parser, s, quotifier, variable):
-    expr,a = parser(s)
-    quotient = quotifier(expr)
-    q,r,p = gosper(quotient[0],quotient[1],variable)
-    f = get_f(p,q,r,max_degree=5)
-    if f == None: return None
-    return q,p,f,a
+    pass
 
 def write_proof(parser,s,quotifier,variable):
     #out = 'We want to prove that\n\\begin{equation}\n{}\n\\end{equation}\nholds.'.format(s)

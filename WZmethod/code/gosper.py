@@ -1,22 +1,21 @@
-from polynomial import *
-import sys
-sys.setrecursionlimit(10**6)
+import polynomial
+import get_f
 
-def gosper(num,den,variable):
+def get_pqr(num,den,variable):
     q,r = num,den
-    p = polynomial([constant(1)],'n')
+    p = polynomial.polynomial([polynomial.constant(1)],'n')
     zero = get_common_factor(q,r,variable)
     while zero != None:
-        g = q.gcd(parse(r.to_string().replace(variable,'({}+{})'.format(variable,zero))))
+        g = q.gcd(polynomial.polynomial_parser(r.to_string().replace(variable,'({}+{})'.format(variable,zero))))
         q = q.divide(g)[0]
-        r = r.divide(parse(g.to_string().replace(variable,'({}-{})'.format(variable,zero))))[0]
+        r = r.divide(polynomial.polynomial_parser(g.to_string().replace(variable,'({}-{})'.format(variable,zero))))[0]
         for i in range(zero):
-            p = p.multiply(parse(g.to_string().replace(variable,'({}-{})'.format(variable,i))))
+            p = p.multiply(polynomial.polynomial_parser(g.to_string().replace(variable,'({}-{})'.format(variable,i))))
         zero = get_common_factor(q,r,variable)
-    return q,r,p
+    return p,q,r
 
 def get_common_factor(q,r,variable):
-    rj = parse(r.to_string().replace(variable,'({}+j)'.format(variable)))
+    rj = polynomial.polynomial_parser(r.to_string().replace(variable,'({}+j)'.format(variable)))
     #Want to find j such that gcd between q and rj is not 1.
     return find_zeros(q,rj)
 
@@ -26,19 +25,24 @@ def find_zeros(q,rj):
     if zeros and max(zeros) >= 0: return max(zeros)
     return find_zeros(rj,q.modulo(rj))
 
-def test_gosper(num,den,variable='k'):
+def gosper(num,den,variable='k',max_degree=5):
+    p,q,r = get_pqr(num,den,variable)
+    f = get_f.get_f(p,q,r,max_degree=5,variable='k')
+    return p,q,r,f
+
+def test_get_pqr(num,den,variable='k'):
     if num == '' or den == '':
         print('==============================')
         print('Testing Gosper does not work for numerator and denominator\n{}\n{}'.format(num,den))
         print('==============================')
         return
     print('======TESTING GOSPER======')
-    p1,p2 = parse(num),parse(den)
+    p1,p2 = polynomial.polynomial_parser(num),polynomial.polynomial_parser(den)
     print(num)
     print(den)
     print('Numerator: {}'.format(p1.to_string()))
     print('Denominator: {}'.format(p2.to_string()))
-    q,r,p = gosper(p1,p2,variable)
+    p,q,r = get_pqr(p1,p2,variable)
     print('Now we have:')
     print('q =',q.to_string())
     print('r =',r.to_string())
@@ -51,7 +55,7 @@ def print_break():
     print('========================================')
 
 def test_get_common_factor(s1,s2):
-    print(get_common_factor(parse(s1),parse(s2),'k'))
+    print(get_common_factor(polynomial.polynomial_parser(s1),polynomial.polynomial_parser(s2),'k'))
 
 if __name__ == '__main__':
     #01#$\sum_{k=0}^n \binom{n}{k} = 2^n$
@@ -107,17 +111,20 @@ if __name__ == '__main__':
             print('==============================')
 
     for test in tests:
+        test_get_pqr(*test)
+        '''
         try:
-            test_gosper(*test)
+            test_get_pqr(*test)
         except:
             print('==============================')
             print(test[0])
             print(test[1])
             print('DOES NOT WORK GOSPER')
             print('==============================')
+        '''
 
     exit()
-    test_gosper(s1,s2)
-    #test_gosper(s3,s4)
-    test_gosper(s5,s6)
-    test_gosper(s7,s8)
+    test_get_pqr(s1,s2)
+    #test_get_pqr(s3,s4)
+    test_get_pqr(s5,s6)
+    test_get_pqr(s7,s8)

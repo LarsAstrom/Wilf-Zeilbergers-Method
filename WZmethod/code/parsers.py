@@ -1,3 +1,7 @@
+import factor
+import expressions
+import polynomial
+
 def get_A(s):
     pass
 
@@ -13,10 +17,13 @@ def get_ak(F):
 def get_quotient(ak):
     return '({})/({})'.format(ak,ak.replace('k','(k-1)'))
 
-def parser(s):
+#Assumes something on the form \sum{k=a(n)}^b(n) A(n,k) = B(n)
+def latex2equation_parser(s):
+    raise Exception('NOT DONE IMPLEMENTED')
     F = get_F(s)
     ak = get_ak(F)
-    quotient = get_quotient(ak)
+    quotient_string = get_quotient(ak)
+    quotient = expressions.get_quotient(quotient_string)
     assert type(quotient) == expression_rat, 'Quotient type has to be expression_rat, not {}'.format(type(quotient))
     assert len(quotient.num.addends) == 1 and len(quotient.den.addends) == 1,\
             'Numerator and denominator has to have length 1, not {}, {}'.\
