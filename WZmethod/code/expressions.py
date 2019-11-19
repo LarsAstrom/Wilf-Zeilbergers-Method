@@ -56,7 +56,10 @@ class expression_mult:
             for i in range(len(factors)):
                 d = factor.try_divide(factors[i],left)
                 if d == None: continue
-                if type(d) != polynomial.constant and not (type(d) == polynomial.polynomial and d.equals(polynomial.polynomial_parser('1'))):
+                if type(d) != polynomial.constant and not \
+                        (type(d) == polynomial.polynomial and \
+                        (d.equals(polynomial.polynomial_parser('1')) or \
+                        d.equals(polynomial.polynomial_parser('0')))):
                     changed = True
                     if factor.is_polynomial(factors[i]) or factor.is_factorial(factors[i]):
                         factors[i] = factors[i].divide(d)[0]
@@ -71,21 +74,23 @@ class expression_mult:
 
     # Requires self is divisible by other.
     def divide(self,other):
+        if factor.is_power(other):
+            return self.multiply(expression_mult([other.inverse()]))
         left = other
         factors = list(self.factors)
         while not (factor.is_polynomial(left) and left.equals(polynomial.constant(1))):
             for i in range(len(factors)):
                 d = factor.try_divide(factors[i],left)
                 if d == None: continue
-                if type(d) != polynomial.constant and not (type(d) == polynomial.polynomial and d.equals(polynomial.polynomial_parser('1'))):
-                    if type(factors[i]) in [polynomial.polynomial,factor.factorial]:
-                        factors[i] = factors[i].divide(d)[0]
-                    else:
-                        factors[i] = factors[i].divide(d)
-                    if type(left) in [polynomial.polynomial,factor.factorial]:
-                        left = left.divide(d)[0]
-                    else:
-                        left = left.divide(d)
+                if factor.is_polynomial(d) and d.equals(polynomial.polynomial_parser('1')): continue
+                if type(factors[i]) in [polynomial.polynomial,factor.factorial]:
+                    factors[i] = factors[i].divide(d)[0]
+                else:
+                    factors[i] = factors[i].divide(d)
+                if type(left) in [polynomial.polynomial,factor.factorial]:
+                    left = left.divide(d)[0]
+                else:
+                    left = left.divide(d)
         return expression_mult(factors)
 
     def to_string(self):
@@ -122,6 +127,8 @@ class expression_add:
             else:
                 addends.append(addend)
         self.addends = addends
+        if polynomial_id != None and self.addends[polynomial_id].factors[0].is_zero:
+            self.addends = self.addends[:polynomial_id] + self.addends[polynomial_id+1:]
 
     def negate(self):
         return expression_add([addend.negate() for addend in self.addends])
@@ -182,6 +189,10 @@ class expression_rat:
                     if (not factor.is_polynomial(new_cand)) or (not new_cand.equals(polynomial.constant(1))):
                         candidates2.append(new_cand)
             candidates = candidates2
+        for x in self.num.addends + self.den.addends:
+            for f in x.factors:
+                if factor.is_power(f) and f.exponent.is_constant and (not factor.is_positive_constant(f.exponent)):
+                    candidates.append(f)
         if not candidates: return
         d = candidates[0]
         # print('PRINTING DIVISOR')
@@ -191,6 +202,19 @@ class expression_rat:
             self.num.addends[i] = self.num.addends[i].divide(d)
         for i in range(len(self.den.addends)):
             self.den.addends[i] = self.den.addends[i].divide(d)
+        self.simplify()
+
+    def simplify_complete(self):
+        for i in range(len(self.num.addends)):
+            for j in range(len(self.num.addends[i].factors)):
+                if factor.is_power(self.num.addends[i].factors[j]) and factor.is_positive_constant(self.num.addends[i].factors[j].exponent):
+                    self.num.addends[i].factors[j] = polynomial.constant(pow(self.num.addends[i].factors[j].base,\
+                                                                int(self.num.addends[i].factors[j].exponent.to_string())))
+        for i in range(len(self.den.addends)):
+            for j in range(len(self.den.addends[i].factors)):
+                if factor.is_power(self.den.addends[i].factors[j]) and factor.is_positive_constant(self.den.addends[i].factors[j].exponent):
+                    self.den.addends[i].factors[j] = polynomial.constant(pow(self.den.addends[i].factors[j].base,\
+                                                                int(self.den.addends[i].factors[j].exponent.to_string())))
         self.simplify()
 
     def negate(self):
@@ -291,7 +315,6 @@ def expression_parser(s):
     for x in to_split:
         s = s.replace(x,' {} '.format(x))
     parts = s.split()
-    #print(list(zip(parts,list(range(0,len(parts))))))
     stack = []
     i = 0
     while i < len(parts):
@@ -367,11 +390,14 @@ def get_quotient(fnk):
     num_string = '({})-({})'.format(fnk.replace('n','(n+1)'),fnk)
     den_string = num_string.replace('k','(k-1)')
     quot_string = '({})/({})'.format(num_string,den_string)
-    #print(quot_string)
-    return expression_parser(quot_string)
+    print(quot_string)
+    out = expression_parser(quot_string)
+    out.simplify_complete()
+    return out
+    #return expression_parser(quot_string).simplify_complete()
 
 if __name__ == '__main__':
-
+    '''
     p1 = polynomial.polynomial_parser('mn+k^2')
     f1 = factor.factorial(polynomial.polynomial_parser('n'))
     p2 = polynomial.polynomial_parser('m^2n^2+k')
@@ -532,12 +558,20 @@ if __name__ == '__main__':
     a.PRINT()
     a = expression_parser('(n)')
     a.PRINT()
-
+    '''
+    s = 'P[2,n]/P[2,n+3]'
+    a = expression_parser(s)
+    a.simplify_complete()
+    a.PRINT()
+    s = 'P[2,n+3]/P[2,n]'
+    a = expression_parser(s)
+    a.simplify_complete()
+    a.PRINT()
 
     s1 = 'B[n,k]/P[2,n]'
     s2 = '(P[-1,k]B[n,k]B[2k,k]P[4,n-k])/B[2n,n]'
     s3 = '(B[n,k]B[n,k])/B[2n,n]'
-    s4 = '(P[-1,k]B[2n,n+k])/(F[3n]/F[n])'
+    s4 = '(P[-1,k]B[2n,n+k]B[2n,n+k]B[2n,n+k])/(F[3n]/F[n])'
     s5 = '(P[2,k]B[n,k])/P[3,n]'
     s6 = '(kB[n,k])/(nP[2,n-1])'
     s7 = '(1/(k(k-1)))/(1-1/n)'
@@ -546,12 +580,14 @@ if __name__ == '__main__':
     s10= 'B[m-k,n-k]/B[m+1,n]'
     s11= 'B[n,k]P[3,k]/P[4,n]'
     s12= 'B[n,k]P[4,k]/P[5,n]'
+    s13= '1/B[k,n]/(n/(n-1))'
+    s14= 'P[-1,k]/B[m,k]/((1+P[-1,m])(m+1)/(m+2))'
 
-    s = [s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12]
+    s = [s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13]
     # s = [s2]
     for i,ss in enumerate(s):
         print('TEST {}'.format(i+1))
         print(ss)
         q = get_quotient(ss)
         q.PRINT()
-        print('=============================================\n\n\n\n\n')
+        print('=============================================')

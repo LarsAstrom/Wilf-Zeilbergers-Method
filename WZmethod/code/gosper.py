@@ -27,7 +27,7 @@ def find_zeros(q,rj):
 
 def gosper(num,den,variable='k',max_degree=5):
     p,q,r = get_pqr(num,den,variable)
-    f = get_f.get_f(p,q,r,max_degree=5,variable='k')
+    f = get_f.get_f(p,q,r,max_degree=max_degree,variable=variable)
     return p,q,r,f
 
 def test_get_pqr(num,den,variable='k'):
@@ -48,7 +48,7 @@ def test_get_pqr(num,den,variable='k'):
     print('r =',r.to_string())
     print('p =',p.to_string())
     print('such that p(n)*q(n)/(p(n-1)*r(n))')
-    print('==========================')
+    print_break()
     print()
 
 def print_break():

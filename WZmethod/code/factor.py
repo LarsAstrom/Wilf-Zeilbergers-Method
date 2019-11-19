@@ -69,7 +69,10 @@ class power:
         return self.divide(other) != None
 
     def to_string(self):
-        return '{}^({})'.format(self.base,self.exponent.to_string())
+        return '{}{}{}^({})'.format('(' if self.base < 0 else '',
+                                    self.base,
+                                    ')' if self.base < 0 else '',
+                                    self.exponent.to_string())
 
     def PRINT(self):
         print(self.to_string())

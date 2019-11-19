@@ -1,7 +1,4 @@
 \documentclass{LTHthesis}
-%\documentclass[svenska]{LTHthesis} % Om rapporten är på svenska, så är det
-                                    % den här raden som skall användas, och
-                                    % den föregående skall tas bort.
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}  %% Comment if you are not using utf8
 \usepackage{mathptmx, helvet}
@@ -46,7 +43,7 @@
 \newtheorem*{remark}{Remark}
 
 
-\addbibresource{mybib.bib}  %%  Comment if you don't want to use bibtex.
+%\addbibresource{mybib.bib}  %%  Comment if you don't want to use bibtex.
 
 \begin{document}
 \begin{titlepages}
@@ -84,8 +81,9 @@
 %\bibliography{mybib.bib}{}
 %\bibliographystyle{plain}
 %\printbibliography  %% Comment if you don't want to use bibtex
-\chapter*{References}
+\begin{thebibliography}{99}
 \input{texs/references}
+\end{thebibliography}
 
 \chapter*{Attachments}
 \input{texs/attachments}
