@@ -24,6 +24,8 @@
 %BigO
 %\renewcommand{\bigO}[0]{\mathcal{O}}
 
+\newcommand{\reference}[1]{[\ref{Ref: #1}]}
+
 %To get numbered subsections
 \setcounter{secnumdepth}{5}
 
@@ -35,11 +37,11 @@
 
 %Theorems
 \theoremstyle{definition}
-\newtheorem{example}{Example}[chapter]
-\newtheorem*{solution}{Solution}
 \newtheorem{theorem}{Theorem}[chapter]
-\newtheorem{lemma}{Lemma}[chapter]
-\newtheorem{definition}{Definition}[chapter]
+\newtheorem{example}[theorem]{Example}
+\newtheorem*{solution}{Solution}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
 \newtheorem*{remark}{Remark}
 
 
@@ -48,7 +50,7 @@
 \begin{document}
 \begin{titlepages}
 \author{Lars Åström}
-\title{Wilf Zeilberger method}
+\title{Polynomial Computer Algebra and implementation of Wilf-Zeilberger's method}
 \year{2019}
 \month{December}
 \TFRT{TODO}  %%  You will get the number from the department.
@@ -78,17 +80,14 @@
 \chapter{Discussion and conclusions}\label{Ch: Discussion and conclusions}
 \input{texs/discussion}
 
-%\bibliography{mybib.bib}{}
-%\bibliographystyle{plain}
-%\printbibliography  %% Comment if you don't want to use bibtex
 \begin{thebibliography}{99}
 \input{texs/references}
 \end{thebibliography}
 
-\chapter*{Attachments}
+\chapter{Attachments}
 \input{texs/attachments}
 
-\chapter*{Popular scientific paper}
+\chapter{Popular scientific paper}
 \input{texs/popular}
 
 \end{document}

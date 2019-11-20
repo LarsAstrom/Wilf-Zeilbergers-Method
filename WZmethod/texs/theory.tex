@@ -1,5 +1,7 @@
+The thesis' main goal is to end up with an implementation of Wilf-Zeilberger's method. In the process of this method polynomials are used in all the steps. Therefore a big part of the thesis is to understand the computer algebraic difficulties involved when implementing polynomials. Therefore a large library with polynomial functions is implemented. The goal for this library is not to be very efficient as this is not needed for the implementation of Wilf-Zeilberger's method, and also since that would be out of scope for the thesis. Furthermore, there are already existing libraries that are highly efficient for polynomic computer algebra. Still, by implementing a library of polynomial functions from scratch is relevant in order to see and experience the difficulties first hand. Since this is also a goal of the implementation, we will try to throughout the theory and implementation chapters to point out difficulties in the implementations that occurred on the way. This might however give the impression that the implementation is very naïve, but this is since the problems that are considered in this thesis are not very demanding computationally.
+
 \section{Polynomials}
-In the thesis we are continuously discussing polynomials. We are always using polynomials with integer coefficients -- which we also generalize to include rational coefficients by looking at fractions of polynomials with integer coefficients. Therefore, from now on whenever we talk about polynomials they are assumed to have integer coefficients as long as otherwise is not stated.[\ref{Ref: gosper}]\todo{This is an example, remove when adding references.}
+In the thesis we are continuously discussing polynomials. We are always using polynomials with integer coefficients -- which we also generalize to include rational coefficients by looking at fractions of polynomials with integer coefficients. Therefore, from now on whenever we talk about polynomials they are assumed to have integer coefficients as long as otherwise is not stated.\reference{gosper}\todo{This is an example, remove when adding references.}
 
 We will now have a discussion on what operations we want to be able to perform on the polynomials both theoreticly and partly implementation wise. Therefore there will not be a specific subchapter regarding polynomials later on in chapter \ref{Ch: Implementation}. But first we need to describe how a polynomial can be implemented and stored in the code -- and this is how it was implemented in this thesis.
 
@@ -551,7 +553,17 @@ The fact that one of these are true is easily checked in all the procedures.
 These procedure descriptions conclude a quite theory heavy section about polynomials. Next will follow Wilf-Zeilberger's method, and will decribe how the method works.
 
 \section{Wilf-Zeilberger's method}
-Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The methodology in the proof is that assume we want to prove %~\cite{gf}
+Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The method can just be used to show an identity that is given, and cannot itself come up with a guess for what a sum would be. This means that the method can be used to solve problems like
+\begin{example}
+  Show that $$\sum_{k=0}^n (-1)^k\binom{n}{k}\binom{2k}{k}4^{n-k}=\binom{2n}{n}$$
+\end{example}
+but not problems like
+\begin{example}
+  Find a general formula for $$\sum_{k=0}^n k\binom{n}{k}.$$
+\end{example}
+Hence in order to use the method we need to have an equality to verify.
+
+The methodology\reference{wilf} in the proof is that assume we want to prove
 \begin{equation}\label{Eq: Theory,PS}
   \sum_{k=-\infty}^\infty A(n,k) = B(n).
 \end{equation}
@@ -816,7 +828,7 @@ where $M$ is the matrix that is given by the right hand side of \ref{Eq: Theory,
   \item We chose a too small maximal degree $N$ for the polynomial $f_k$.
   \item There does not exist a solution, hence the identity cannot be shown by Wilf-Zeilbergers method.
 \end{enumerate}
-In the paper by Gosper (1978) the first reason for not finding a $f_k$ does not exists, since the paper proves an upper limit on the degree of $f_k$ with respect to $k$. This cannot be done for other variables, for instance with $p_k=q_{k+1}=r_k=1$ any polynomial $f_k$ on the form $f_k=n^c+k$ satisfies \ref{Eq: Theory,f equation}. \todo[inline]{Is it possible to show if there exists a solution there exist one with limited degree}
+In the paper by Gosper (1978) the first reason for not finding a $f_k$ does not exists, since the paper proves an upper limit on the degree of $f_k$ with respect to $k$. This cannot be done for other variables, for instance with $p_k=q_{k+1}=r_k=1$ any polynomial $f_k$ on the form $f_k=n^c+k$ satisfies \ref{Eq: Theory,f equation}.
 
 In the system \ref{Eq: Theory,equation system2}, $M$ can be constructed to have dimension $L\times (N^m)$, where $L=max(deg(p_k)+1,max(deg(q_{k+1}),deg(r_k))+N+1)$. Here $deg(g)$ denotes the largest degree in any variable of the polynomial $g$. The reason for this limit is that the row with highest degree for any variable can be chosen to be $L$, since the degree of either side of the equation \ref{Eq: Theory,equation system1} is at most $L$.
 

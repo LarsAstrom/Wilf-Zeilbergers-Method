@@ -146,6 +146,35 @@ class expression_add:
                 addends.append(addend1.multiply(addend2))
         return expression_add(addends)
 
+    def is_zero(self):
+        addends = [x for x in self.addends]
+        candidates = [f for f in addends[0].factors]
+        while candidates:
+            for expr_m in addends:
+                candidates2 = []
+                for cand in candidates:
+                    new_cands = expr_m.is_divisible(cand)
+                    for new_cand in new_cands:
+                        if factor.is_polynomial(new_cand) and new_cand.equals(polynomial.constant(1)): continue
+                        candidates2.append(new_cand)
+                candidates = candidates2
+            if not candidates: break
+            d = candidates[0]
+            for i in range(len(addends)):
+                addends[i] = addends[i].divide(d)
+            candidates = [f for f in addends[0].factors]
+        for i in range(len(addends)):
+            addends[i].simplify()
+        all_poly = True
+        for a in addends:
+            if len(a.factors) > 1 or not factor.is_polynomial(a.factors[0]):
+                all_poly = False
+        if not all_poly: return False
+        x = addends[0].factors[0]
+        for a in addends[1:]:
+            x = x.add(a.factors[0])
+        return x.is_zero
+
     def to_string(self):
         out = ['(']
         for i,x in enumerate(self.addends):
@@ -178,16 +207,16 @@ class expression_rat:
             for cand in candidates:
                 new_cands = expr_m.is_divisible(cand)
                 for new_cand in new_cands:
-                    if (not factor.is_polynomial(new_cand)) or (not new_cand.equals(polynomial.constant(1))):
-                        candidates2.append(new_cand)
+                    if factor.is_polynomial(new_cand) and new_cand.equals(polynomial.constant(1)): continue
+                    candidates2.append(new_cand)
             candidates = candidates2
         for expr_m in self.den.addends:
             candidates2 = []
             for cand in candidates:
                 new_cands = expr_m.is_divisible(cand)
                 for new_cand in new_cands:
-                    if (not factor.is_polynomial(new_cand)) or (not new_cand.equals(polynomial.constant(1))):
-                        candidates2.append(new_cand)
+                    if factor.is_polynomial(new_cand) and new_cand.equals(polynomial.constant(1)): continue
+                    candidates2.append(new_cand)
             candidates = candidates2
         for x in self.num.addends + self.den.addends:
             for f in x.factors:
@@ -231,6 +260,11 @@ class expression_rat:
     def multiply(self,other):
         return expression_rat(self.num.multiply(other.num),\
                             self.den.multiply(other.den))
+
+    def power(self,n):
+        if n == 0: return to_expr_r(polynomial.constant(1))
+        if n < 0: return self.negate().power(-n)
+        return self.multiply(self.power(n-1))
 
     def divide(self,other):
         return self.multiply(expression_rat(other.den,other.num))
@@ -310,11 +344,12 @@ def expression_parser(s):
             raise Exception('Parse general error')
         return simplify(stack)
 
-    to_split = ['B[','F[','P[',']',',','/','*','+','-','(',')']
+    to_split = ['B[','F[','P[',']',',','/','*','+','-','(',')','^']
     s = s.replace(' ','')
     for x in to_split:
         s = s.replace(x,' {} '.format(x))
     parts = s.split()
+    # print(parts)
     stack = []
     i = 0
     while i < len(parts):
@@ -372,9 +407,14 @@ def expression_parser(s):
             stack = simplify(stack)
             stack.append(part)
             i += 1
+        elif part == '^':
+            cur = stack.pop()
+            stack.append(cur.power(int(parts[i+1])))
+            i += 2
         else:
             if stack and type(stack[-1]) == expression_rat:
                 stack.append('*')
+            #print(part)
             stack.append(to_expr_r(polynomial.polynomial_parser(part)))
             i += 1
     # print('\n'*10 + 'PARSE DONE' + '\n'*10)
@@ -559,7 +599,7 @@ if __name__ == '__main__':
     a = expression_parser('(n)')
     a.PRINT()
     '''
-    s = 'P[2,n]/P[2,n+3]'
+    s = '(P[2,n]/P[2,n+3])^2'
     a = expression_parser(s)
     a.simplify_complete()
     a.PRINT()

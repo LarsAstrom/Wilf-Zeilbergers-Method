@@ -1,0 +1,38 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\let\oldforall\forall
+\renewcommand{\forall}{\hspace*{2mm}\oldforall\hspace*{1mm}}
+\title{Proof}
+\author{Automatic WZ-method prover}
+\date{2019-11-20}
+\begin{document}
+\maketitle
+We want to prove that
+\begin{equation}\label{Eq: 1}
+\sum \binom{n}{k}^2 = \binom{2n}{n}
+\end{equation}
+holds.By dividing equation \ref{Eq: 1} by the right hand side we get
+\begin{equation}
+F(n,k)=\frac{(\binom{n}{k}\binom{n}{k})}{\binom{2n}{n}}
+\end{equation}
+We use proof certificate
+\begin{equation}
+R(n,k)=\frac{(-3n+(2(k-1)-1))}{(4n+2)},
+\end{equation}
+which is the same as using
+\begin{equation}
+G(n,k)=\frac{(-3n+(2(k-1)-1))}{(4n+2)}\frac{(\binom{n}{(k-1)}\binom{n}{(k-1)})}{\binom{2n}{n}},
+\end{equation}
+the automatic solve has  shown that
+\begin{equation}\label{Eq: WZ1}
+F(n+1,k)-F(n,k)=G(n,k+1)-G(n,k).
+\end{equation}
+Thereafter user now has to verify that
+\begin{equation}
+\lim_{k\to\pm\infty}G(n,k)=0\forall n.
+\end{equation}
+Then we get
+\begin{equation}
+\sum_k F(n+1,k)-F(n,k)=\sum_k G(n,k+1)-G(n,k)=0\end{equation}Lastly equation \ref{Eq: 1} needs to be verified for some $n$, for instance $n=0$. Thereafter the identity is shown.
+\end{document}

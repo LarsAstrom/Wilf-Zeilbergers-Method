@@ -400,7 +400,7 @@
   \newcommand*\tp@ISBN@web{}
   \newcommand*\tp@series@{ TFRT-}
   \newcommand*\tp@number@{9999}
-  \newcommand*\tp@ISSN@{0280--5316}
+  \newcommand*\tp@ISSN@{TODO--TODO}
   \newcommand*\tp@subtitle@{}
   \newcommand*\tp@extrainfo@{}
   \newcommand*\tp@copyright@{\copyright{} \tp@year@{} by \tp@author@.

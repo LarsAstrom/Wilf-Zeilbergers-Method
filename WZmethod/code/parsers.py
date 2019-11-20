@@ -52,7 +52,7 @@ def parse_rel_part(s):
         i1 = s.find('}',i0)
         i2 = s.find('{',i1)
         i3 = s.find('}',i2)
-        s = s[:i] + '(({})/({}))'.format(parse_rel_part(s[i0+1:i1]),
+        s = s[:i] + '({})/({})'.format(parse_rel_part(s[i0+1:i1]),
                     parse_rel_part(s[i2+1:i3])) + s[i3+1:]
         i = s.find('\\frac')
     i = s.find('!')
