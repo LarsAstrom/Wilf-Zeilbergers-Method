@@ -1,6 +1,7 @@
 import polynomial
 import get_f
 
+'''Solves first step of Gosper's algorithm'''
 def get_pqr(num,den,variable):
     q,r = num,den
     p = polynomial.polynomial([polynomial.constant(1)],'n')
@@ -25,11 +26,13 @@ def find_zeros(q,rj):
     if zeros and max(zeros) >= 0: return max(zeros)
     return find_zeros(rj,q.modulo(rj))
 
+'''Performs Gosper's algorithm by calling step 1 and then step 2'''
 def gosper(num,den,variable='k',max_degree=5):
     p,q,r = get_pqr(num,den,variable)
     f = get_f.get_f(p,q,r,max_degree=max_degree,variable=variable)
     return p,q,r,f
 
+'''Method for testing'''
 def test_get_pqr(num,den,variable='k'):
     if num == '' or den == '':
         print('==============================')
