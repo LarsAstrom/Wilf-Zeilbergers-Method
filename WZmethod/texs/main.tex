@@ -17,6 +17,14 @@
 \renewcommand{\exists}{\hspace*{2mm}\oldexists\hspace*{1mm}}
 \newcommand{\emptyvec}{[\hspace*{1mm}]}
 
+%For tables
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\let\oldhline\hline
+\renewcommand{\hline}{\oldhline\vspace*{6mm}}
+
 %\newcommand{\vect}[1]{\boldsymbol{#1}}
 %Bold vector: \vec{x}
 %\usepackage{amsbsy}
@@ -57,8 +65,11 @@
 \printer{Media-Tryck}  %% Probably. You may get other information from the department.
 \end{titlepages}
 \chapter*{Abstract}
+\include{texs/abstract_en}
+\include{texs/abstract_sv}
 
 \chapter*{Preface}
+\include{texs/preface}
 
 \tableofcontents
 
@@ -84,10 +95,10 @@
 \input{texs/references}
 \end{thebibliography}
 
-\chapter*{Attachments}
+\chapter{Attachments}
 \input{texs/attachments}
 
-\chapter*{Popular scientific paper}
+\chapter{Popular scientific paper}
 \input{texs/popular}
 
 \end{document}

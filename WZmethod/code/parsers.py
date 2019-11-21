@@ -4,6 +4,7 @@ import polynomial
 
 '''Parses an expression on latex format'''
 def parse_rel_part(s):
+    s = s.replace('\\cdot','*')
     def get_next_part_end(s,i):
         if s[i+1] == '{':
             j = i+1
@@ -84,13 +85,13 @@ def parse_rel_part(s):
 '''Gets A from a latex identity'''
 def get_A(s):
     part = s.split('=')[0]
-    part.replace(' ','')
+    part = part.replace(' ','')
     return parse_rel_part(part)
 
 '''Gets B from a latex identity'''
 def get_B(s):
     part = s.split('=')[1]
-    part.replace(' ','')
+    part = part.replace(' ','')
     return parse_rel_part(part)
 
 '''Gets F from a latex identity'''
@@ -126,6 +127,8 @@ def get_quotient_string(ak):
 def latex2equation_parser(s):
     F = get_F(s)
     ak = get_ak(F)
+    print(F)
+    print(ak)
     ak_poly_part = expressions.expression_parser('({})/({})-1'.format(F.replace('n','(n+1)'),F))
     ak_poly_part.simplify_complete()
     ak_rest_part = F

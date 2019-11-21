@@ -1,7 +1,6 @@
 import parsers
 import factor
 import gosper
-import get_f
 import polynomial
 import expressions
 import datetime
@@ -54,6 +53,7 @@ def WZmethod(parser, s, variable='k', max_degree=5):
 
 '''Converts a thing on the form used in program to tex.'''
 def to_tex(F):
+    F = F.replace('*','\\cdot')
     def get_next_part_end(s,i):
         if s[i+1] == '(':
             j = i+1
@@ -189,7 +189,7 @@ def main(parser,s,variable,outfile='../texs/proofs/proof.tex'):
 if __name__ == '__main__':
 
     s01 = '\\sum \\binom{n}{k} = 2^n'
-    s02 = '\\sum (-1)^k\\binom{n}{k}\\binom{2k}{k}4^{n-k}=\\binom{2n}{n}'
+    s02 = '\\sum (-1)^k\\cdot\\binom{n}{k}\\binom{2k}{k}4^{n-k}=\\binom{2n}{n}'
     s03 = '\\sum \\binom{n}{k}^2 = \\binom{2n}{n}'
     s04 = '\\sum (-1)^k\\binom{2n}{n+k}^3 = \\frac{(3n)!}{n!}'
     s05 = '\\sum 2^k\\binom{n}{k} = 3^n'
