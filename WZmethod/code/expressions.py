@@ -1,6 +1,11 @@
 import factor
 import polynomial
 
+'''
+Expression mult is a expression that is a multiplication of some factors. Factors are
+of type polynomial, factorial and power. The factors are stored in a list, for instance
+n^2*m!*2^k is stored as [polynomial(n^2),factorial(m),power(2,k)].
+'''
 class expression_mult:
     def __init__(self,factors):
         self.factors = factors
@@ -9,7 +14,10 @@ class expression_mult:
             assert factor.is_factor(f), 'Factor cannot be {}'.format(type(f))
         self.simplify()
 
-    ''' Collect all terms '''
+    '''
+    Collect all terms. After simplify we only have at most one polynomial term,
+    and power terms are combined if possible.
+    '''
     def simplify(self):
         facs = []
         include_1 = True
@@ -46,7 +54,10 @@ class expression_mult:
     def multiply(self,other):
         return expression_mult(self.factors+other.factors)
 
-    # Returns f such that f is a factor of factor and divides self.
+    '''
+    This method is used to try to divide self by f. If that is not possible we
+    find the largest f' such that f'|f and f'|self.
+    '''
     def is_divisible(self,f):
         left,out = f,[]
         factors = list(self.factors)
@@ -72,7 +83,9 @@ class expression_mult:
                     out.append(d)
         return out
 
-    # Requires self is divisible by other.
+    '''
+    This method assumes and requires that self is divisible by other.
+    '''
     def divide(self,other):
         if factor.is_power(other):
             return self.multiply(expression_mult([other.inverse()]))
@@ -103,6 +116,11 @@ class expression_mult:
     def PRINT(self):
         print(self.to_string())
 
+'''
+Expression add is an expression where all the addends are added together. Each
+addend needs to be of type expression mult. The addends are stored in a list,
+where expr_m1+...+expr_ms is stored as [expr_m1,...,expr_ms].
+'''
 class expression_add:
     def __init__(self,addends):
         self.addends = addends
@@ -112,7 +130,10 @@ class expression_add:
                     'Addends need to be expression_mult, not {}'.format(type(addend))
         self.simplify()
 
-    ''' Collect all terms '''
+    '''
+    Collect all terms. After simplify there is at most one addend that is
+    purely polynomial.
+    '''
     def simplify(self):
         addends = []
         polynomial_id = None
@@ -167,7 +188,7 @@ class expression_add:
             addends[i].simplify()
         all_poly = True
         for a in addends:
-            if len(a.factors) > 1 or not factor.is_polynomial(a.factors[0]):
+            if not a.is_polynomial():
                 all_poly = False
         if not all_poly: return False
         x = addends[0].factors[0]
@@ -187,6 +208,10 @@ class expression_add:
     def PRINT(self):
         print(self.to_string())
 
+'''
+Expression rat is a rational expression. Here we have a numerator and a
+denominator, which both are of type expression add.
+'''
 class expression_rat:
     def __init__(self,num,den):
         self.num = num
@@ -197,6 +222,10 @@ class expression_rat:
                 'Denominator needs to be expression_add, not {}'.format(type(self.den))
         self.simplify()
 
+    '''
+    Simplifies the expression. Tries to find a common factor for all expression mults
+    in the numerator and denominator and thereafter divides by that factor.
+    '''
     def simplify(self):
         # self.PRINT()
         self.num.simplify()
@@ -233,6 +262,10 @@ class expression_rat:
             self.den.addends[i] = self.den.addends[i].divide(d)
         self.simplify()
 
+    '''
+    This is a method to make sure there are no powers of integer^number in the
+    numerator or denominator. Instead this is replaced by a constant.
+    '''
     def simplify_complete(self):
         for i in range(len(self.num.addends)):
             for j in range(len(self.num.addends[i].factors)):
@@ -283,6 +316,7 @@ class expression_rat:
     def PRINT(self):
         print(self.to_string())
 
+'''Gives an expression for a binomial coefficient'''
 def binom(n,k):
     if type(n) == str: n = polynomial.polynomial_parser(n)
     if type(k) == str: k = polynomial.polynomial_parser(k)
@@ -290,6 +324,7 @@ def binom(n,k):
     den = expression_add([expression_mult([factor.factorial(k),factor.factorial(polynomial.polynomial_parser('{}-({})'.format(n.to_string(),k.to_string())))])])
     return expression_rat(num,den)
 
+'''Gets a rational expression from some other type'''
 def to_expr_r(x):
     if type(x) == expression_rat:
         return x
@@ -302,6 +337,15 @@ def to_expr_r(x):
     den = expression_add([expression_mult([polynomial.constant(1)])])
     return expression_rat(num,den)
 
+'''
+Parses an expression that is given on the special form used for this work. This
+means that some constituents have a special form:
+    - Binomial coefficients are given by B[n,k]
+    - Factorials are given by F[n]
+    - Powers of integers are given by P[a,n]
+    - Polynomials are given as usual
+The details of the parser is given in the report.
+'''
 def expression_parser(s):
     def simplify(stack):
         if len(stack) == 1: return stack
@@ -349,11 +393,9 @@ def expression_parser(s):
     for x in to_split:
         s = s.replace(x,' {} '.format(x))
     parts = s.split()
-    # print(parts)
     stack = []
     i = 0
     while i < len(parts):
-        #print(i)
         part = parts[i]
         if len(part) == 0:
             i += 1
@@ -368,7 +410,6 @@ def expression_parser(s):
             stack = simplify(stack)
             stack = stack[:-2] + stack[-1:]
             i += 1
-        #DONE TO HERE.
         elif part == 'B[':
             if stack and type(stack[-1]) == expression_rat:
                 stack.append('*')
@@ -414,30 +455,22 @@ def expression_parser(s):
         else:
             if stack and type(stack[-1]) == expression_rat:
                 stack.append('*')
-            #print(part)
             stack.append(to_expr_r(polynomial.polynomial_parser(part)))
             i += 1
-    # print('\n'*10 + 'PARSE DONE' + '\n'*10)
-    # print(len(stack))
-    # for x in stack:
-    #     try: x.PRINT()
-    #     except: print(x)
-    # print('\n'*10 + 'PARSE DONE' + '\n'*10)
     stack = simplify(stack)
     return stack[0]
 
+'''Used for testing. Gets F(n,k) and returns a_k/a_{k-1}'''
 def get_quotient(fnk):
     num_string = '({})-({})'.format(fnk.replace('n','(n+1)'),fnk)
     den_string = num_string.replace('k','(k-1)')
     quot_string = '({})/({})'.format(num_string,den_string)
-    print(quot_string)
     out = expression_parser(quot_string)
     out.simplify_complete()
     return out
-    #return expression_parser(quot_string).simplify_complete()
 
 if __name__ == '__main__':
-    '''
+    print('TESTING EXPRESSIONS')
     p1 = polynomial.polynomial_parser('mn+k^2')
     f1 = factor.factorial(polynomial.polynomial_parser('n'))
     p2 = polynomial.polynomial_parser('m^2n^2+k')
@@ -461,7 +494,9 @@ if __name__ == '__main__':
     ea2.PRINT()
     er1.PRINT()
     #WRITE TESTCASES.
+    print('\n\n\n\n\n\n\n')
 
+    print('FACTOR MULTIPLICATION AND DIVISION')
     f1 = factor.factorial(polynomial.polynomial_parser('n+2'))
     f2 = factor.factorial(polynomial.polynomial_parser('n'))
     n,d = f1.divide(f2)
@@ -481,6 +516,8 @@ if __name__ == '__main__':
     p1 = polynomial.polynomial_parser('n+m+1')
     c1.add(p1).PRINT()
     p1.add(c1).PRINT()
+    print('\n\n\n\n\n\n\n')
+
 
     f1 = factor.factorial(polynomial.polynomial_parser('n'))
     f2 = factor.factorial(polynomial.polynomial_parser('n+2'))
@@ -545,7 +582,7 @@ if __name__ == '__main__':
     nck.PRINT()
     nck1 = binom('n','k-1')
     nck1.PRINT()
-    print('\n\n\n\n\n\n\n\n\n\n')
+    print('\n\n\n\n\n\n\n')
     nck.divide(nck1).PRINT()
     nck1.divide(nck).PRINT()
 
@@ -560,7 +597,7 @@ if __name__ == '__main__':
     p1 = polynomial.polynomial_parser('n-k+1')
     p1.PRINT()
 
-    print('TESTING TESTING TESTING')
+    print('TESTING BINOMIAL DIVISIONS')
     b1 = binom('n+1','k')
     b2 = binom('n','k')
     b3 = binom('n+1','k-1')
@@ -575,13 +612,12 @@ if __name__ == '__main__':
     t2.PRINT()
     t3.PRINT()
     t4.PRINT()
-    print('\n\n\n\n\n\n\n\n\n\n')
+    print('\n\n\n\n\n\n\n')
     ak = t1.subtract(t2)
     ak.PRINT()
     #exit()
     out = t1.subtract(t2).divide(t3.subtract(t4))
     out.PRINT()
-
 
 
     num = expression_add([expression_mult([factor.factorial(polynomial.polynomial_parser('n+1')),factor.power(2,polynomial.polynomial_parser('n'))]),
@@ -598,7 +634,7 @@ if __name__ == '__main__':
     a.PRINT()
     a = expression_parser('(n)')
     a.PRINT()
-    '''
+
     s = '(P[2,n]/P[2,n+3])^2'
     a = expression_parser(s)
     a.simplify_complete()
@@ -607,7 +643,9 @@ if __name__ == '__main__':
     a = expression_parser(s)
     a.simplify_complete()
     a.PRINT()
+    print('\n\n\n\n\n\n\n')
 
+    print('TESTING OUR EXAMPLES TO GET AK/AK-1')
     s1 = 'B[n,k]/P[2,n]'
     s2 = '(P[-1,k]B[n,k]B[2k,k]P[4,n-k])/B[2n,n]'
     s3 = '(B[n,k]B[n,k])/B[2n,n]'
@@ -623,7 +661,7 @@ if __name__ == '__main__':
     s13= '1/B[k,n]/(n/(n-1))'
     s14= 'P[-1,k]/B[m,k]/((1+P[-1,m])(m+1)/(m+2))'
 
-    s = [s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13]
+    s = [s1,s2,s3,s5,s6,s7,s8,s9,s10,s11,s12,s13]#,s14,s4]
     # s = [s2]
     for i,ss in enumerate(s):
         print('TEST {}'.format(i+1))
@@ -631,3 +669,5 @@ if __name__ == '__main__':
         q = get_quotient(ss)
         q.PRINT()
         print('=============================================')
+    print('\n\n\n\n\n\n\n')
+    print('TESTING DONE')
