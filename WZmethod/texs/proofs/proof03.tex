@@ -5,24 +5,24 @@
 \renewcommand{\forall}{\hspace*{2mm}\oldforall\hspace*{1mm}}
 \title{Proof}
 \author{Automatic WZ-method prover}
-\date{2019-11-20}
+\date{2019-11-21}
 \begin{document}
 \maketitle
 We want to prove that
 \begin{equation}\label{Eq: 1}
 \sum \binom{n}{k}^2 = \binom{2n}{n}
 \end{equation}
-holds.By dividing equation \ref{Eq: 1} by the right hand side we get
+holds. By dividing equation \ref{Eq: 1} by the right hand side we get
 \begin{equation}
-F(n,k)=\frac{(\binom{n}{k}\binom{n}{k})}{\binom{2n}{n}}
+F(n,k)=\frac{\binom{n}{k}\binom{n}{k}}{\binom{2n}{n}}
 \end{equation}
 We use proof certificate
 \begin{equation}
-R(n,k)=\frac{(-3n+(2(k-1)-1))}{(4n+2)},
+R(n,k)=\frac{-3n+(2k-3)}{4n+2},
 \end{equation}
 which is the same as using
 \begin{equation}
-G(n,k)=\frac{(-3n+(2(k-1)-1))}{(4n+2)}\frac{(\binom{n}{(k-1)}\binom{n}{(k-1)})}{\binom{2n}{n}},
+G(n,k)=\frac{-3n+(2k-3)}{4n+2}\frac{\binom{n}{k-1}\binom{n}{k-1}}{\binom{2n}{n}},
 \end{equation}
 the automatic solve has  shown that
 \begin{equation}\label{Eq: WZ1}

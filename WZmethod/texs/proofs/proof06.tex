@@ -5,24 +5,24 @@
 \renewcommand{\forall}{\hspace*{2mm}\oldforall\hspace*{1mm}}
 \title{Proof}
 \author{Automatic WZ-method prover}
-\date{2019-11-20}
+\date{2019-11-21}
 \begin{document}
 \maketitle
 We want to prove that
 \begin{equation}\label{Eq: 1}
 \sum \frac{1}{k(k-1)} = 1-\frac{1}{n}
 \end{equation}
-holds.By dividing equation \ref{Eq: 1} by the right hand side we get
+holds. By dividing equation \ref{Eq: 1} by the right hand side we get
 \begin{equation}
-F(n,k)=\frac{\frac{(1)}{(k(k-1))}}{(1-\frac{(1)}{(n)})}
+F(n,k)=\frac{\frac{1}{k(k-1)}}{1-\frac{1}{n}}
 \end{equation}
 We use proof certificate
 \begin{equation}
-R(n,k)=\frac{(((k-1)-1))}{(n^2)},
+R(n,k)=\frac{k-2}{n^2},
 \end{equation}
 which is the same as using
 \begin{equation}
-G(n,k)=\frac{(((k-1)-1))}{(n^2)}\frac{\frac{(1)}{((k-1)((k-1)-1))}}{(1-\frac{(1)}{(n)})},
+G(n,k)=\frac{k-2}{n^2}\frac{\frac{1}{(k-1)((k-1)-1)}}{1-\frac{1}{n}},
 \end{equation}
 the automatic solve has  shown that
 \begin{equation}\label{Eq: WZ1}

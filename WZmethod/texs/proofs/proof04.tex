@@ -5,24 +5,24 @@
 \renewcommand{\forall}{\hspace*{2mm}\oldforall\hspace*{1mm}}
 \title{Proof}
 \author{Automatic WZ-method prover}
-\date{2019-11-20}
+\date{2019-11-21}
 \begin{document}
 \maketitle
 We want to prove that
 \begin{equation}\label{Eq: 1}
 \sum 2^k\binom{n}{k} = 3^n
 \end{equation}
-holds.By dividing equation \ref{Eq: 1} by the right hand side we get
+holds. By dividing equation \ref{Eq: 1} by the right hand side we get
 \begin{equation}
-F(n,k)=\frac{(2^{k}\binom{n}{k})}{3^{n}}
+F(n,k)=\frac{2^{k}\binom{n}{k}}{3^{n}}
 \end{equation}
 We use proof certificate
 \begin{equation}
-R(n,k)=\frac{(-2)}{(3)},
+R(n,k)=\frac{-2}{3},
 \end{equation}
 which is the same as using
 \begin{equation}
-G(n,k)=\frac{(-2)}{(3)}\frac{(2^{(k-1)}\binom{n}{(k-1)})}{3^{n}},
+G(n,k)=\frac{-2}{3}\frac{2^{k-1}\binom{n}{k-1}}{3^{n}},
 \end{equation}
 the automatic solve has NOT shown that
 \begin{equation}\label{Eq: WZ1}
