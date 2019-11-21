@@ -2,6 +2,7 @@ import factor
 import expressions
 import polynomial
 
+'''Parses an expression on latex format'''
 def parse_rel_part(s):
     def get_next_part_end(s,i):
         if s[i+1] == '{':
@@ -80,16 +81,19 @@ def parse_rel_part(s):
     # print(s)
     return s
 
+'''Gets A from a latex identity'''
 def get_A(s):
     part = s.split('=')[0]
     part.replace(' ','')
     return parse_rel_part(part)
 
+'''Gets B from a latex identity'''
 def get_B(s):
     part = s.split('=')[1]
     part.replace(' ','')
     return parse_rel_part(part)
 
+'''Gets F from a latex identity'''
 def get_F(s):
     s = s.replace(' ','')
     assert s[:4] == '\\sum', 'Weird string {}'.format(s)
@@ -110,13 +114,15 @@ def get_F(s):
                 s = s[2:]
     return '({})/({})'.format(get_A(s),get_B(s))
 
+'''Gets ak from F'''
 def get_ak(F):
     return '({})-({})'.format(F.replace('n','(n+1)'),F)
 
+'''Gets a quotient string from ak'''
 def get_quotient_string(ak):
     return '({})/({})'.format(ak,ak.replace('k','(k-1)'))
 
-#Assumes something on the form \sum{k=a(n)}^b(n) A(n,k) = B(n)
+'''Assumes something on the form \\sum{k=a(n)}^b(n) A(n,k) = B(n)'''
 def latex2equation_parser(s):
     F = get_F(s)
     ak = get_ak(F)
