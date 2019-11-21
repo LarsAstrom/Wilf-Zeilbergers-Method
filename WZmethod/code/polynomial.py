@@ -1,5 +1,3 @@
-'''Imports'''
-
 '''Constant class'''
 class constant:
     '''Methods only using self'''
@@ -22,9 +20,6 @@ class constant:
 
     def get_prev_constant(self,value):
         raise Exception('Not possible to get prev constant for a constant')
-
-    def simplify(self):
-        return self
 
     def power(self,n):
         return constant(pow(self.coefficients[0],n))
@@ -113,6 +108,11 @@ class polynomial:
         self.is_constant = (self.degree==0 and self.coefficients[0].is_constant)
         self.is_one = (self.degree==0 and self.coefficients[0].is_one)
 
+    '''
+    Finds zeros of a polynomial with respect to a variable.
+    Tries to solve first and second degree order equations and further more tries
+    for a few small values.
+    '''
     def get_zeros(self,variable):
         assert variable in self.variables, 'Not possible to find zeros with variable {}, because the variables are {}'.format(variable,self.variables)
         if variable != self.variables[-1]:
@@ -163,6 +163,7 @@ class polynomial:
                 out.append(l)
         return out
 
+    '''Evaluates the polynomial for variable=value'''
     def evaluate(self,variable,value):
         if variable == self.variables[0]:
             out = self.coefficients[0]
@@ -172,6 +173,7 @@ class polynomial:
         return polynomial([c.evaluate(variable,value) for c in self.coefficients],
                             self.variables[0])
 
+    '''Converts the polynomial into the variable order variables'''
     def convert_polynomial(self,variables):
         for var in self.variables:
             assert var in variables, 'Cannot convert {} to {}, because {} is missing.'\
@@ -189,11 +191,6 @@ class polynomial:
         for x in self.variables[-1:0:-1]:
             cur = polynomial([cur],x)
         return cur
-
-    def simplify(self):
-        raise Exception('simplify not checked')
-        g = self.gcd_list()
-        return polynomial([c.divide(g)[0] for c in self.coefficients],self.variables[0])
 
     def power(self,n):
         if n == 0:
@@ -280,6 +277,7 @@ class polynomial:
                 c[i+j] = c[i+j].add(self.coefficients[i].multiply_simple(other.coefficients[j]))
         return polynomial(c,self.variables[0])
 
+    '''Divides self by other and returns q,r,f such that f*self=q*other+r'''
     def divide(self,other):
         if self.variables == other.variables:
             return self.divide_simple(other)
@@ -330,20 +328,12 @@ class polynomial:
             return self.gcd_simple(other)
         vars = self.get_common_variables(other)
         return self.convert_polynomial(vars).gcd(other.convert_polynomial(vars))
-    '''
-    def gcd_simple(self,other):
-        #print('GCD\n{}\n{}\n'.format(self.to_string(),other.to_string()))
-        if other.is_zero: return self
-        q,r,f = self.divide(other)
-        if f.is_one: return other.gcd(r)
-        return (self.multiply(f)).gcd(other).multiply(self.gcd(f)).divide(other.gcd(f))[0]
-    '''
+
     def gcd_simple(self,other):
         assert self.variables == other.variables, 'Trying to gcd polynomials of different variables.'
         if other.is_zero: return self
         g = other.gcd(self.modulo(other))
         return g.multiply(self.gcd_list().gcd(other.gcd_list())).divide(g.gcd_list())[0]
-        #return other.gcd(self.modulo(other))
 
 def print_stack(stack):
     print('---------PRINT STACK----------')
@@ -446,6 +436,7 @@ def get_variables(s):
 
 '''TESTING'''
 if __name__ == '__main__':
+    print('TESTING POLYNOMIALS')
     p = polynomial_parser('xy + x^2')
     p.PRINT()
     s = '-7x + (x+1)(y^2+2y+4)(z-7) + 8xy'
@@ -469,6 +460,7 @@ if __name__ == '__main__':
     p2.PRINT()
     g = p1.gcd(p2)
     g.PRINT()
+    print('TESTING EVALUATE')
     g.evaluate('j',1).PRINT()
     print(g.evaluate('j',1).is_zero)
     print('============================')
@@ -586,3 +578,4 @@ if __name__ == '__main__':
 
     p1 = polynomial_parser('mn+m+1')
     p1.PRINT()
+    print('TESTING DONE')
