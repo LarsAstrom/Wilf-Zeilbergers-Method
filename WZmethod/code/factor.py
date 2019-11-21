@@ -3,6 +3,7 @@ import polynomial
 def fac(n):
     return n*fac(n-1) if n else 1
 
+'''Methods for checking which type a factor has'''
 def is_polynomial(x):
     return type(x) in [polynomial.constant,polynomial.polynomial]
 
@@ -15,6 +16,7 @@ def is_power(x):
 def is_factor(x):
     return (is_polynomial(x) or is_factorial(x) or is_power(x))
 
+'''A class to store factorials. Can (sometimes) be divided by other factorial.'''
 class factorial:
     def __init__(self,value):
         self.value = value
@@ -42,6 +44,7 @@ class factorial:
     def PRINT(self):
         print(self.to_string())
 
+'''Class to store a integer to the power of a polynomial.'''
 class power:
     def __init__(self,base,exponent):
         self.base = base
@@ -77,25 +80,29 @@ class power:
     def PRINT(self):
         print(self.to_string())
 
-# Returns f such that f divides a and b.
-# (f is the largest factor of b that divides a.)
+'''
+Returns f such that f divides a and b.
+(f is the largest factor of b that divides a.)
+'''
 def try_divide(a,b):
     if type(a) != type(b):
         return None
-    if type(a) == polynomial.polynomial:
+    if is_polynomial(a):
         return a.gcd(b)
-    if type(a) == factorial:
+    if is_factorial(a):
         if is_positive_constant(a.value.subtract(b.value)):
             return b
         elif is_positive_constant(b.value.subtract(a.value)):
             return a
         return polynomial.constant(1)
-    if type(a) == power:
+    if is_power(a):
         if a.divide(b) != None:
             return b
         return polynomial.constant(1)
 
-# Returns True if polynomial.polynomial p is a constant, that is positive, otherwise False.
+'''
+Returns True if polynomial.polynomial p is a constant, that is positive, otherwise False.
+'''
 def is_positive_constant(p):
     c = polynomial.polynomial_parser(p.to_string())
     return type(c) == polynomial.constant and c.coefficients[0] >= 0
