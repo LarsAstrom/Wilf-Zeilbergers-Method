@@ -2,4 +2,4 @@
 *.pdf
 *.DS_Store
 ../.DS_Store
-texs/proofs
+texs/proofs/*
