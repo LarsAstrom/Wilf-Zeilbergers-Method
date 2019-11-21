@@ -64,7 +64,6 @@ def gauss(A,B):
 
 
 if __name__ == '__main__':
-    #DOES NOT WORK?????
     N = int(input())
     while N:
         A = [map(float,input().split()) for _ in range(N)]
