@@ -3,7 +3,14 @@ import gaussianelimination
 import polynomial
 import gosper
 from random import randint as RI
+'''
+This file solves step two of Gosper's algorithm to get the polynomial f.
+'''
 
+'''
+Converts polynomial p to dictionary. If the polynomial has a addend on the form
+c*x_1^a_1*...*x_m^a_m, then the dictionary has d[(a_1,...,a_m)] = c.
+'''
 def polynomial2dict(p,variables=None):
     if variables != None:
         d,v = polynomial2dict(p)
@@ -43,7 +50,6 @@ def dict2polynomial(d,v):
         out2.append(')')
         out.append(''.join(map(str,out2)))
     s = '+'.join(out)
-    print(s)
     return polynomial.polynomial_parser(s)
 
 def fac(n):
@@ -106,9 +112,11 @@ def get_degree(p):
     if type(p) == polynomial.constant: return 0
     return max(p.degree,max(get_degree(c) for c in p.coefficients))
 
-#Takes p(k),q(k),r(k) as inputs. Returns f(k)
-#such that p(k)=q(k+1)f(k)-r(k)f(k-1)
-#max_degree is the maximal degree in any variable for f.
+'''
+Takes p(k),q(k),r(k) as inputs. (Does not have to be k as variable, this is input.)
+Returns f(k) such that p(k)=q(k+1)f(k)-r(k)f(k-1)
+max_degree is the maximal degree in any variable for f.
+'''
 def get_f(p,q,r,max_degree=5,variable='k'):
     variables = p.get_common_variables(q.multiply(r))
     p,q,r = polynomial.polynomial_parser(p.to_string(),variables),polynomial.polynomial_parser(q.to_string(),variables),polynomial.polynomial_parser(r.to_string(),variables)
@@ -125,6 +133,7 @@ def get_f(p,q,r,max_degree=5,variable='k'):
     assert p.equals(qf.add(rf.negate())), 'Error for p={}, q={}, r={}. Got f={} which is wrong.'.format(p.to_string(),q.to_string(),r.to_string(),f.to_string())
     return ret
 
+'''Method for testing'''
 def try_algo(num,den,variable='k',test_number=None):
     if num == '' or den == '': return
     num,den = polynomial.polynomial_parser(num),polynomial.polynomial_parser(den)
@@ -142,6 +151,7 @@ def try_algo(num,den,variable='k',test_number=None):
     print('==============TRY ALGO ENDED================')
 
 if __name__ == '__main__':
+    print('TESTING CONVERSIONS')
     p1 = polynomial.polynomial_parser('1+xy+xy^2+x^2+y')
     x = [1,0,1,1,1,0,0,1,0]
     p2 = to_polynomial(x,3,['x','y'])
@@ -173,6 +183,7 @@ if __name__ == '__main__':
     for i in range(16):
         B2.append(sum([A[i][j]*x[j] for j in range(4)]))
     print(B2)
+    print('\n\n\n\n\n\n')
 
     print('TESTING GET DEGREE')
     print(get_degree(polynomial.polynomial_parser('x^2+y+x^3y+x')))
@@ -188,6 +199,9 @@ if __name__ == '__main__':
     f.PRINT()
 
     print('=================================')
+    print('\n\n\n\n\n\n')
+
+    print('TESTING FOR OUR EXAMPLES')
     #01#$\sum_{k=0}^n \binom{n}{k} = 2^n$
     s01 = '(2k-n-1)(n+2-k)'
     s02 = 'k(2k-n-3)'
@@ -248,3 +262,4 @@ if __name__ == '__main__':
             for n in range(3):
                 d[(k,m,n)] = RI(-3,3)
     dict2polynomial(d,['k','m','n']).PRINT()
+    print('TESTING DONE')
