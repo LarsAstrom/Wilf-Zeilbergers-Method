@@ -220,7 +220,7 @@ All the procedures try to follow the same structure, which is quite recursive. A
 \end{algorithm}
 
 The next procedure is used to find roots of a polynomial. Here if the polynomial is only dependent on one variable, meaning $|\vec{x}|=1$, then we solve this equation (we call this function $SolveEquation$). In the implementation of the program only solving equations up to degree 2 is implemented, but the program also tries to insert values in the range $(-100,100)$ and sees if any of these are roots. We do not include the procedure for $SolveEquation$ in the report, since it is just solving a second degree equation and additionally trying a bunch of different small values.
-\begin{algorithm}[H]
+\begin{algorithm}[H]\label{Alg: Roots}
   \caption{Finding roots}
   \inp{Polynomial $f$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
   \outp{Integers $x^\prime$ such that $x_m=x^\prime \implies f=0$}
@@ -644,7 +644,7 @@ Let us show an short example of how the method can work.
 \end{solution}
 Now that we have seen an example, hopefully the methodology is clear. What still is not clear is how to find the function $G(n,k)$. This is in general a hard task to do by hand, but is certainly managable by using a computer since there are algorithms -- for instance Gosper's algorithm -- that can derive $G(n,k)$ in certain cases. This implementation is what this thesis is contributing to do. %~\cite{gf}
 
-\section{Gosper's algorithm}
+\section{Gosper's algorithm}\label{Sec: Gosper}
 Gosper's algorithm is an algorithm that can be used to find an sum when certain conditions are fulfilled for the sum. The setting of the problem that is solved using the algorithm is that we want to find $S_k$ where
 \begin{equation}\label{Eq: Theory,Gosper1}
   \sum_{k=1}^n a_k = S_n-S_0.
@@ -703,7 +703,7 @@ which is exactly what we wanted to be true for $S_k$.
 
 Now, we have quite a few details to derive in each step -- both how the step is done more precisely and furthermore explaining why all the polynomials actually need to be polynomials and not rational polynomials instead.
 
-\subsection{How to get polynomials $p,q,r$ in equation \ref{Eq: Theory,Gosper,step1}}
+\subsection{How to get polynomials $p,q,r$ in equation \ref{Eq: Theory,Gosper,step1}}\label{Sub: pqr}
 First of all, we need to prove that it is possible to find polynomials $p,q,r$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled. Since $\frac{S_k}{S_{k-1}}$ is a rational function of $k$, then
 \begin{equation}
   \frac{a_k}{a_{k-1}}=\frac{S_k-S_{k-1}}{S_{k-1}-S_{k-2}}=\frac{\frac{S_k}{S_{k-1}}-1}{1-\frac{S_{k-2}}{S_{k-1}}}
@@ -724,7 +724,7 @@ where $g_k=gcd(q_k,r_{k+j})$ for the smallest $j\geq 0$ such that $gcd(q_k,r_{k+
 \end{equation}
 and the degree of the polynomials $q_k, r_k$ are smaller. We then iterate this procedure as long as there exists a $j$ such that $gcd(q_k,r_{k+j})>1$. Then when this procedure finishes, we will obtain $q_k,r_k,p_k$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled and $gcd(q_k,r_{k+j})=1 \forall j\geq 0$.
 
-\subsection{How to get polynomial $f$ in equation \ref{Eq: Theory,Gosper,step2}}
+\subsection{How to get polynomial $f$ in equation \ref{Eq: Theory,Gosper,step2}}\label{Sub: getf}
 The proof provided here is just due to Gosper's paper and mostly very similar. First of all, we need to prove that $f$ is a polynomial and not a rational polynomial.
 \begin{proof}
   Assume that $f_k=\frac{c_k}{d_k}$ where $gcd(c_k,d_k)=1$. Then by plugging this into \ref{Eq: Theory,Gosper,step2} and multiplying by $d_kd_{k-1}$ gives us:
@@ -856,11 +856,36 @@ The time complexity for this system of equations is $\mathcal{O}(L\cdot N^{2m})$
           \State $P[row_2] \gets P[row_2]\cdot (M[row][c]/g) - P[row]\cdot (M[row_2][c]/g)$ \label{Extra linear term, end}
         \EndFor
       \EndFor
+      \For{$row\gets c+1,\ldots,r$}
+        \If{$P[row]\neq 0$}
+          \State \Return $None$
+        \EndIf
+      \EndFor
+      \State $x\gets [P[c]/M[c][c]]$
+      \For{$row \gets c-1,\ldots,1$}
+        \State $s\gets 0$
+        \For{$row_2 \gets row+1,\ldots,c$}
+          \State $s\gets s + M[row][row_2]\cdot P[row_2]$
+        \EndFor
+        \If{$M[row][row] = 0$}
+          \If{$s = P[row]$}
+            \State $x\gets [0] + x$
+          \Else
+            \State \Return $0$
+          \EndIf
+        \Else
+          \State $x\gets [(P[row]-s)/M[row][row]] + x$
+        \EndIf
+      \EndFor
+      \State \Return $x$
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
 \begin{remark}
   In the code we multiply a row vector by an integer. This means that we perform elementwise multiplication with this integer.
+\end{remark}
+\begin{remark}
+  Each time we divide in the algorithm we need to make sure that the resulting integer is the exact division, otherwise we have gotten an error and return $None$.
 \end{remark}
 Here we can clearly see that we have two loops, which are of size $c=N^m$ and $r=L$, respectively. The reason for the last $N^m$-factor is that when we perform row \ref{Extra linear term, start}--\ref{Extra linear term, end} we do this elementwise, hence once for each column.
 

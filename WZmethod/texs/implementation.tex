@@ -50,6 +50,62 @@ The parsers are described by the following table:
   \end{tabular}
 \end{center}
 \section{Gosper's algorithm}
+Although the whole algorithm is described in section \ref{Sec: Gosper}, we will again go through the algorithm but from the perspective of implementation, and trying to point out difficulties along the way. There are some parts where the theory is straight forward, but the details in the implementation is quite difficult. In this section we try to describe the choices that were made during the work of the thesis, and also point out advantages and disadvantages with these choices.
 \subsection{Finding p,q,r}
+In section \ref{Sub: pqr} an algorithm is described for how to find polynomials $p,q,r$ such that
+\begin{equation}\label{Eq: getpqr}
+  \frac{a_k}{a_{k-1}} = \frac{p_k}{p_{k-1}}\frac{q_k}{r_k},
+\end{equation}
+such that $gcd(q_k,r_{k+j})=1 \forall j\geq 0$. The algorithm can be described as follows:
+\begin{algorithm}[H]
+  \caption{Get $p,q,r$}
+  \inp{Rational polynomial $b=\frac{b_n}{b_d}=\frac{a_k}{a_{k-1}}$}
+  \outp{Polynomials $p,q,r$ such that \ref{Eq: getpqr} holds and $gcd(q_k,r_{k+j})=1\forall j\geq 0$}
+  \begin{algorithmic}[1]
+    \Procedure{getpqr}{$b_n,b_d$}
+      \State $r_k\gets b_d$
+      \State $q_k\gets b_n$
+      \State $p_k\gets 1$
+      \While{$\exists j\geq 0: gcd(q_k,r_{k+j})\neq 1$}
+        \State $j\gets \text{smallest } j \text{ such that } gcd(q_k,r_{k+j})\neq 1$
+        \State $g_k\gets gcd(q_k,r_{k+j})$
+        \State $q_k\gets \frac{q_k}{g_k}$
+        \State $r_k\gets \frac{r_k}{g_{k-j}}$
+        \State $p_k\gets p_kg_kg_{k-1}\ldots g_{k-j+1}$
+      \EndWhile
+      \State \Return $p_k,q_k,r_k$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+This algorithm is in theory fairly simple -- find a common factor and get rid of it -- but finding $gcd(q_k,r_{k+j})$ for all $j$ and see if this can be a common factor is tricky implementationwise. In the thesis this is implemented in the following fashion:
+\begin{algorithm}[H]
+  \caption{Find $GCD(q_k,r_{k+j})\forall j\geq 0$}
+  \inp{Polynomials $q_k,r_k$}
+  \outp{Polynomial $g_k=gcd(q_k,r_{k+j})$ for some $j\geq 0$}
+  \begin{algorithmic}[1]
+    \Procedure{GCDWithShift}{$q_k,r_k$}
+      \State $g_{j,0}\gets r_k \text{ evaluated at } k=k+j$
+      \State $g_{j,1}\gets \Call{GCD}{q_k,g_{j,0}}$
+      \State $i\gets 1$
+      \While{$g_{j,i}\neq 1$}
+        \If{$\exists j^\prime\geq 0: g_{j,i}(j^\prime)=0$}\label{Alg: GCDWithShift,if}
+          \State \Return $j^\prime$
+        \EndIf
+        \State $i\gets i+1$
+        \State $g_{j,i}\gets \Call{GCD}{g_{j,i-2},g_{j,i-1}}$
+      \EndWhile
+      \State \Return $None$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+Here we perform the check in the if-statement on line \ref{Alg: GCDWithShift,if} by calling procedure \ref{Alg: Roots} and then checking if there is any root that is positive. Since this is the crucial step of this algorithm both the advantages and disadvantages come from the Roots-algorithm. In the implementation of Roots, only up to second degree polynomials are solved generally and after that values in the interval $(-100,100)$ are tested. This means that we cannot be sure that we find the roots. In general when we can use Wilf-Zeilberger's method, however, all roots are fairly small -- almost always less than 100. Therefore even though the implementation in theory is limiting it is very likely not to cause any problems in practice.
 \subsection{Finding f}
+The implementation in order to find the polynomial $f$ in Gosper's algorithm is performed just as described in section \ref{Sub: getf}. The goal of that is to find $f$ such that
+\begin{equation}\label{Eq: getf}
+  p_k=q_{k+1}f_k-r_kf_{k-1}.
+\end{equation}
+First the matrix $M$ and the vector $P$ are constructed. $M$ comes from the right hand side of \ref{Eq: getf} after assigning $f$ as stated in equation \ref{Eq: Theory,general polynomial}. $P$ is the vector that gives coefficients of the left hand side. After the construction Gaussian elimination is performed and then hopefully an answer will be given.
+
+In case no answer has been found one can try to increase the maximal degree of $f$. It is not certain however that a solution can be given by this method since possibly the degree of the smallest degree solution for $f$ can be arbitrarily large with respect to the variables that are not $k$. If this is the case has not neither been proved or disproved. If a solution is given, however, then we have performed the whole Gosper's algorithm.
 \section{Proof generation}
+\section{Testing}
