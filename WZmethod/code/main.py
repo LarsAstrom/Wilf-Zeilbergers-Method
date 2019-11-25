@@ -32,6 +32,9 @@ def WZmethod(parser, s, variable='k', max_degree=5):
     F,(ak_poly,ak_rest),num,den = parser(s)
     assert factor.is_polynomial(num) and factor.is_polynomial(den), 'Wrong type num, den'
     p,q,r,f = gosper.gosper(num,den,variable=variable,max_degree=max_degree)
+    p.PRINT()
+    q.PRINT()
+    r.PRINT()
     if f == None: return None
     ak_poly_num,ak_poly_den = ak_poly.num.addends[0].factors[0],ak_poly.den.addends[0].factors[0]
     Snum = ak_poly_num.multiply(f.multiply(polynomial.polynomial_parser(q.to_string().replace(variable,'({}+1)'.format(variable)))))
@@ -152,6 +155,7 @@ def get_opposite_paran(s,i):
 def check_FG(F,G):
     diff = expressions.expression_parser('(({})-({}))-(({})-({}))'.format(F.replace('n','(n+1)'),F,G.replace('k','(k+1)'),G))
     diff.simplify_complete()
+    diff.PRINT()
     return len(diff.num.addends) == 0 or diff.num.is_zero()
 
 '''Writes a proof of the identity'''
@@ -167,10 +171,10 @@ def write_proof(parser,s,variable,max_degree=5):
     out.append('By dividing equation \\ref{Eq: 1} by the right hand side we get\n\\begin{equation}\nF(n,k)='+to_tex(F)+'\n\\end{equation}\n')
     out.append('We use proof certificate\n\\begin{equation}\nR(n,k)='+to_tex(R)+',\n\\end{equation}\n')
     out.append('which is the same as using\n\\begin{equation}\nG(n,k)='+to_tex(G)+',\n\\end{equation}\n')
-    out.append('the automatic solve has {} shown that\n'.format('' if checkfg else 'NOT'))
+    out.append('the automatic solver has {} verified that\n'.format('' if checkfg else 'NOT'))
     out.append('\\begin{equation}\\label{Eq: WZ1}\nF(n+1,k)-F(n,k)=G(n,k+1)-G(n,k).\n\\end{equation}\n')
     if not checkfg:
-        out.append('Therefore the user has to show that equation \\ref{Eq: WZ1} is fulfilled.')
+        out.append('Therefore the user has to verify that equation \\ref{Eq: WZ1} is fulfilled.')
     out.append('Thereafter user now has to verify that\n\\begin{equation}\n\\lim_{k\\to\\pm\\infty}G(n,k)=0\\forall n.\n\\end{equation}\n')
     out.append('Then we get\n\\begin{equation}\n\\sum_'+variable+' F(n+1,k)-F(n,k)=\\sum_'+variable+' G(n,k+1)-G(n,k)=0\\end{equation}')
     out.append('Lastly equation \\ref{Eq: 1} needs to be verified for some $n$, for instance $n=0$. Thereafter the identity is shown.\n')
@@ -200,11 +204,28 @@ if __name__ == '__main__':
     s10 = '\\sum \\binom{m-k}{n-k} = \\binom{m+1}{n}'
     s11 = '\\sum \\frac{1}{\\binom{k}{n}}=\\frac{n}{n-1}'
     s12 = '\\sum (-1)^k\\frac{1}{\\binom{m}{k}}=(1+(-1)^m)\\frac{m+1}{m+2}'
-    s = [s01,s02,s03,s05,s06,s07,s08,s09,s10,s11]#,s04,s12]
+    s_train = [s01,s02,s03,s05,s06,s07,s08,s09,s10,s11]#,s04,s12]
     print('TESTING PROGRAM ON TRAINING DATA')
-    for i,ss in enumerate(s):
+    for i,ss in enumerate(s_train):
         num = str(i+1)
         if len(num) == 1: num = '0'+num
         print('================TEST {} STARTED==============='.format(num))
         main(parsers.latex2equation_parser,ss,'k','../texs/proofs/proof{}.tex'.format(num))
+        print('==============================================')
+
+    print('TESTING PROGRAM ON TEST DATA')
+    s13 = '\\sum 3^k\\binom{n}{k} = 4^n'
+    s14 = '\\sum 4^k\\binom{n}{k} = 5^n'
+    s15 = '\\sum \\binom{n}{2k} = 2^{n-1}'
+    s16 = '\\sum \\binom{n}{k}\\binom{k}{b} = \\binom{n}{b}'
+    s17 = '\\sum 2^{-k}\\binom{n+k}{k} = 2^{n+1}'
+    s18 = '\\sum \\frac{\\binom{n}{k}}{\\binom{2n-1}{k}} = 2'
+    s19 = '\\sum k\\frac{\\binom{n}{k}}{\\binom{2n-1}{k}} = 2\\frac{n}{n+1}'
+    #s_test = [s13,s14,s15,s16,s17,s18,s19,s20]
+    s_test = [s13,s14,s16,s17,s18,s19,s20]
+    for i,ss in enumerate(s_test):
+        num = str(i+1+len(s_train))
+        if len(num) == 1: num = '0'+num
+        print('================TEST {} STARTED==============='.format(num))
+        main(parsers.latex2equation_parser,ss,'k','../texs/proofs/test_data/proof{}.tex'.format(num))
         print('==============================================')

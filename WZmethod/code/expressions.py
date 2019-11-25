@@ -151,6 +151,14 @@ class expression_add:
         if polynomial_id != None and self.addends[polynomial_id].factors[0].is_zero:
             self.addends = self.addends[:polynomial_id] + self.addends[polynomial_id+1:]
 
+    def simplify_complete(self):
+        for i in range(len(self.addends)):
+            for j in range(len(self.addends[i].factors)):
+                if factor.is_power(self.addends[i].factors[j]) and factor.is_positive_constant(self.addends[i].factors[j].exponent):
+                    self.addends[i].factors[j] = polynomial.constant(pow(self.addends[i].factors[j].base,\
+                                                        int(self.addends[i].factors[j].exponent.to_string())))
+        self.simplify()
+
     def negate(self):
         return expression_add([addend.negate() for addend in self.addends])
 
@@ -179,11 +187,21 @@ class expression_add:
                         if factor.is_polynomial(new_cand) and new_cand.equals(polynomial.constant(1)): continue
                         candidates2.append(new_cand)
                 candidates = candidates2
+            for expr_m in addends:
+                for f in expr_m.factors:
+                    if factor.is_power(f) and f.exponent.is_constant and (not factor.is_positive_constant(f.exponent)):
+                        candidates.append(f)
             if not candidates: break
             d = candidates[0]
             for i in range(len(addends)):
                 addends[i] = addends[i].divide(d)
+                addends[i].simplify()
+            temp = expression_add(addends)
+            temp.simplify_complete()
+            addends = [x for x in temp.addends]
+            if not addends: break
             candidates = [f for f in addends[0].factors]
+        if not addends: return True
         for i in range(len(addends)):
             addends[i].simplify()
         all_poly = True

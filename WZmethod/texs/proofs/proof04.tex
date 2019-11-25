@@ -5,7 +5,7 @@
 \renewcommand{\forall}{\hspace*{2mm}\oldforall\hspace*{1mm}}
 \title{Proof}
 \author{Automatic WZ-method prover}
-\date{2019-11-21}
+\date{2019-11-25}
 \begin{document}
 \maketitle
 We want to prove that
@@ -24,11 +24,11 @@ which is the same as using
 \begin{equation}
 G(n,k)=\frac{-2}{3}\frac{2^{k-1}\binom{n}{k-1}}{3^{n}},
 \end{equation}
-the automatic solve has NOT shown that
+the automatic solver has  verified that
 \begin{equation}\label{Eq: WZ1}
 F(n+1,k)-F(n,k)=G(n,k+1)-G(n,k).
 \end{equation}
-Therefore the user has to show that equation \ref{Eq: WZ1} is fulfilled.Thereafter user now has to verify that
+Thereafter user now has to verify that
 \begin{equation}
 \lim_{k\to\pm\infty}G(n,k)=0\forall n.
 \end{equation}

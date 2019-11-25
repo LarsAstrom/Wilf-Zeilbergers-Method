@@ -17,6 +17,9 @@
 \renewcommand{\exists}{\hspace*{2mm}\oldexists\hspace*{1mm}}
 \newcommand{\emptyvec}{[\hspace*{1mm}]}
 
+%Image of proof
+\newcommand{\proofimage}[2]{\begin{figure}[H]\makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{#1}}\caption{#2}\end{figure}}
+
 %Input code
 \usepackage{minted}
 \newcommand{\codep}[1]{\inputminted[fontsize=\large,tabsize=1,baselinestretch=1]{py}{code/#1}}
@@ -99,7 +102,7 @@
 \input{texs/references}
 \end{thebibliography}
 
-\chapter{Attachments}
+\chapter{Attachments}\label{Ch: Attachments}
 \input{texs/attachments}
 
 \chapter{Popular scientific paper}
