@@ -1,0 +1,15 @@
+In the thesis \WZ has been implemented with a library of polynomials as a foundation. During the work on the thesis it has become more and more obvious how even the simplest operations in theory might be quite tricky to implement with computer algebra. Furthermore it became brutally clear how details in program design could help or harm the rest of the dependent parts of the program. This required more thought before implementation, and also better code in general.
+
+The program seems to work fine but has some obvious limitations. First of all only a very small part of all proofs can be shown by \WZ, and as we saw in chapter \ref{Ch: Results} two seemingly similar identities, for instance identities \ref{ID: 7} and \ref{ID: 9}, can have two very different outcomes when trying to use \WZ -- one is solvable and one is not! This makes it harder to trust the method to solve a problem that is given.
+
+Secondly the method needs to have an identity to prove. \WZ itself cannot come up with a guess for what a sum is, but only prove the correctness or incorrectness of an identity once it is already guessed.
+
+Thirdly with the current state of the implementation it is not obvious which part of the method that fails. Usually it is the part where we try to find polynomial $f$ such that $p_k=q_{k+1}f_k-r_kf_{k-1}$, but it can also be other problems that make the program fail. Also when trying to find polynomial $f$, it is not certain what causes the problem. It can be both that the degree of the assigned polynomial is too small, and that the problem in fact is not solvable for some reasons.
+
+Lastly, the \WZ solver that has been developed leaves a few parts of the formal proof for the user to show. This is not optimal, however showing these parts automatically as well would demand even more implementation and was out of scope for this thesis.
+
+Still, even though there are clear problems with both the \WZ itself and the implementation that was chosen, we would like to argue that the thesis has value and contributes to the general knowledge about infinite sumation. If one has an identity it can quickly be checked if it is possible for the \WZ solver to prove it. If it can, then one quickly have a proof and otherwise other methods have to be used. Even though it is not directly obvious what goes wrong when the solver fails to prove an identity, the implementation is split up in many different methods, which makes is fairly easy to get a sense of what goes wrong.
+
+From the examples that were tested we can conclude that \todo[inline]{continue}
+
+The problem that \WZ cannot guess what a sum equals is a problem for the whole method. Finding ways to guess what a sum equals is also a very interesting area that would be fun to explore more, but is out of score for this thesis.

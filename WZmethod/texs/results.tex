@@ -1,4 +1,4 @@
-Throughout the thesis some identities have been used for testing the code, these will be called training examples. All identities that have been used in this thesis have been collected from \reference{gould}, \reference{bucht} and \reference{tesler}. The identities used as training examples are the following:
+Throughout the thesis some identities have been used for testing the code, these will be called training examples. All identities that have been used in this thesis have been collected from \reference{gould}, \reference{bucht} and \reference{tesler}. When choosing the training examples many identities were considered and we tried to find a good variety of identities, both well known and not as well known ones as well as using identities that look quite different. The identities used as training examples are the following:
 \begin{enumerate}
   \item $\sum_{k=0}^n \binom{n}{k} = 2^n$ \label{ID: 1}
   \item $\sum_{k=0}^n (-1)^k\binom{n}{k}\binom{2k}{k}4^{n-k}=\binom{2n}{n}$ \label{ID: 2}
@@ -11,17 +11,20 @@ Throughout the thesis some identities have been used for testing the code, these
   \item $\sum_{k=0}^n \binom{m-k}{n-k} = \binom{m+1}{n}$ \label{ID: 9}
   \item $\sum_{k=n}^\infty \frac{1}{\binom{k}{n}}=\frac{n}{n-1}$ \label{ID: 10}
 \end{enumerate}
-Some of these identities are quite trivial to show with combinatorial arguments, but others are not as easy. For instance identity \ref{ID: 1} comes from counting in how many ways we can choose objects out of $n$ different objects, while identity \ref{ID: 2} is not very easy to prove by providing a combinatorial argument. When these identities are shown, a \LaTeX file is produced. The proofs of all identities are provided in chapter \ref{Ch: Attachments}. As we can see the identities \ref{ID: 7} and \ref{ID: 8} cannot be shown, the reason for this is that the ''get f'' method cannot give a solution, since $f$ cannot be a polynomial. This is because the degree of $f$ depends on $c$ and $r$, respectively, and therefore Wilf-Zeilberger's method does not work well on the problem.
+Some of these identities are quite trivial to show with combinatorial arguments, but others are not as easy. For instance identity \ref{ID: 1} comes from counting in how many ways we can choose objects out of $n$ different objects, while identity \ref{ID: 2} is not very easy to prove by providing a combinatorial argument. When these identities are shown, a \LaTeX file is produced. The proofs of all identities are provided in chapter \ref{Ch: Attachments}. As we can see the identities \ref{ID: 7} and \ref{ID: 8} cannot be shown, the reason for this is that the ''get f'' method cannot give a solution, since $f$ cannot be a polynomial. This is because the degree of $f$ depends on $c$ and $r$, respectively, and therefore \WZ does not work well on the problem.
 
-After the program worked for all the training examples the program was validated on other identities (called validation examples), in the hopes that the program works on identities it has not been developed to work on as well. The tests that were used are:
+After the program worked for all the training examples the program was validated on other identities (called validation examples), in the hopes that the program works on identities it has not been developed to work on as well. Also here we tried to use validation identities that are different from each other, but now we also prioritized identities that are not very simple to solve with combinatorial arguments. The tests that were used are:
 \begin{enumerate}
   \setcounter{enumi}{10}
   \item $\sum_{k=0}^n 3^k\binom{n}{k} = 4^n$ \label{ID: 11}
   \item $\sum_{k=0}^n 4^k\binom{n}{k} = 5^n$ \label{ID: 12}
   \item $\sum_{k=0}^n \binom{n}{2k} = 2^{n-1}$ \label{ID: 13}
-  \item $\sum_{k=0}^n \binom{n}{k}\binom{k}{b} = \binom{n}{b}$ \label{ID: 14}
+  \item $\sum \frac{1}{k\binom{k+n}{k}} = \frac{1}{n}$ \label{ID: 14}
   \item $\sum_{k=0}^\infty 2^{-k}\binom{n+k}{k} = 2^{n+1}$ \label{ID: 15}
   \item $\sum_{k=0}^n \frac{\binom{n}{k}}{\binom{2n-1}{k}} = 2$ \label{ID: 16}
   \item $\sum_{k=0}^n k\frac{\binom{n}{k}}{\binom{2n-1}{k}} = 2\frac{n}{n+1}$ \label{ID: 17}
+  \item $\sum_{k=1}^{2n-1} (-1)^{k-1}\frac{k}{\binom{2n}{k}} = \frac{n}{n+1}$ \label{ID: 18}
+  \item $\sum_{k=0}^n \binom{2n+1}{k} = 2^{2n}$ \label{ID: 19}
+  \item $\sum_{k=0}^{\frac{n}{2}} (-1)^k\binom{n-k}{k}\frac{2^{2n-2k}}{n-k} = \frac{2^{n+1}}{n}$ \label{ID: 20}
 \end{enumerate}
-As we can see in chapter \ref{Ch: Attachments} the program manages to solve most of the validation examples. The program solves identities \ref{ID: 11}, \ref{ID: 12} and \ref{ID: 15} perfectly. For identities \ref{ID: 16} and \ref{ID: 17} the program manages to get a $G$ which works in Wilf-Zeilberger's method but has not been able to verify that the first condition for a certifying pair is fulfilled. This has been done by hand afterwards though. For identities \ref{ID: 13} and \ref{ID: 14} the program does not manage to prove the identity, this is since it cannot find a $f$ that works. The reason for this is similar to why the program could not solve identities \ref{ID: 7} and \ref{ID: 8}, and thus it was expected.
+As we can see in chapter \ref{Ch: Attachments} the program manages to solve most of the validation examples. The program solves identities \ref{ID: 11}, \ref{ID: 12}, \ref{ID: 14} and \ref{ID: 15} perfectly. For identities \ref{ID: 16} and \ref{ID: 17} the program manages to get a $G$ which works in \WZ but has not been able to verify that the first condition for a certifying pair is fulfilled. This has been done by hand afterwards though. For identity \ref{ID: 13} the program does not manage to prove the identity, this is since it cannot find a $f$ that works. The reason for this is that the difference in degrees cannot be resolved on the right and left side when getting $f$. Therefore \WZ cannot be used to solve this identity.

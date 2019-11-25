@@ -32,9 +32,9 @@ def WZmethod(parser, s, variable='k', max_degree=5):
     F,(ak_poly,ak_rest),num,den = parser(s)
     assert factor.is_polynomial(num) and factor.is_polynomial(den), 'Wrong type num, den'
     p,q,r,f = gosper.gosper(num,den,variable=variable,max_degree=max_degree)
-    p.PRINT()
-    q.PRINT()
-    r.PRINT()
+    # p.PRINT()
+    # q.PRINT()
+    # r.PRINT()
     if f == None: return None
     ak_poly_num,ak_poly_den = ak_poly.num.addends[0].factors[0],ak_poly.den.addends[0].factors[0]
     Snum = ak_poly_num.multiply(f.multiply(polynomial.polynomial_parser(q.to_string().replace(variable,'({}+1)'.format(variable)))))
@@ -155,7 +155,7 @@ def get_opposite_paran(s,i):
 def check_FG(F,G):
     diff = expressions.expression_parser('(({})-({}))-(({})-({}))'.format(F.replace('n','(n+1)'),F,G.replace('k','(k+1)'),G))
     diff.simplify_complete()
-    diff.PRINT()
+    # diff.PRINT()
     return len(diff.num.addends) == 0 or diff.num.is_zero()
 
 '''Writes a proof of the identity'''
@@ -195,16 +195,14 @@ if __name__ == '__main__':
     s01 = '\\sum \\binom{n}{k} = 2^n'
     s02 = '\\sum (-1)^k\\cdot\\binom{n}{k}\\binom{2k}{k}4^{n-k}=\\binom{2n}{n}'
     s03 = '\\sum \\binom{n}{k}^2 = \\binom{2n}{n}'
-    s04 = '\\sum (-1)^k\\binom{2n}{n+k}^3 = \\frac{(3n)!}{n!}'
-    s05 = '\\sum 2^k\\binom{n}{k} = 3^n'
-    s06 = '\\sum k\\binom{n}{k} = n2^{n-1}'
-    s07 = '\\sum \\frac{1}{k(k-1)} = 1-\\frac{1}{n}'
-    s08 = '\\sum \\binom{k}{c} = \\binom{n+1}{c+1}'
-    s09 = '\\sum \\binom{r+k}{k} = \\binom{r+n+1}{n}'
-    s10 = '\\sum \\binom{m-k}{n-k} = \\binom{m+1}{n}'
-    s11 = '\\sum \\frac{1}{\\binom{k}{n}}=\\frac{n}{n-1}'
-    s12 = '\\sum (-1)^k\\frac{1}{\\binom{m}{k}}=(1+(-1)^m)\\frac{m+1}{m+2}'
-    s_train = [s01,s02,s03,s05,s06,s07,s08,s09,s10,s11]#,s04,s12]
+    s04 = '\\sum 2^k\\binom{n}{k} = 3^n'
+    s05 = '\\sum k\\binom{n}{k} = n2^{n-1}'
+    s06 = '\\sum \\frac{1}{k(k-1)} = 1-\\frac{1}{n}'
+    s07 = '\\sum \\binom{k}{c} = \\binom{n+1}{c+1}'
+    s08 = '\\sum \\binom{r+k}{k} = \\binom{r+n+1}{n}'
+    s09 = '\\sum \\binom{m-k}{n-k} = \\binom{m+1}{n}'
+    s10 = '\\sum \\frac{1}{\\binom{k}{n}}=\\frac{n}{n-1}'
+    s_train = [s01,s02,s03,s04,s05,s06,s07,s08,s09,s10]
     print('TESTING PROGRAM ON TRAINING DATA')
     for i,ss in enumerate(s_train):
         num = str(i+1)
@@ -214,15 +212,17 @@ if __name__ == '__main__':
         print('==============================================')
 
     print('TESTING PROGRAM ON TEST DATA')
-    s13 = '\\sum 3^k\\binom{n}{k} = 4^n'
-    s14 = '\\sum 4^k\\binom{n}{k} = 5^n'
-    s15 = '\\sum \\binom{n}{2k} = 2^{n-1}'
-    s16 = '\\sum \\binom{n}{k}\\binom{k}{b} = \\binom{n}{b}'
-    s17 = '\\sum 2^{-k}\\binom{n+k}{k} = 2^{n+1}'
-    s18 = '\\sum \\frac{\\binom{n}{k}}{\\binom{2n-1}{k}} = 2'
-    s19 = '\\sum k\\frac{\\binom{n}{k}}{\\binom{2n-1}{k}} = 2\\frac{n}{n+1}'
-    #s_test = [s13,s14,s15,s16,s17,s18,s19,s20]
-    s_test = [s13,s14,s16,s17,s18,s19,s20]
+    s11 = '\\sum 3^k\\binom{n}{k} = 4^n'
+    s12 = '\\sum 4^k\\binom{n}{k} = 5^n'
+    s13 = '\\sum \\binom{n}{2k} = 2^{n-1}'
+    s14 = '\\sum \\frac{1}{k\\binom{k+n}{k}} = \\frac{1}{n}'
+    s15 = '\\sum 2^{-k}\\binom{n+k}{k} = 2^{n+1}'
+    s16 = '\\sum \\frac{\\binom{n}{k}}{\\binom{2n-1}{k}} = 2'
+    s17 = '\\sum k\\frac{\\binom{n}{k}}{\\binom{2n-1}{k}} = 2\\frac{n}{n+1}'
+    s18 = '\\sum (-1)^{k-1}\\frac{k}{\\binom{2n}{k}} = \\frac{n}{n+1}'
+    s19 = '\\sum \\binom{2n+1}{k} = 2^{2n}'
+    s20 = '\\sum (-1)^k\\binom{n-k}{k}\\frac{2^{2n-2k}}{n-k} = \\frac{2^{n+1}}{n}'
+    s_test = [s11,s12,s13,s14,s15,s16,s17,s18,s19,s20]
     for i,ss in enumerate(s_test):
         num = str(i+1+len(s_train))
         if len(num) == 1: num = '0'+num

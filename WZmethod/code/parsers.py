@@ -41,9 +41,15 @@ def parse_rel_part(s):
     i = s.find('\\binom')
     while i != -1:
         i0 = s.find('{',i)
-        i1 = s.find('}',i0)
+        i1,parcount = i0,1
+        while parcount:
+            i1 += 1
+            if s[i1] in '{}': parcount += 1 if s[i1] == '{' else -1
         i2 = s.find('{',i1)
-        i3 = s.find('}',i2)
+        i3,parcount = i2,1
+        while parcount:
+            i3 += 1
+            if s[i3] in '{}': parcount += 1 if s[i3] == '{' else -1
         s = s[:i] + 'B[{},{}]'.format(parse_rel_part(s[i0+1:i1]),
                     parse_rel_part(s[i2+1:i3])) + s[i3+1:]
         i = s.find('\\binom')
@@ -51,9 +57,15 @@ def parse_rel_part(s):
     # print(s)
     while i != -1:
         i0 = s.find('{',i)
-        i1 = s.find('}',i0)
+        i1,parcount = i0,1
+        while parcount:
+            i1 += 1
+            if s[i1] in '{}': parcount += 1 if s[i1] == '{' else -1
         i2 = s.find('{',i1)
-        i3 = s.find('}',i2)
+        i3,parcount = i2,1
+        while parcount:
+            i3 += 1
+            if s[i3] in '{}': parcount += 1 if s[i3] == '{' else -1
         s = s[:i] + '({})/({})'.format(parse_rel_part(s[i0+1:i1]),
                     parse_rel_part(s[i2+1:i3])) + s[i3+1:]
         i = s.find('\\frac')
