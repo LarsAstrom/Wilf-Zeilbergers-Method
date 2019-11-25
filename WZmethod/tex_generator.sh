@@ -27,7 +27,7 @@ else
   rm texs/*.blg
   rm texs/*.dvi
   rm texs/*latexmk
-  latexmk -pdf "texs/"$add_string$1".tex"
+  latexmk -pdf -shell-escape "texs/"$add_string$1".tex"
   rm *.thm
   rm *.toc
   rm *.out

@@ -17,6 +17,10 @@
 \renewcommand{\exists}{\hspace*{2mm}\oldexists\hspace*{1mm}}
 \newcommand{\emptyvec}{[\hspace*{1mm}]}
 
+%Input code
+\usepackage{minted}
+\newcommand{\codep}[1]{\inputminted[fontsize=\large,tabsize=1,baselinestretch=1]{py}{code/#1}}
+
 %For tables
 \usepackage{array}
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
