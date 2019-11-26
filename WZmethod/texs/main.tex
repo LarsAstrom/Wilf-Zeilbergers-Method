@@ -17,6 +17,8 @@
 \renewcommand{\exists}{\hspace*{2mm}\oldexists\hspace*{1mm}}
 \newcommand{\emptyvec}{[\hspace*{1mm}]}
 
+\usepackage[super]{nth}
+
 %Image of proof
 \newcommand{\proofimage}[2]{\begin{figure}[H]\makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{#1}}\caption{#2}\end{figure}}
 
@@ -74,19 +76,21 @@
 \printer{Media-Tryck}  %% Probably. You may get other information from the department.
 \end{titlepages}
 \chapter*{Abstract}
-\include{texs/abstract_en}
-\include{texs/abstract_sv}
+\input{texs/abstract_en}
+
+\chapter*{Abstrakt}
+\input{texs/abstract_sv}
 
 \chapter*{Preface}
-\include{texs/preface}
+\input{texs/preface}
 
 \tableofcontents
 
 \chapter{Introduction}\label{Ch: Introduction}
-\include{texs/introduction}
+\input{texs/introduction}
 
 \chapter{Background}\label{Ch: Background}
-\include{texs/background}
+\input{texs/background}
 
 \chapter{Theory}\label{Ch: Theory}
 \input{texs/theory}
