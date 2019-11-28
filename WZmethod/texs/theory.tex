@@ -1,17 +1,19 @@
-The thesis' main goal is to end up with an implementation of Wilf-Zeilberger's method. In the process of this method polynomials are used in all the steps. Therefore a big part of the thesis is to understand the computer algebraic difficulties involved when implementing polynomials. Therefore a large library with polynomial functions is implemented. The goal for this library is not to be very efficient as this is not needed for the implementation of Wilf-Zeilberger's method, and also since that would be out of scope for the thesis. Furthermore, there are already existing libraries that are highly efficient for polynomic computer algebra. Still, by implementing a library of polynomial functions from scratch is relevant in order to see and experience the difficulties first hand. Since this is also a goal of the implementation, we will try to throughout the theory and implementation chapters to point out difficulties in the implementations that occurred on the way. This might however give the impression that the implementation is very naïve, but this is since the problems that are considered in this thesis are not very demanding computationally.
+One main goal of the thesis is to end up with an implementation of Wilf-Zeilberger's method. In the process of this method polynomials are used in all the steps. Therefore a big part of the thesis is to understand the computer algebraic difficulties involved when implementing for instance polynomials. Therefore a large library with polynomial functions is implemented. The goal for this library is not to be efficient -- rather keeping functions simple -- as this is not needed for the implementation of Wilf-Zeilberger's method, and since that would be out of scope for the thesis. Furthermore, there are already existing libraries that are highly efficient for polynomic computer algebra. Still, implementing a library of polynomial functions from scratch is relevant in order to see and experience the difficulties first hand. Since this is also a goal of the implementation, we will try to throughout the theory and implementation chapters to point out difficulties in the implementations that occurred on the way. This might however give the impression that the implementation is very naïve, but this is since the problems that are considered in this thesis are not very demanding computationally and simple and understandable implementation is preferred.
 
-In order to implement Wilf-Zeilberger's method we actually only need polynomials of two variables (and possibly some constant parameters), we will implement a more general polynomial structure. Also here the goal is not to get an as efficient implementation as possible, but rather to get a deeper understanding of the problems occuring in the computer algebraic implementation. Furthermore in order to ease how we show polynomials we will associate each polynomial with a variable, which means that for a polynomial we do not only store the coefficients but also a variable. This is not necessary and a bit inefficient, still we do this in order to ease the understanding.
+In order to implement Wilf-Zeilberger's method we actually only need polynomials of two variables (and possibly some constant parameters). Even though this is the case we will implement a more general polynomial structure, in order to see what extra requirements that gives. Furthermore in order to ease how we show polynomials we will associate each polynomial with a variable, which means that for a polynomial we do not only store the coefficients but also a variable. This is not necessary and a bit inefficient, still we do this in order to ease the understanding.
 
 \section{Polynomials}
-In the thesis we are continuously discussing polynomials. We are always using polynomials with integer coefficients -- which we also generalize to include rational coefficients by looking at fractions of polynomials with integer coefficients. Therefore, from now on whenever we talk about polynomials they are assumed to have integer coefficients as long as otherwise is not stated.
+In the thesis we are continuously discussing polynomials. We are always using polynomials with integer coefficients -- which in some sense is generalized to include rational coefficients by looking at fractions of polynomials with integer coefficients. Therefore, from now on whenever we talk about polynomials they are assumed to have integer coefficients as long as otherwise is not stated.
 
-We will now have a discussion on what operations we want to be able to perform on the polynomials both theoreticly and partly implementation wise. Therefore there will not be a specific subchapter regarding polynomials later on in chapter \ref{Ch: Implementation}. But first we need to describe how a polynomial can be implemented and stored in the code -- and this is how it was implemented in this thesis.
+We will now have a discussion on what operations we want to be able to perform on the polynomials both theoreticly and partly implementation wise. Therefore there will not be a specific subchapter regarding polynomials later on in chapter \ref{Ch: Implementation}. The structure of this section is that first, in subsection \ref{Sub: polystruct}, we describe how a polynomial can be implemented and stored in the code -- and this is how it was implemented in this thesis. Then in subsection \ref{Sub: simpleop} the simplest and most straight forward operations performed on polynomials are defined, while the most complicated operations -- division and greatest common divisor -- are left for subsection \ref{Sub: diffop}
+
+\subsection{Polynomial structure and definitions}\label{Sub: polystruct}
 
 A polynomial, say $p(n)$, can be seen as a list of coefficients $[a_0,a_1,\ldots,a_d]$. This represents the polynomial
 \begin{equation}\label{Eq: Theory,polynomials,general polynomial}
   p(n) = a_0+a_1 n + \ldots + a_d n^d.
 \end{equation}
-This is fairly simple if the polynomial only has one variable. As soon as we introduce polynomials with more than one variable -- which is the case in all examples where Wilf-Zeilberger's method is used -- it gets a bit more complicated. The way we will visualize polynomials of more than one variable is to try to keep the very same structure as in \ref{Eq: Theory,polynomials,general polynomial}, namely we store a polynomial $p(n)$ as a list of coefficients $[a_0,a_1,\ldots,a_d]$, but instead of having $a_i$ just representing integers they are instead themselves polynomials. In order to show how this can be done, lets show an example.
+This is fairly simple if the polynomial only has one variable. As soon as we introduce polynomials with more than one variable -- which is the case in all examples where Wilf-Zeilberger's method is used -- it gets a bit more complicated. The way we will visualize polynomials of more than one variable is to try to keep the very same structure as in \ref{Eq: Theory,polynomials,general polynomial}, namely we store a polynomial $p(n)$ as a list of coefficients $[a_0,a_1,\ldots,a_d]$, but instead of having $a_i$ just representing integers they are instead polynomials. In order to show how this can be done, we consider the following example.
 \begin{example}\label{Ex: polynomial, recursive}
   Lets look at the polynomial
   \begin{equation*}
@@ -31,7 +33,7 @@ This is fairly simple if the polynomial only has one variable. As soon as we int
   \end{equation*}
   Note that this can be written as
   \begin{equation*}
-    p(k,m,n) = p_2(k,m)n^2+p_1(k,m)n+p_0,
+    p(k,m,n) = p_2(k,m)n^2+p_1(k,m)n+p_0(k,m),
   \end{equation*}
   where
   \begin{equation*}
@@ -41,7 +43,7 @@ This is fairly simple if the polynomial only has one variable. As soon as we int
       p_2(k,m) &= -((3k^2+3k-3)m^2-(2k+1)m-(3k^2-k+3)).
     \end{split}
   \end{equation*}
-  Now since our definition of polynomials is recursive, each of $p_0(k,m),p_1(k,m),p_2(k,m)$ is written as $q_2(k)m^2+q_1(k)m+q_0(k)$ for polynomials $q_0,q_1,q_2$. For instance for $p_1$ we have
+  Now since our definition of polynomials is recursive, each of $p_0(k,m),p_1(k,m),p_2(k,m)$ is written as $q_2(k)m^2+q_1(k)m+q_0(k)$ for polynomials $q_0,q_1,q_2$. For instance $p_1$ has
   \begin{equation*}
     p_1(k,m) = q_2(k)m^2+q_1(k)m+q_0(k),
   \end{equation*}
@@ -62,8 +64,10 @@ Note that in this case we wrote the polynomial with $n$ ''outmost'' in the repre
 \begin{definition}
   A polynomial $p$ is said to have the variable order $\vec{x}=(x_1,x_2,\ldots,x_m)$ if it is stored as
   \begin{equation}
-    p(\vec{x}) = \sum_{i_1=0}^{d_1}\Bigg(\sum_{i_2=0}^{d_2}\Big(\sum_{i_3=0}^{d_3}\ldots\Big)x_2^{i_2}\Bigg)x_1^{i_1}.
+    p(\vec{x}) = \sum_{i_1=0}^{d_1}\Bigg(\sum_{i_2=0}^{d_2}\Big(\sum_{i_3=0}^{d_3}\ldots\big(\sum_{i_m=0}^{d_m} c_\vec{i}x_m^{i_m}\big)\ldots\Big)x_2^{i_2}\Bigg)x_1^{i_1},
   \end{equation}
+  where $c_\vec{i}$ is the coefficient of $x_1^{i_1}x_2^{i_2}\ldots x_m^{i_m}$ and $\vec{i}=(i_1,\ldots,i_m)$.
+
   Note that the same polynomial can be expressed in various different ways, and we say that two variable orders, $\vec{x}$ and $\vec{y}$, are different if $|\vec{x}|\neq|\vec{y}|$ (where $|\vec{z}|$ denotes the length of the vector $\vec{z}$) or there exist an integer $i$ such that $x_i\neq y_i$.
 \end{definition}
 \begin{remark}
@@ -87,7 +91,7 @@ First we define how we write that a polynomial is constructed:
   \begin{equation}
     p(x) = a_0 + a_1 x + \ldots + a_d x^d.
   \end{equation}
-  Note that we have not specified what $a_i$ are; they can be either integers or polynomials -- but if they are polynomials they have to have the same variable order. Also note that once we have the polynomial $p$ we will use the notation $p[i]$ to reference the $i$-th variable, namely $a_i$. If we reference $p[j]$ where $j\ge d$, then this is defined as $p[j]=0 \forall j\ge d$.
+  Note that we have not specified what $a_i$ are; they can be either integers or polynomials -- but if they are polynomials they have to have the same variable order. Also note that once we have the polynomial $p$ we will use the notation $p[i]$ to reference the $i$-th variable, namely $a_i$. If we reference $p[j]$ where $j>d$, then this is defined as $p[j]=0 \forall j>d$.
 \end{definition}
 
 We also define the degree of a polynomial:
@@ -95,10 +99,13 @@ We also define the degree of a polynomial:
   Let the polynomial $p$ have variable order $\vec{x}=(x_1,\ldots,x_m)$. Then we define the degree of $p$, denoted $deg(p)$, as the largest exponent of $x_1$ in the expression for $p$.
 \end{definition}
 
-For all the operations we will use two polynomials $f$ and $g$. These are polynomials with the variable order $\vec{x}$. We will now provide procedures that show how all the previously mentioned operations should work. Note that the procedures are assuming that the polynomials have the same variable order, if this is not the case then the polynomials first are converted into a common variable order.
+\subsection{Simple operations}\label{Sub: simpleop}
 
-All the procedures try to follow the same structure, which is quite recursive. All procedures have a base case, usually when $|\vec{x}|=1$, and in all other cases recursive calls are made. A note to be made here is that recursive calls are not computationally heavy in theory but might take time if many are made, especially if the depth is large, in practice. In this thesis however, the depth is very small -- usually less than 5 -- since the depth comes from the number of variables in the polynomials. Therefore the recursion is not expected to cause any problems computationally.
+For all the operations we will use two polynomials $f$ and $g$. These are polynomials with the variable order $\vec{x}$. We will now provide procedures that show how all operations that are needed. In this subsection we define the simplest ones, which division and GCD are left for subsection \ref{Sub: diffop}. Note that the procedures are assuming that the polynomials have the same variable order, if this is not the case then the polynomials first are converted into a common variable order.
 
+All the procedures try to follow the same structure, which is quite recursive. All procedures have a base case, usually when the variable order $\vec{x}$ has $|\vec{x}|=1$. In all other cases recursive calls are made. A note to be made here is that recursive calls are not computationally heavy in theory but might take time if many are made, especially if the depth is large, in practice. In this thesis however, the depth is very small -- usually less than 5 -- since the depth comes from the number of variables in the polynomials. Therefore the recursion is not expected to cause any problems computationally.
+
+Addition is as it often is a foundation for all other methods. As we will see later on it is called from most other methods at one point or another.
 \begin{algorithm}[H]
   \caption{Addition}
   \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
@@ -118,6 +125,7 @@ All the procedures try to follow the same structure, which is quite recursive. A
   \end{algorithmic}
 \end{algorithm}
 
+Negation is sometimes needed itself, but mostly this procedure is used when subtracting two polynomials. That means that this procedure is quite long, but on the other hand that makes subtract really short. One can choose to make subtract long and negate short instead, but we chose to do it this way.
 \begin{algorithm}[H]
   \caption{Negatation}
   \inp{Polynomial $f$ with variable order $\vec{x}$}
@@ -149,6 +157,7 @@ All the procedures try to follow the same structure, which is quite recursive. A
   \end{algorithmic}
 \end{algorithm}
 
+The multiplication procedure that is implemented is the most simple and naïve version, which multiply polynomials in $\bigO(d_f,d_g)$, where $d_f,d_g$ are the degrees of $f$ and $g$, respectively. There are much more efficient implementations of polynomial multiplication -- for instance Fast Fourier Transform can give a time complexity of $\bigO(n\log n)$, where $n=max(d_f,d_g)$. As we in the application of polynomials in this thesis only treat polynomials of small degrees and in order to keep the implementation simple and understandable more efficient multiplication algorithms have not been implemented.
 \begin{algorithm}[H]
   \caption{Multiplication}
   \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
@@ -194,6 +203,7 @@ All the procedures try to follow the same structure, which is quite recursive. A
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+Quite often polynomials are compared and we are interested in whether they are equal or not, hence an equality method was implemented. The reason this is needed is that polynomials are implemented as a class, thus using the normal ''$==$'' operator will not work.
 
 \begin{algorithm}[H]
   \caption{Evaluating at a point}
@@ -219,9 +229,10 @@ All the procedures try to follow the same structure, which is quite recursive. A
   \end{algorithmic}
 \end{algorithm}
 
-The next procedure is used to find roots of a polynomial. Here if the polynomial is only dependent on one variable, meaning $|\vec{x}|=1$, then we solve this equation (we call this function $SolveEquation$). In the implementation of the program only solving equations up to degree 2 is implemented, but the program also tries to insert values in the range $(-100,100)$ and sees if any of these are roots. We do not include the procedure for $SolveEquation$ in the report, since it is just solving a second degree equation and additionally trying a bunch of different small values.
-\begin{algorithm}[H]\label{Alg: Roots}
+The next procedure is used to find roots of a polynomial. Here if the polynomial is only dependent on one variable, meaning $|\vec{x}|=1$, then we solve this equation (we call this function $SolveEquation$). In the implementation of the program only solving equations completely is implemented up to degree 2, but the program also tries to insert values in the range $(-100,100)$ and sees if any of these are roots. We do not include the procedure for $SolveEquation$ in the report, since it is just solving a second degree equation and additionally trying a bunch of different small values.
+\begin{algorithm}[H]
   \caption{Finding roots}
+  \label{Alg: Roots}
   \inp{Polynomial $f$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
   \outp{Integers $x^\prime$ such that $x_m=x^\prime \implies f=0$}
   \begin{algorithmic}[1]
@@ -245,7 +256,7 @@ The next procedure is used to find roots of a polynomial. Here if the polynomial
   \end{algorithmic}
 \end{algorithm}
 
-\subsection{Division, modulo and GCD}\label{Ch: div,mod,gcd}
+\subsection{Complicated operations -- division and GCD}\label{Ch: div,mod,gcd}\label{Sub: diffop}
 Now we come to the slightly more complicated operations that we need to perform on polynomials. First we define GCD for polynomials a bit more carefully, which we do in a few steps.
 \begin{definition}\label{Def: divide}
   A polynomial $g$ is said to divide another polynomial $a$ if there exists a polynomial $q$ such that $a=g\cdot q$. We will use the notation $g|a$ to denote that $g$ divides $a$.
@@ -272,7 +283,7 @@ In general performing division, modulo and gcd is fairly straight forward even o
 \end{equation}
 where $\rightarrow$ indicates what the function returns.
 
-This implementation scheme is fairly straight forward, even though the divide function might be a bit messy. The problem we encounter in this thesis though, is that we cannot necessarily find polynomials $q,r$ such that \ref{Eq: Theory,standard divide} is satisfied. The reason for this is that we are working with integer coefficients and not in a ring. In order to show the problems we encounter we will use a common example throughout this section to show what the problem is and how we solve it.
+This implementation scheme is fairly straight forward, even though the divide function might be a bit messy. The problem we encounter in this thesis though, is that we cannot necessarily find polynomials $q,r$ such that \ref{Eq: Theory,standard divide} is satisfied. The reason for this is that we are working with integer coefficients and not in a ring. In order to show the problems we encounter we will use a common example throughout this section to show what the problem is and how we resolve it.
 \begin{example}
   Consider dividing $a(x)=x^2+2x+1$ by $b(x)=2x$. Assume we have $q,r$ that fulfill \ref{Eq: Theory,standard divide}. Then we need to have $deg(r)<deg(b)=deg(2x)=1$. This means that $r(x)=c$, where $c$ is an integer constant. This gives us
   \begin{equation}\label{Eq: poly,divide,ex1}
@@ -285,7 +296,7 @@ This implementation scheme is fairly straight forward, even though the divide fu
   By looking at degree 2 we get $2c_1=1$, which of course does not have any solutions for integers $c_1$.
 \end{example}
 
-The way we solve this is to instead of giving two polynomials $q,r$ when we divide $a$ by $b$ we also give a third parameter, $f$, which is a factor of the same type as the coefficients in $a$ and $b$. The condition that needs to be fulfilled is
+The way we solve this is to instead of giving two polynomials $q,r$ when we divide $a$ by $b$ we also give a third parameter, $f$, which is a factor of the same variable order as the coefficients in $a$ and $b$. The condition that needs to be fulfilled is
 \begin{equation}\label{Eq: Theory,divide condition}
   DIVIDE(a,b) \rightarrow (q,r,f) \text{ such that } f\cdot a=b\cdot q + r, deg(r) < deg(b).
 \end{equation}
@@ -302,13 +313,15 @@ Now we will show that it actually is possible to find $q,r,f$ such that \ref{Eq:
 
   Now assume that $c\geq d$. We will now show that we can find $a^\prime,q_0,f_0$ such that
   \begin{equation}
-    f_0a(x_1) = q_0(x_1)b(x_1) + a^\prime(x_1).
+    f_0a(x_1) = q_0(x_1)b(x_1) + a^\prime(x_1),
   \end{equation}
-  This is obtained by choosing $f_0=b_d, q_0=a_cx^{c-d}$ and $a^\prime(x_1)=b_da(x_1)-a_cx^{c-d}b(x_1)$. This gives us
+  and $deg(a^\prime) < deg(a)$.
+
+  This is obtained by choosing $f_0=b_d, q_0=a_cx_1^{c-d}$ and $a^\prime(x_1)=b_da(x_1)-a_cx_1^{c-d}b(x_1)$. This gives us
   \begin{equation}\label{Eq: Theory,aprime}
     \begin{split}
-      a^\prime(x_1) & = b_da(x_1)-a_cx^{c-d}b(x_1) = b_d(a_0+\ldots+a_cx^c)-a_cx^{c-d}(b_0+\ldots+b_dx^d) \\
-      & = b_d(a_0+\ldots+a_{c-1}x^{c-1})-a_cx^{c-d}(b_0+\ldots+b_{d-1}x^{d-1})
+      a^\prime(x_1) & = b_da(x_1)-a_cx_1^{c-d}b(x_1) = b_d(a_0+\ldots+a_cx_1^c)-a_cx_1^{c-d}(b_0+\ldots+b_dx_1^d) \\
+      & = b_d(a_0+\ldots+a_{c-1}x_1^{c-1})-a_cx_1^{c-d}(b_0+\ldots+b_{d-1}x_1^{d-1})
     \end{split}
   \end{equation}
   Now we can clearly see that $deg(a^\prime)<c$, which means we have reduced the problem by (at least) 1 in the degree of $a$. We continue to do this until the degree of $a$ is less than the degree of $b$, and then we collect the results. If we have that
@@ -319,13 +332,13 @@ Now we will show that it actually is possible to find $q,r,f$ such that \ref{Eq:
   \begin{equation}
     \begin{split}
       f^\prime\cdot a^\prime & =q^\prime\cdot b + r^\prime \hspace{2cm}\implies \\
-      f^\prime (b_da-a_cx^{c-d}b) & =q^\prime\cdot b + r^\prime \hspace{2cm} \implies \\
-      (fb_d)a & = (q^\prime + a_cx^{c-d})b + r^\prime,
+      f^\prime (b_da-a_cx_1^{c-d}b) & =q^\prime\cdot b + r^\prime \hspace{2cm} \implies \\
+      (f^\prime b_d)a & = (q^\prime + a_cx_1^{c-d})b + r^\prime,
     \end{split}
   \end{equation}
   and thus we get
   \begin{equation}
-    DIVIDE(a,b) \rightarrow (q,r,f) = (q^\prime + a_cx^{c-d},r^\prime,fb_d).
+    DIVIDE(a,b) \rightarrow (q,r,f) = (q^\prime + a_cx_1^{c-d},r^\prime,f^\prime b_d).
   \end{equation}
   Now we have shown the theorem, and provided the method for dividing polynomials at once.
 \end{proof}
@@ -394,7 +407,7 @@ As we saw in example \ref{Ex: gcd} if we try to naïvely use \ref{Eq: Theory,sta
 \begin{equation}\label{Eq: Theory, gcd, explanation}
   f\cdot a(x_1)=b(x_1)\cdot q(x_1) + r(x_1).
 \end{equation}
-Now the greatest common divisor of $b$ and $r$ will divide the right hand side $f\cdot a(x_1)$ but not necessarily $a(x_1)$. With this insight in mind, we will now prove theorem \ref{Thm: gcd}, but first we need a few lemmas.
+Now the greatest common divisor of $b$ and $r$ will divide the left hand side of equation \ref{Eq: Theory, gcd, explanation}, $f\cdot a(x_1)$, but not necessarily $a(x_1)$. With this insight in mind, we will now prove theorem \ref{Thm: gcd}, but first we need a few lemmas.
 \begin{lemma}\label{Lemma0}
   Let $a,b,d$ be polynomials such that $d|(a\cdot b)$. Then we can factor $d$ into two polynomials $d_a,d_b$ such that
   \begin{enumerate}
@@ -435,7 +448,7 @@ Now we are ready to finish this section with the proof of theorem \ref{Thm: gcd}
   \end{equation}
   in fact is a divisor of $a$ and $b$. After that we will show that
   \begin{equation}
-    d|a, d|b \implies d\Big|\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b)).
+    d|a, d|b \implies d\Big|\Big(\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b))\Big).
   \end{equation}
 
   We start with the first part. Since $g^\prime|b$ and $g^\prime|r$, $g^\prime$ divides the right hand side of \ref{Eq: Theory, gcd, explanation}. But the left hand side is equal to the left hand side, thus we know that $g^\prime|fa$. This in turns implies that we (due to lemma \ref{Lemma0}) can factor $g$ into two parts, $g_f,g_a$, such that $g^\prime=g_ag_f$, $g_a|a$ and $g_f|f$. But now since $f$ has variable order $(x_2,\ldots,x_m)$ then $g_f$ cannot depend on $x_1$.
@@ -501,9 +514,11 @@ Although the procedures of division and gcd are partly already described in the 
       \State $\vec{c}\gets \emptyvec$
       \State $\vec{c}[deg(a)-deg(b)]\gets a[deg(a)]$
       \State $q_0\gets polynomial(c,\vec{x}[0])$
-      \State $r_0\gets$ \Call{Add}{\Call{Multiply}{$f_0,a$},\Call{Multiply}{$q_0,b$}}
+      \State $r_0\gets$ \Call{Subtract}{\Call{Multiply}{$f_0,a$},\Call{Multiply}{$q_0,b$}}
       \State $q_1,r_1,f_1 \gets$ \Call{Divide}{$r_0,b$}
-      \State $q,r,f\gets$ \Call{Add}{\Call{Multiply}{$f_1,q_0$} ,$q_1$},$r_1$,\Call{Multiply}{$f_0,f_1$}
+      \State $q\gets $ \Call{Add}{\Call{Multiply}{$f_1,q_0$} ,$q_1$}
+      \State $r\gets r_1$
+      \State $f\gets$ \Call{Multiply}{$f_0,f_1$}
       \State \Return $(q,r,f)$
     \EndProcedure
   \end{algorithmic}
@@ -515,12 +530,12 @@ Although the procedures of division and gcd are partly already described in the 
   \end{equation}
   This step is not necessary, but ensures that $q,r,f$ do not have unnecessarily large coefficients. The reason it is not included is that adding this step most likely adds more confusion than value.
 \end{remark}
-Now we have gcd and gcd\textsubscript{C} left to write pseudocode for. Since all the code is very recursive here, it seems to be the case that we get infinite recursive calls. This will not be the case, however, since all the time we either:
+Now we have gcd and gcd\textsubscript{C} left to write pseudocode for. Since all the code is very recursive here, it seems to be the case that we get infinite recursive calls. This will not be the case, however, since every time GCD is called either
 \begin{enumerate}
-  \item Decrease the degree of some polynomial
-  \item Decrease the size of the variable order.
+  \item the degree of some polynomial, or
+  \item the size of the variable order
 \end{enumerate}
-The fact that one of these are true is easily checked in all the procedures.
+decreases. The fact that one of these are true is easily checked in all the procedures.
 \begin{algorithm}[H]
   \caption{Greatest common divisor}
   \inp{Polynomial $a$ and $b$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
@@ -565,7 +580,7 @@ but not problems like
 \end{example}
 Hence in order to use the method we need to have an equality to verify.
 
-The methodology\reference{wilf} in the proof is that assume we want to prove
+We will now give a general outline of how a proof using Wilf-Zeilberger's method works. The steps in the proof\reference{wilf} are that assume we want to prove
 \begin{equation}\label{Eq: Theory,PS}
   \sum_{k=-\infty}^\infty A(n,k) = B(n).
 \end{equation}
@@ -608,14 +623,18 @@ If these two conditions are fulfilled, then equation \ref{Eq: Theory,WZ2} is ful
  & = \lim_{M\to\infty} \big[G(n,M+1)-G(n,-M)\big] = 0.
 \end{split}
 \end{equation*}
+Sometimes the method looks slightly different, for instance if the identity only holds for some $n$.
+
 If we summarize the method we have the following steps:
 \begin{enumerate}
   \item Start with equation on the form $$\sum_{k=-\infty}^\infty A(n,k) = B(n).$$
   \item Let $$F(n,k)=\frac{A(n,k)}{B(n)}.$$
   \item Find $G(n,k)$ such that equations \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} are fulfilled.
-  \item Show that $\sum_{k=-\infty}^\infty F(0,k)=1$.
+  \item Show that $\sum_{k=-\infty}^\infty F(n^\prime,k)=1$ for some $n^\prime$.
 \end{enumerate}
-We can formalize the concepts in the method like this.
+The crucial step here is how to find $G(n,k)$, where Gosper's algorithm is used. This means that an identity can only be proved by Wilf-Zeilberger's method if the conditions in Gosper's algorithm are fulfilled, which we will come back to in section \ref{Sec: Gosper}.
+
+We can formalize the concepts in the method like this.\reference{wilf}
 \begin{definition}
   A pair of functions $(F,G)$ that satisfy equations \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} are said to ''certify'' an identity like \ref{Eq: Theory,WZ} (or is simply called a ''certifying pair''). We can also speak of a ''proof certificate'' $R(n,k)$ of an identity. That is a function such that $G(n,k)=R(n,k)F(n,k-1)$ gives that $(F,G)$ is a certifying pair to the identity.
 \end{definition}
@@ -642,7 +661,7 @@ Let us show an short example of how the method can work.
     \item Lastly we need to show that $$\sum_{k=0}^n \frac{\binom{n}{k}}{2^n}=1$$ for some $n$. If we choose $n=0$ we see that this equality holds. Therefore the equality holds for all $n$.
   \end{enumerate}
 \end{solution}
-Now that we have seen an example, hopefully the methodology is clear. What still is not clear is how to find the function $G(n,k)$. This is in general a hard task to do by hand, but is certainly managable by using a computer since there are algorithms -- for instance Gosper's algorithm -- that can derive $G(n,k)$ in certain cases. This implementation is what this thesis is contributing to do. %~\cite{gf}
+Now that we have seen an example, hopefully the methodology is clear. What still is not clear is how to find the function $G(n,k)$. This is in general a hard task to do by hand, but is certainly managable by using a computer since there are algorithms -- for instance Gosper's algorithm -- that can derive $G(n,k)$ in certain cases.
 
 \section{Gosper's algorithm}\label{Sec: Gosper}
 Gosper's algorithm is an algorithm that can be used to find a sum when certain conditions are fulfilled for the sum.\reference{gosper} The setting of the problem that is solved using the algorithm is that we want to find $S_k$ where
@@ -657,9 +676,18 @@ The algorithm provides those $S_k$ such that
 \begin{equation}
   \frac{S_k}{S_{k-1}} = \text{rational function of } k.
 \end{equation}
-Note that all the time when we write $x_a$ in this section, this denotes a polynomial $x$ evaluated in $a$, or $x(a)$. For instance $S_k$ denotes that the polynomial $S(k)$. We are only using this notation to make it easier to read. Note that this means that $x$ is a function of the variable $a$, but does not mean that it is a one variable function of $a$ -- it can be a function of several variables but we are just interested in the variable $a$ while the others are viewed as constants. This will actually be the cast amost all the time, since $a_k=F(n+1,k)-F(n,k)$ (where $F$ comes from Wilf-Zeilberger's method) will be used most of the time. Also here, note that $F(n,k)$ only denotes that $F$ is a function of $n$ and $k$, but it might be of more variables as well.
+This is the same thing as that
+\begin{equation}
+  \frac{a_k}{a_{k-1}} = \text{rational function of } k.
+\end{equation}
+Therefore Wilf-Zeilberger's method only works if
+\begin{equation}
+  \frac{a_k}{a_{k-1}} = \frac{F(n+1,k)-F(n,k)}{F(n+1,k-1)-F(n,k-1)} = \text{rational function of } k.
+\end{equation}
 
-For the sake of making the thesis more easily readable and for completeness, we will provide a quite thorough derivation of the algorithm -- even though it is perfectly described in the original paper by Gosper (1978). This will mostly focus on the steps of the algorithm, but also include the proofs of claims that are made during the steps. Firstly we will describe the main steps and thereafter we will provide the proofs.
+Note that all the time when we write $x_a$ in this section, this denotes a polynomial $x$ evaluated in $a$, or $x(a)$. For instance $S_k$ denotes that the polynomial $S(k)$. We are only using this notation to make it easier to read. Note that this means that $x$ is a function of the variable $a$, but does not mean that it is a one variable function of $a$ -- it can be a function of several variables but we are just interested in the variable $a$ while the others are viewed as constants. This will actually be the case amost all the time, since $a_k=F(n+1,k)-F(n,k)$ (where $F$ comes from Wilf-Zeilberger's method) will be used most of the time. Also here, note that $F(n,k)$ only denotes that $F$ is a function of $n$ and $k$, but it might be of more variables as well.
+
+In order to make the thesis more easily readable and for completeness, we will provide a quite thorough derivation of the algorithm -- even though it is perfectly described in the original paper by Gosper (1978). This will mostly focus on the steps of the algorithm, but also include the proofs of claims that are made during the steps. Firstly we will describe the main steps and thereafter we will provide the proofs.
 
 First of all we need to show the connection between the formulation of Wilf-Zeilberger's method and how Gosper's algorithm takes part in it. Gosper's algorithm will solve the third step in Wilf-Zeilberger's method, namely to find a $G(n,k)$ such that conditions \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} will be fulfilled. The first condition is that
 \begin{equation}
@@ -701,7 +729,7 @@ By factoring out $\frac{a_k}{p_k}$ in \ref{Eq: Theory,Gosper,sksk1}, and using \
 \end{equation}
 which is exactly what we wanted to be true for $S_k$.
 
-Now, we have quite a few details to derive in each step -- both how the step is done more precisely and furthermore explaining why all the polynomials actually need to be polynomials and not rational polynomials instead.
+Now, we have quite a few details to derive in each step -- both how the step is performed more precisely and furthermore explaining why all the polynomials actually need to be polynomials and not rational polynomials instead.
 
 \subsection{How to get polynomials $p,q,r$ in equation \ref{Eq: Theory,Gosper,step1}}\label{Sub: pqr}
 First of all, we need to prove that it is possible to find polynomials $p,q,r$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled. Since $\frac{S_k}{S_{k-1}}$ is a rational function of $k$, then
@@ -722,10 +750,13 @@ where $g_k=gcd(q_k,r_{k+j})$ for the smallest $j\geq 0$ such that $gcd(q_k,r_{k+
 \begin{equation}
   \frac{a_k}{a_{k-1}} = \frac{p_k^\prime}{p_{k-1}^\prime}\frac{q_k^\prime}{r_k^\prime}
 \end{equation}
-and the degree of the polynomials $q_k, r_k$ are smaller. We then iterate this procedure as long as there exists a $j$ such that $gcd(q_k,r_{k+j})>1$. Then when this procedure finishes, we will obtain $q_k,r_k,p_k$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled and $gcd(q_k,r_{k+j})=1 \forall j\geq 0$.
+and the degrees of the polynomials $q_k, r_k$ are smaller. We then iterate this procedure as long as there exists a $j\geq 0$ such that $gcd(q_k,r_{k+j})>1$. When this procedure finishes, we have obtained $q_k,r_k,p_k$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled and $gcd(q_k,r_{k+j})=1 \forall j\geq 0$.
 
 \subsection{How to get polynomial $f$ in equation \ref{Eq: Theory,Gosper,step2}}\label{Sub: getf}
 The proof provided here is just due to Gosper's paper and mostly very similar. First of all, we need to prove that $f$ is a polynomial and not a rational polynomial.
+\begin{theorem}
+  There exists a polynomial $f_k$ such that equation \ref{Eq: Theory,Gosper,step2} is fulfilled.
+\end{theorem}
 \begin{proof}
   Assume that $f_k=\frac{c_k}{d_k}$ where $gcd(c_k,d_k)=1$. Then by plugging this into \ref{Eq: Theory,Gosper,step2} and multiplying by $d_kd_{k-1}$ gives us:
   \begin{equation}\label{Eq: Theory,8prime}
@@ -749,7 +780,7 @@ The proof provided here is just due to Gosper's paper and mostly very similar. F
   \end{equation}
   again since $g_{k-j-1}|d_{k-j-1}$.
 
-  Now we consider equation \ref{Eq: Theory,8prime} upon dividing by first $g_k$ and then $g_{k-j-1}$. Clearly $g_k|d_kd_{k-1}p_k$, since $g_k|d_k$. This means that
+  Now we consider equation \ref{Eq: Theory,8prime} upon dividing by first $g_k$ and then $g_{k-j-1}$. Clearly $g_k|d_kd_{k-1}p_k$, since $g_k|d_k$. This means that $g_k$ divides the right hand side of equation \ref{Eq: Theory,8prime} as well:
   \begin{equation}
     g_k|c_kd_{k-1}q_{k+1}-d_kc_{k-1}r_k.
   \end{equation}
@@ -787,7 +818,7 @@ The proof provided here is just due to Gosper's paper and mostly very similar. F
 
 Now, let us derive how to get the polynomial $f_k$ such that \ref{Eq: Theory,Gosper,step2} is fulfilled. It is possible to get a bound for the degree of $f_k$ with respect to $k$. This is derived in the paper by Gosper (1978) and for the interested reader the details can be found there. The results is that
 \begin{equation}
-  deg(f_k)\leq deg(p_k) - max(deg(q_{k+1}+r_k),deg(q_{k+1}-r_k)) + 1.
+  deg(f_k)\leq deg(p_k) - max\big(deg(q_{k+1}+r_k),deg(q_{k+1}-r_k)\big) + 1.
 \end{equation}
 In some cases the degree can be further limited (without the extra $+1$) but we are mostly interested in that we have a bound -- not the extra added (small) constant.
 
@@ -804,7 +835,7 @@ Then from this we can derive what the polynomial $f_{k-1}$ is. First we write th
 Now we will derive the expression for $b_{\vec{i},i_1}$ in terms of $a_{\vec{i},i_1}$. If we replace $k$ by $k-1$ in \ref{Eq: Theory,general polynomial} we get
 \begin{equation}\label{Eq: Theory,general polynomial k-1 plugged in}
   \begin{split}
-    f_k & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}(k-1)^{i_1}\prod_{j=2}^m v_j^{i_j}\Big) = \\
+    f_{k-1} & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}(k-1)^{i_1}\prod_{j=2}^m v_j^{i_j}\Big) = \\
     & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}\Bigg(\sum_{u=0}^{i_1} \binom{i_1}{u}k^u (-1)^{i_1-u}\Bigg)\prod_{j=2}^m v_j^{i_j}\Big) = \\
     & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Bigg(\sum_{u=0}^{i_1} a_{\vec{i},i_1}\binom{i_1}{u}(-1)^{i_1-u}k^u\Bigg) \prod_{j=2}^m v_j^{i_j}
   \end{split}
@@ -825,7 +856,7 @@ where $b_{\vec{\hat{j}}}$ is given by \ref{Eq: Theory,fk-1 coefficients}. Note t
 \begin{equation}\label{Eq: Theory,equation system2}
   Ma=P,
 \end{equation}
-where $M$ is the matrix that is given by the right hand side of \ref{Eq: Theory,equation system1}, $a$ consists of all coefficients $a_{\vec{\hat{j}}}$ and $P$ is the left hand side of \ref{Eq: Theory,equation system1}. Note that each row in this system of equations correspond to a different $\vec{\hat{i}}$. Here we go through all $\vec{\hat{i}}$ that are relevant -- meaning all $\vec{\hat{i}}$ with degree smaller than what either of the sides of equation \ref{Eq: Theory,equation system1} can have. This means that we have an overdetermined system of equations. Furthermore we demand that all the coefficients of $f_k$ have to be integers. This means that it is not certain that we will get a solution, but in case we do we have found $f_k$. If we do not get a solution that can be because of two different reasons:
+where $M$ is the matrix that is given by the right hand side of \ref{Eq: Theory,equation system1}, $a$ consists of all coefficients $a_{\vec{\hat{j}}}$ and $P$ is the left hand side of \ref{Eq: Theory,equation system1}. Note that each row in this system of equations corresponds to a different $\vec{\hat{i}}$. Here we go through all $\vec{\hat{i}}$ that are relevant -- meaning all $\vec{\hat{i}}$ with degree smaller than what either of the sides of equation \ref{Eq: Theory,equation system1} can have. This means that we have an overdetermined system of equations. Furthermore we demand that all the coefficients of $f_k$ have to be integers. This means that it is not certain that we will get a solution, but in case we do, then we have found $f_k$. If we do not get a solution that can be because of two different reasons:
 \begin{enumerate}[i)]
   \item We chose a too small maximal degree $N$ for the polynomial $f_k$.
   \item There does not exist a solution, hence the identity cannot be shown by Wilf-Zeilberger's method.
@@ -844,7 +875,7 @@ The time complexity for this system of equations is $\mathcal{O}(L\cdot N^{2m})$
       \State $r\gets \text{Number of rows in M}$
       \State $c\gets \text{Number of columns in M}$
       \For{$row\gets1,\ldots,c$}
-        \State $i\gets $ first row with row number $\geq row $ and $M[i][c]\neq 0$
+        \State $i\gets $ first row with row number $\geq row $ and $M[i][row]\neq 0$
         \If{No such $i$ exists}
           \State Continue loop
         \EndIf

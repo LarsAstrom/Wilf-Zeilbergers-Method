@@ -5,13 +5,13 @@ Throughout the thesis some identities have been used for testing the code, these
   \item $\sum_{k=0}^n \binom{n}{k}^2 = \binom{2n}{n}$ \label{ID: 3}
   \item $\sum_{k=0}^n 2^k\binom{n}{k} = 3^n$ \label{ID: 4}
   \item $\sum_{k=0}^n k\binom{n}{k} = n2^{n-1}$ \label{ID: 5}
-  \item $\sum_{k=1}^n \frac{1}{k(k-1)} = 1-\frac{1}{n}$ \label{ID: 6}
+  \item $\sum_{k=2}^n \frac{1}{k(k-1)} = 1-\frac{1}{n}$ \label{ID: 6}
   \item $\sum_{k=0}^n \binom{k}{c} = \binom{n+1}{c+1}$ \label{ID: 7}
   \item $\sum_{k=0}^n \binom{r+k}{k} = \binom{r+n+1}{n}$ \label{ID: 8}
   \item $\sum_{k=0}^n \binom{m-k}{n-k} = \binom{m+1}{n}$ \label{ID: 9}
   \item $\sum_{k=n}^\infty \frac{1}{\binom{k}{n}}=\frac{n}{n-1}$ \label{ID: 10}
 \end{enumerate}
-Some of these identities are quite trivial to show with combinatorial arguments, but others are not as easy. For instance identity \ref{ID: 1} comes from counting in how many ways we can choose objects out of $n$ different objects, while identity \ref{ID: 2} is not very easy to prove by providing a combinatorial argument. When these identities are shown, a \LaTeX file is produced. The proofs of all identities are provided in chapter \ref{Ch: Attachments}. As we can see the identities \ref{ID: 7} and \ref{ID: 8} cannot be shown, the reason for this is that the ''get f'' method cannot give a solution, since $f$ cannot be a polynomial. This is because the degree of $f$ depends on $c$ and $r$, respectively, and therefore Wilf-Zeilberger's method does not work well on the problem.
+Some of these identities are quite trivial to show with combinatorial arguments, but others are not as easy. For instance identity \ref{ID: 1} comes from counting in how many ways we can choose objects out of $n$ different objects in two different ways, while identity \ref{ID: 2} is not very easy to prove by providing a combinatorial argument. When these identities are shown, a \LaTeX file is produced. The proofs of all identities are provided in chapter \ref{Ch: Attachments}. As we can see the identities \ref{ID: 7} and \ref{ID: 8} cannot be shown, the reason for this is that the ''get f'' method cannot give a solution, since $f$ cannot be a polynomial. This is because the degree of $f$ depends on $c$ and $r$, respectively, and therefore Wilf-Zeilberger's method does not work well on the problem.
 
 After the program worked for all the training examples the program was validated on other identities (called validation examples), in the hopes that the program works on identities it has not been developed to work on as well. Also here we tried to use validation identities that are different from each other, but now we also prioritized identities that are not very simple to solve with combinatorial arguments. The tests that were used are:
 \begin{enumerate}
@@ -19,7 +19,7 @@ After the program worked for all the training examples the program was validated
   \item $\sum_{k=0}^n 3^k\binom{n}{k} = 4^n$ \label{ID: 11}
   \item $\sum_{k=0}^n 4^k\binom{n}{k} = 5^n$ \label{ID: 12}
   \item $\sum_{k=0}^n \binom{n}{2k} = 2^{n-1}$ \label{ID: 13}
-  \item $\sum \frac{1}{k\binom{k+n}{k}} = \frac{1}{n}$ \label{ID: 14}
+  \item $\sum_{k=1}^\infty \frac{1}{k\binom{k+n}{k}} = \frac{1}{n}$ \label{ID: 14}
   \item $\sum_{k=0}^\infty 2^{-k}\binom{n+k}{k} = 2^{n+1}$ \label{ID: 15}
   \item $\sum_{k=0}^n \frac{\binom{n}{k}}{\binom{2n-1}{k}} = 2$ \label{ID: 16}
   \item $\sum_{k=0}^n k\frac{\binom{n}{k}}{\binom{2n-1}{k}} = 2\frac{n}{n+1}$ \label{ID: 17}
