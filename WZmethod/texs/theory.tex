@@ -38,9 +38,9 @@ This is fairly simple if the polynomial only has one variable. As soon as we int
   where
   \begin{equation*}
     \begin{split}
-      p_0(k,m) &= -(3k^2+k-3)m^2-(3k^2+k-1)m-(2k^2+3k+1)\\
-      p_1(k,m) &= -(k^2-3)m^2+(3k^2+2k+2)m+(k^2+3k-3)\\
-      p_2(k,m) &= -(3k^2-3)m^2+(2k^2+2)m+(k^2-2k-2).
+      p_0(k,m) &= -(3k^2-3)m^2-(2k^2+2)m-(k^2-2k-2)\\
+      p_1(k,m) &= -(k^2-3)m^2-(3k^2+2k+2)m-(k^2+3k-3)\\
+      p_2(k,m) &= -(3k^2+k-3)m^2+(3k^2+k-1)m+(2k^2+3k+1).
     \end{split}
   \end{equation*}
   Now since our definition of polynomials is recursive, each of $p_0(k,m),p_1(k,m),p_2(k,m)$ is written as $q_2(k)m^2+q_1(k)m+q_0(k)$ for polynomials $q_0,q_1,q_2$. For instance $p_1$ has
@@ -50,8 +50,8 @@ This is fairly simple if the polynomial only has one variable. As soon as we int
   where
   \begin{equation*}
     \begin{split}
-      q_0(k) & = k^2+3k-3 \\
-      q_1(k) & = 3k^2+2k+2 \\
+      q_0(k) & = -k^2-3k+3 \\
+      q_1(k) & = -3k^2-2k-2 \\
       q_2(k) & = -k^2+3
     \end{split}
   \end{equation*}
@@ -236,7 +236,7 @@ Quite often polynomials are compared and we are interested in whether they are e
   \end{algorithmic}
 \end{algorithm}
 
-The next procedure is used to find roots of a polynomial. Here if the polynomial is only dependent on one variable, meaning $|\vec{x}|=1$, then we solve this equation (we call this function $SolveEquation$). In the implementation of the program only solving equations completely is implemented up to degree 2, but the program also tries to insert values in the range $(-100,100)$ and sees if any of these are roots. Here we note that this weak implementation to find roots might cause problems later on, which we will come back to in more detail in section \ref{Sub: findpqr}. We do not include the procedure for $SolveEquation$ in the report, since it is just solving a second degree equation and additionally trying a bunch of different small values.
+The next procedure is used to find roots of a polynomial. Here if the polynomial is only dependent on one variable, meaning $|\vec{x}|=1$, then we solve this equation (we call this function $SolveEquation$). In the implementation of the program only solving equations completely is implemented up to degree 2, but the program also tries to insert values in the range $(-100,100)$ and sees if any of these are roots. Here we note that this weak implementation to find roots might cause problems later on since maybe there are roots that just are not found, which we will come back to and discuss in more detail in section \ref{Sub: findpqr}. We do not include the procedure for $SolveEquation$ in the report, since it is just solving a second degree equation and additionally trying a bunch of different small values.
 \begin{algorithm}[H]
   \caption{Finding roots}
   \label{Alg: Roots}

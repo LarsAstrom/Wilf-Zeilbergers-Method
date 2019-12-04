@@ -83,7 +83,7 @@ This algorithm is in theory fairly simple -- find a common factor and get rid of
 \begin{algorithm}[H]
   \caption{Find $GCD(q_k,r_{k+j})\forall j\geq 0$}
   \inp{Polynomials $q_k,r_k$}
-  \outp{Polynomial $g_k=gcd(q_k,r_{k+j})\neq 1$ for some $j\geq 0$}
+  \outp{Integer $j^\prime\geq 0$ such that $g_k=gcd(q_k,r_{k+j^\prime})\neq 1$.}
   \begin{algorithmic}[1]
     \Procedure{GCDWithShift}{$q_k,r_k$}
       \State $g_{j,0}\gets r_k \text{ evaluated at } k=k+j$
@@ -101,7 +101,7 @@ This algorithm is in theory fairly simple -- find a common factor and get rid of
   \end{algorithmic}
 \end{algorithm}
 \begin{remark}
-  Note that the procedure cannot always find a $g_k\neq 1$ such that $g_k=GCD(q_k,r_{k+j})$ for some integer $j\geq 0$. If it cannot find such $g_k$ then the procedure returns $None$, which can be seen as an error in finding the gcd.
+  Note that the procedure cannot always find a $j^\prime$ such that $g_k=GCD(q_k,r_{k+j})\neq 1$ for some integer $j^\prime\geq 0$. If it cannot find such $j^\prime$ then the procedure returns $None$, which can be seen as an error in finding the gcd.
 \end{remark}
 Here we perform the check in the if-statement on line \ref{Alg: GCDWithShift,if} by calling procedure \ref{Alg: Roots} and then checking if there is any root that is positive. Since this is the crucial step of this algorithm both the advantages and disadvantages come from the Roots-algorithm. In the implementation of Roots, only up to second degree polynomials are solved completely and after that values in the interval $(-100,100)$ are tested. This means that we cannot be sure that we find the roots. In general when we can use Wilf-Zeilberger's method, however, all roots are fairly small -- almost always less than 100. Therefore even though the implementation in theory is limiting it is very likely not to cause any problems in practice.
 \subsection{Finding f}
