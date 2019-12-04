@@ -26,9 +26,9 @@ This is fairly simple if the polynomial only has one variable. As soon as we int
   This will be stored as
   \begin{equation*}
     \begin{split}
-      p(k,m,n) = & -((3k^2+3k-3)m^2-(2k+1)m-(3k^2-k+3))n^2+\\
-      &((k^2-1)m^2-(k^2-2k+2)m-(2k+2))n+\\
-      &((2k^2+2)m^2+(2k-1)m+(k^2-k-3))
+      p(k,m,n) =  &-((3k^2-3)m^2+(2k^2+2)m+(k^2-2k-2))n^2-\\
+                  &((k^2-3)m^2+(3k^2+2k+2)m+(k^2+3k-3))n-\\
+                  &((3k^2+k-3)m^2-(3k^2+k-1)m-(2k^2+3k+1))
     \end{split}
   \end{equation*}
   Note that this can be written as
@@ -38,9 +38,9 @@ This is fairly simple if the polynomial only has one variable. As soon as we int
   where
   \begin{equation*}
     \begin{split}
-      p_0(k,m) &= ((2k^2+2)m^2+(2k-1)m+(k^2-k-3))\\
-      p_1(k,m) &= ((k^2-1)m^2-(k^2-2k+2)m-(2k+2))\\
-      p_2(k,m) &= -((3k^2+3k-3)m^2-(2k+1)m-(3k^2-k+3)).
+      p_0(k,m) &= -(3k^2+k-3)m^2-(3k^2+k-1)m-(2k^2+3k+1)\\
+      p_1(k,m) &= -(k^2-3)m^2+(3k^2+2k+2)m+(k^2+3k-3)\\
+      p_2(k,m) &= -(3k^2-3)m^2+(2k^2+2)m+(k^2-2k-2).
     \end{split}
   \end{equation*}
   Now since our definition of polynomials is recursive, each of $p_0(k,m),p_1(k,m),p_2(k,m)$ is written as $q_2(k)m^2+q_1(k)m+q_0(k)$ for polynomials $q_0,q_1,q_2$. For instance $p_1$ has
@@ -50,9 +50,9 @@ This is fairly simple if the polynomial only has one variable. As soon as we int
   where
   \begin{equation*}
     \begin{split}
-      q_0(k) & = -(2k+2) \\
-      q_1(k) & = -(k^2-2k+2) \\
-      q_2(k) & = (k^2-1)
+      q_0(k) & = k^2+3k-3 \\
+      q_1(k) & = 3k^2+2k+2 \\
+      q_2(k) & = -k^2+3
     \end{split}
   \end{equation*}
   Lastly we have the polynomials $q_0,q_1,q_2$ which have integers as coefficients.
@@ -62,22 +62,22 @@ As we saw in example \ref{Ex: polynomial, recursive} we define all polynomials a
 Note that in this case we wrote the polynomial with $n$ ''outmost'' in the representation of $p$. There was no specific reason for this, and the choice is not very important when only looking at one polynomial at a time. When we are using several polynomials at the same time, for instance if we want to add two polynomials, the structure is crucial. Therefore we will define some concepts regarding the representation of a polynomial.
 
 \begin{definition}
-  A polynomial $p$ is said to have the variable order $\vec{x}=(x_1,x_2,\ldots,x_m)$ if it is stored as
+  A polynomial $p$ is said to have the variable setup $\vec{x}=(x_1,x_2,\ldots,x_m)$ if it is stored as
   \begin{equation}
     p(\vec{x}) = \sum_{i_1=0}^{d_1}\Bigg(\sum_{i_2=0}^{d_2}\Big(\sum_{i_3=0}^{d_3}\ldots\big(\sum_{i_m=0}^{d_m} c_\vec{i}x_m^{i_m}\big)\ldots\Big)x_2^{i_2}\Bigg)x_1^{i_1},
   \end{equation}
   where $c_\vec{i}$ is the coefficient of $x_1^{i_1}x_2^{i_2}\ldots x_m^{i_m}$ and $\vec{i}=(i_1,\ldots,i_m)$.
 
-  Note that the same polynomial can be expressed in various different ways, and we say that two variable orders, $\vec{x}$ and $\vec{y}$, are different if $|\vec{x}|\neq|\vec{y}|$ (where $|\vec{z}|$ denotes the length of the vector $\vec{z}$) or there exist an integer $i$ such that $x_i\neq y_i$.
+  Note that the same polynomial can be expressed in various different ways, and we say that two variable setups, $\vec{x}$ and $\vec{y}$, are different if $|\vec{x}|\neq|\vec{y}|$ (where $|\vec{z}|$ denotes the length of the vector $\vec{z}$) or there exist an integer $i$ such that $x_i\neq y_i$.
 \end{definition}
 \begin{remark}
-  If the polynomial $p$ has variable order $\vec{x}=(x_1,x_2,\ldots,x_m)$, then the coefficients of $p$ have variable order $\vec{x^\prime}=(x_2,\ldots,x_m)$.
+  If the polynomial $p$ has variable setup $\vec{x}=(x_1,x_2,\ldots,x_m)$, then the coefficients of $p$ have variable setup $\vec{x^\prime}=(x_2,\ldots,x_m)$.
 \end{remark}
 \begin{remark}
-  Note that if the polynomial $p$ has variable order $\vec{x}$ such that $|\vec{x}|=1$, then the coefficients of $p$ are integers.
+  Note that if the polynomial $p$ has variable setup $\vec{x}$ such that $|\vec{x}|=1$, then the coefficients of $p$ are integers.
 \end{remark}
 
-Here we can note that $d_i$ is the degree of $p$ with respect to $x_i$. Furthermore we note that we can express a polynomial $p$ with the variable order $\vec{x}=(x_1,\ldots,x_m)$ even though $p$ does not have all the variables $x_j$ in its expression. If $p$ does not depend on $x_j$ that will be seen in that $d_j=0$. A polynomial $p$ cannot, however, be expressed with the variable order $\vec{x}$ if not all its variables are in $\vec{x}$. A last note is that we can convert a polynomial $p$ with variable order $\vec{x}$ to any variable order $\vec{y}$ as long as $x_i\in\vec{y} \forall x_i\in\vec{x}$.
+Here we can note that $d_i$ is the degree of $p$ with respect to $x_i$. Furthermore we note that we can express a polynomial $p$ with the variable setup $\vec{x}=(x_1,\ldots,x_m)$ even though $p$ does not have all the variables $x_j$ in its expression. If $p$ does not depend on $x_j$ that will be seen in that $d_j=0$. A polynomial $p$ cannot, however, be expressed with the variable setup $\vec{x}$ if not all its variables are in $\vec{x}$. A last note is that we can convert a polynomial $p$ with variable setup $\vec{x}$ to any variable setup $\vec{y}$ as long as $x_i\in\vec{y} \forall x_i\in\vec{x}$.
 
 There are of course many operations that are needed when operating with polynomials; addition, negate, subtraction, multiplication, division, modulo, gcd (greatest common divisor), checking for equality, finding roots and evaluating at a point. In the implementation all of them are defined recursively. We will show how this is done for all the most straight forward operations here, while the more complicated operations -- division, modulo and gcd -- are described later in section \ref{Ch: div,mod,gcd}.
 
@@ -91,24 +91,28 @@ First we define how we write that a polynomial is constructed:
   \begin{equation}
     p(x) = a_0 + a_1 x + \ldots + a_d x^d.
   \end{equation}
-  Note that we have not specified what $a_i$ are; they can be either integers or polynomials -- but if they are polynomials they have to have the same variable order. Also note that once we have the polynomial $p$ we will use the notation $p[i]$ to reference the $i$-th variable, namely $a_i$. If we reference $p[j]$ where $j>d$, then this is defined as $p[j]=0 \forall j>d$.
+  Note that we have not specified what $a_i$ are; they can be either integers or polynomials -- but if they are polynomials they have to have the same variable setup. Also note that once we have the polynomial $p$ we will use the notation $p[i]$ to reference the $i$-th variable, namely $a_i$. If we reference $p[j]$ where $j>d$, then this is defined as $p[j]=0 \forall j>d$.
 \end{definition}
 
 We also define the degree of a polynomial:
 \begin{definition}
-  Let the polynomial $p$ have variable order $\vec{x}=(x_1,\ldots,x_m)$. Then we define the degree of $p$, denoted $deg(p)$, as the largest exponent of $x_1$ in the expression for $p$.
+  Let the polynomial $p$ have variable setup $\vec{x}=(x_1,\ldots,x_m)$. Then we define the degree of $p$, denoted $deg(p)$, as the largest exponent of $x_1$ in the expression for $p$. Furthermore we define $deg(\vec{0})=-\infty$, where the polynomial $\vec{0}$ is the constant polynomial identically equal to zero.
 \end{definition}
+Using this definition of degree we see that the degree upon addition and multiplication behaves as described in the following example.
+\begin{example}
+  Let $f$ and $g$ be polynomials with degree $d_f, d_g$. Then we have that $deg(f+g)\leq max(d_f,d_g)$ and $deg(f\cdot g)=d_f+d_g$.
+\end{example}
 
 \subsection{Simple operations}\label{Sub: simpleop}
 
-For all the operations we will use two polynomials $f$ and $g$. These are polynomials with the variable order $\vec{x}$. We will now provide procedures that show how all operations that are needed. In this subsection we define the simplest ones, which division and GCD are left for subsection \ref{Sub: diffop}. Note that the procedures are assuming that the polynomials have the same variable order, if this is not the case then the polynomials first are converted into a common variable order.
+For all the operations we will use two polynomials $f$ and $g$. These are polynomials with the variable setup $\vec{x}$. We will now provide procedures that show how all operations that are needed. In this subsection we define the simplest ones, which division and GCD are left for subsection \ref{Sub: diffop}. Note that the procedures are assuming that the polynomials have the same variable setup, if this is not the case then the polynomials first are converted into a common variable setup.
 
-All the procedures try to follow the same structure, which is quite recursive. All procedures have a base case, usually when the variable order $\vec{x}$ has $|\vec{x}|=1$. In all other cases recursive calls are made. A note to be made here is that recursive calls are not computationally heavy in theory but might take time if many are made, especially if the depth is large, in practice. In this thesis however, the depth is very small -- usually less than 5 -- since the depth comes from the number of variables in the polynomials. Therefore the recursion is not expected to cause any problems computationally.
+All the procedures try to follow the same structure, which is quite recursive. All procedures have a base case, usually when the variable setup $\vec{x}$ has $|\vec{x}|=1$. In all other cases recursive calls are made. A note to be made here is that recursive calls are not computationally heavy in theory but might take time if many are made, especially if the depth is large, in practice. In this thesis however, the depth is very small -- usually less than 5 -- since the depth comes from the number of variables in the polynomials. Therefore the recursion is not expected to cause any problems computationally.
 
 Addition is as it often is a foundation for all other methods. As we will see later on it is called from most other methods at one point or another.
 \begin{algorithm}[H]
   \caption{Addition}
-  \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
+  \inp{Polynomials $f$ and $g$, with variable setup $\vec{x}$}
   \outp{Polynomial $h$ such that $h=f+g$}
   \begin{algorithmic}[1]
     \Procedure{Add}{$f,g$}
@@ -124,11 +128,14 @@ Addition is as it often is a foundation for all other methods. As we will see la
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+\begin{remark}
+  Note that in all procedures we return a polynomial. We denote this as $\vec{return } polynomial(\vec{a},\vec{x}[0])$. Here $\vec{a}$ are the coefficients and $\vec{x}[0]$ is the variable that is associated with the polynomial that is returned.
+\end{remark}
 
 Negation is sometimes needed itself, but mostly this procedure is used when subtracting two polynomials. That means that this procedure is quite long, but on the other hand that makes subtract really short. One can choose to make subtract long and negate short instead, but we chose to do it this way.
 \begin{algorithm}[H]
   \caption{Negatation}
-  \inp{Polynomial $f$ with variable order $\vec{x}$}
+  \inp{Polynomial $f$ with variable setup $\vec{x}$}
   \outp{Polynomial $h$ such that $h=-f$}
   \begin{algorithmic}[1]
     \Procedure{Negate}{$f$}
@@ -147,7 +154,7 @@ Negation is sometimes needed itself, but mostly this procedure is used when subt
 
 \begin{algorithm}[H]
   \caption{Subtraction}
-  \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
+  \inp{Polynomials $f$ and $g$, with variable setup $\vec{x}$}
   \outp{Polynomial $h$ such that $h=f-g$}
   \begin{algorithmic}[1]
     \Procedure{Subtract}{$f,g$}
@@ -157,10 +164,10 @@ Negation is sometimes needed itself, but mostly this procedure is used when subt
   \end{algorithmic}
 \end{algorithm}
 
-The multiplication procedure that is implemented is the most simple and naïve version, which multiply polynomials in $\bigO(d_f,d_g)$, where $d_f,d_g$ are the degrees of $f$ and $g$, respectively. There are much more efficient implementations of polynomial multiplication -- for instance Fast Fourier Transform can give a time complexity of $\bigO(n\log n)$, where $n=max(d_f,d_g)$. As we in the application of polynomials in this thesis only treat polynomials of small degrees and in order to keep the implementation simple and understandable more efficient multiplication algorithms have not been implemented.
+The multiplication procedure that is implemented is the most simple and naïve version, which multiply polynomials in time complexity $\bigO(d_f\cdot d_g)$, where $d_f,d_g$ are the degrees of $f$ and $g$, respectively. Time complexity indicates that as polynomials change in degree the running time of performing multiplication is proportional to $d_f\cdot d_g$. There are much more efficient implementations of polynomial multiplication -- for instance Fast Fourier Transform can give a time complexity of $\bigO(n\log n)$, where $n=max(d_f,d_g)$. As we in the application of polynomials in this thesis only treat polynomials of small degrees and in order to keep the implementation simple and understandable more efficient multiplication algorithms have not been implemented.
 \begin{algorithm}[H]
   \caption{Multiplication}
-  \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
+  \inp{Polynomials $f$ and $g$, with variable setup $\vec{x}$}
   \outp{Polynomial $h$ such that $h=f\cdot g$}
   \begin{algorithmic}[1]
     \Procedure{Multiply}{$f,g$}
@@ -185,7 +192,7 @@ The multiplication procedure that is implemented is the most simple and naïve v
 
 \begin{algorithm}[H]
   \caption{Equality}
-  \inp{Polynomials $f$ and $g$, with variable order $\vec{x}$}
+  \inp{Polynomials $f$ and $g$, with variable setup $\vec{x}$}
   \outp{$True$ if $f$ and $g$ are equal, otherwise $False$}
   \begin{algorithmic}[1]
     \Procedure{Equals}{$f,g$}
@@ -207,7 +214,7 @@ Quite often polynomials are compared and we are interested in whether they are e
 
 \begin{algorithm}[H]
   \caption{Evaluating at a point}
-  \inp{Polynomials $f$, with variable order $\vec{x}$, variable $v\in\vec{x}$ and value $y$}
+  \inp{Polynomials $f$, with variable setup $\vec{x}$, variable $v\in\vec{x}$ and value $y$}
   \outp{Polynomial $h$ that is $f$ evaluated at $v=y$}
   \begin{algorithmic}[1]
     \Procedure{Evaluate}{$f,v,y$}
@@ -229,11 +236,11 @@ Quite often polynomials are compared and we are interested in whether they are e
   \end{algorithmic}
 \end{algorithm}
 
-The next procedure is used to find roots of a polynomial. Here if the polynomial is only dependent on one variable, meaning $|\vec{x}|=1$, then we solve this equation (we call this function $SolveEquation$). In the implementation of the program only solving equations completely is implemented up to degree 2, but the program also tries to insert values in the range $(-100,100)$ and sees if any of these are roots. We do not include the procedure for $SolveEquation$ in the report, since it is just solving a second degree equation and additionally trying a bunch of different small values.
+The next procedure is used to find roots of a polynomial. Here if the polynomial is only dependent on one variable, meaning $|\vec{x}|=1$, then we solve this equation (we call this function $SolveEquation$). In the implementation of the program only solving equations completely is implemented up to degree 2, but the program also tries to insert values in the range $(-100,100)$ and sees if any of these are roots. Here we note that this weak implementation to find roots might cause problems later on, which we will come back to in more detail in section \ref{Sub: findpqr}. We do not include the procedure for $SolveEquation$ in the report, since it is just solving a second degree equation and additionally trying a bunch of different small values.
 \begin{algorithm}[H]
   \caption{Finding roots}
   \label{Alg: Roots}
-  \inp{Polynomial $f$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
+  \inp{Polynomial $f$, with variable setup $\vec{x}=(x_1,\ldots,x_m)$}
   \outp{Integers $x^\prime$ such that $x_m=x^\prime \implies f=0$}
   \begin{algorithmic}[1]
     \Procedure{Roots}{$f$}
@@ -296,13 +303,13 @@ This implementation scheme is fairly straight forward, even though the divide fu
   By looking at degree 2 we get $2c_1=1$, which of course does not have any solutions for integers $c_1$.
 \end{example}
 
-The way we solve this is to instead of giving two polynomials $q,r$ when we divide $a$ by $b$ we also give a third parameter, $f$, which is a factor of the same variable order as the coefficients in $a$ and $b$. The condition that needs to be fulfilled is
+The way we solve this is to instead of giving two polynomials $q,r$ when we divide $a$ by $b$ we also give a third parameter, $f$, which is a factor of the same variable setup as the coefficients in $a$ and $b$. The condition that needs to be fulfilled is
 \begin{equation}\label{Eq: Theory,divide condition}
   DIVIDE(a,b) \rightarrow (q,r,f) \text{ such that } f\cdot a=b\cdot q + r, deg(r) < deg(b).
 \end{equation}
 Now we will show that it actually is possible to find $q,r,f$ such that \ref{Eq: Theory,divide condition} holds.
 \begin{theorem}
-  Let $a(x_1),b(x_1)$ be polynomials of the same variable order $\vec{x}=(x_1,\ldots,x_m)$. Then it is possible to find polynomials $q,r,f$, where $q,r$ have variable order $\vec{x}$ and $f$ has variable order $\vec{x^\prime}=(x_2,\ldots,x_m)$, such that
+  Let $a(x_1),b(x_1)$ be polynomials of the same variable setup $\vec{x}=(x_1,\ldots,x_m)$. Then it is possible to find polynomials $q,r,f$, where $q,r$ have variable setup $\vec{x}$ and $f$ has variable setup $\vec{x^\prime}=(x_2,\ldots,x_m)$, such that
   \begin{equation}\label{Eq: Theory,theorem,divide}
     f\cdot a(x_1)=q(x_1)b(x_1) + r(x_1),
   \end{equation}
@@ -343,16 +350,16 @@ Now we will show that it actually is possible to find $q,r,f$ such that \ref{Eq:
   Now we have shown the theorem, and provided the method for dividing polynomials at once.
 \end{proof}
 \begin{definition}
-  When we divide polynomial $a$ by polynomial $b$ (both having variable order $\vec{x}=(x_1,\ldots,x_m)$) we are given three things:
+  When we divide polynomial $a$ by polynomial $b$ (both having variable setup $\vec{x}=(x_1,\ldots,x_m)$) we are given three things:
   \begin{itemize}
-    \item $q$, a polynomial with variable order $\vec{x}$, which is called the ''quotient'',
-    \item $r$, a polynomial with variable order $\vec{x}$, which is called the ''remainder'',
-    \item $f$, a polynomial with variable order $(x_2,\ldots,x_m)$, which is called the ''factor''.
+    \item $q$, a polynomial with variable setup $\vec{x}$, which is called the ''quotient'',
+    \item $r$, a polynomial with variable setup $\vec{x}$, which is called the ''remainder'',
+    \item $f$, a polynomial with variable setup $(x_2,\ldots,x_m)$, which is called the ''factor''.
   \end{itemize}
   These polynomials fulfill equation \ref{Eq: Theory,divide condition}.
 \end{definition}
 \begin{remark}
-  One important thing to note is that the definition of how we divide is not unique, if $q,r,f$ are all multiplied by a polynomial $s$ with variable order $(x_2,\ldots,x_m)$ then equation \ref{Eq: Theory,divide condition} will still be fulfilled.
+  One important thing to note is that the definition of how we divide is not unique, if $q,r,f$ are all multiplied by a polynomial $s$ with variable setup $(x_2,\ldots,x_m)$ then equation \ref{Eq: Theory,divide condition} will still be fulfilled.
 \end{remark}
 
 Now we have defined division and will soon move over to calculating the greatest common divisor, but first we have a look at what happens to our example.
@@ -362,7 +369,7 @@ Now we have defined division and will soon move over to calculating the greatest
 
 We will show a theorem which states how the greatest common divisor is computed, but first we need a little bit of notation.
 \begin{definition}
-  Let $p$ be a polynomial with variable order $\vec{x}=(x_1,\ldots,x_m)$. If we write $p$ as $p(x_1)=p_0+p_1x_1+\ldots p_dx_1^d$, then we denote the greatest common divisor of all the coefficients $p_i, 0\leq i\leq d$ by $gcd_c(p)$.
+  Let $p$ be a polynomial with variable setup $\vec{x}=(x_1,\ldots,x_m)$. If we write $p$ as $p(x_1)=p_0+p_1x_1+\ldots p_dx_1^d$, then we denote the greatest common divisor of all the coefficients $p_i, 0\leq i\leq d$ by $gcd_c(p)$.
 \end{definition}
 \begin{theorem}\label{Thm: gcd}
   Let $g$ denote the greatest common divisor of polynomials $a$ and $b$. Then we can compute this by the following:
@@ -419,7 +426,7 @@ Now the greatest common divisor of $b$ and $r$ will divide the left hand side of
   Let $d_a = gcd(a,d)$. Then we get that $d_a|a, d_a|d \iff \exists a^\prime,d^\prime: d=d_ad^\prime, a=d_aa^\prime$ and $gcd(a^\prime,d^\prime)=1$. We know that $d|(a\cdot b) \iff \exists x: a\cdot b=d\cdot x$. Now we replace $a$ and $d$ by $d_aa^\prime, d=d_ad^\prime$ which gives us $a^\prime\cdot b=d^\prime \cdot x$, where $gcd(a^\prime,d^\prime)=1$. Therefore $d^\prime|b$, and thus we can choose $d_b=d^\prime$.
 \end{proof}
 \begin{lemma}\label{Lemma1}
-  Let $p$ be a polynomial $p(x_1)=p_0+\ldots+p_dx_1^d$ with variable order $\vec{x}=(x_1,\ldots,x_m)$ and $f$ be a polynomial with variable order $(x_2,\ldots,x_m)$ such that $f|p$. Then we have that $f|p_i\forall 0\leq i\leq d$.
+  Let $p$ be a polynomial $p(x_1)=p_0+\ldots+p_dx_1^d$ with variable setup $\vec{x}=(x_1,\ldots,x_m)$ and $f$ be a polynomial with variable setup $(x_2,\ldots,x_m)$ such that $f|p$. Then we have that $f|p_i\forall 0\leq i\leq d$.
 \end{lemma}
 \begin{proof}
   We know that $f|p$, which is equivalent to $p=fp^\prime$ for some polynomial $p^\prime$. Let $p^\prime=p_0^\prime+\ldots+p_c^\prime x_1^c$. Now first of all, since $f$ does not depend on $x_1$ we have that $deg(p)=deg(p^\prime)=d$. Furthermore we have that
@@ -435,10 +442,10 @@ Now the greatest common divisor of $b$ and $r$ will divide the left hand side of
   \end{equation}
 \end{proof}
 \begin{lemma}\label{Lemma2}
-  Let $p$ and $d$ be polynomials with variable order $\vec{x}=(x_1,\ldots,x_m)$, $gcd_c(d)=1$ and $f$ be a polynomial with variable order $(x_2,\ldots,x_m)$ such that $d|p$ and $f|p$. Then we have that $(d\cdot f)|p$.
+  Let $p$ and $d$ be polynomials with variable setup $\vec{x}=(x_1,\ldots,x_m)$, $gcd_c(d)=1$ and $f$ be a polynomial with variable setup $(x_2,\ldots,x_m)$ such that $d|p$ and $f|p$. Then we have that $(d\cdot f)|p$.
 \end{lemma}
 \begin{proof}
-  We know that $f|p$, hence we can write $p$ as $p=fp^\prime$. We know that $d|p=fp^\prime$ and thus we can due to lemma \ref{Lemma0} factor $g$ into $d_f,d_{p^\prime}$ such that $d=d_f\cdot d_{p^\prime}$ and $d_f|f,d_{p^\prime}|p$. But since $f$ has variable order $(x_2,\ldots,x_m)$ then $d_f$ cannot depend on $x_1$ and thus can be expressed with variable order $(x_2,\ldots,x_m)$. Furthermore $d_f|d$, which together with lemma \ref{Lemma1} gives us that $d_f|d_i$ for all coefficients $d_i$ of $d$. Therefore $d_f|gcd_c(d)=1\implies d_f=1$. Thus $d=d_{p^\prime}|p^\prime$ and therefore $(d\cdot f)|p$
+  We know that $f|p$, hence we can write $p$ as $p=fp^\prime$. We know that $d|p=fp^\prime$ and thus we can due to lemma \ref{Lemma0} factor $g$ into $d_f,d_{p^\prime}$ such that $d=d_f\cdot d_{p^\prime}$ and $d_f|f,d_{p^\prime}|p$. But since $f$ has variable setup $(x_2,\ldots,x_m)$ then $d_f$ cannot depend on $x_1$ and thus can be expressed with variable setup $(x_2,\ldots,x_m)$. Furthermore $d_f|d$, which together with lemma \ref{Lemma1} gives us that $d_f|d_i$ for all coefficients $d_i$ of $d$. Therefore $d_f|gcd_c(d)=1\implies d_f=1$. Thus $d=d_{p^\prime}|p^\prime$ and therefore $(d\cdot f)|p$
 \end{proof}
 Now we are ready to finish this section with the proof of theorem \ref{Thm: gcd}.
 \begin{proof}[Theorem \ref{Thm: gcd}]
@@ -451,9 +458,9 @@ Now we are ready to finish this section with the proof of theorem \ref{Thm: gcd}
     d|a, d|b \implies d\Big|\Big(\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b))\Big).
   \end{equation}
 
-  We start with the first part. Since $g^\prime|b$ and $g^\prime|r$, $g^\prime$ divides the right hand side of \ref{Eq: Theory, gcd, explanation}. But the left hand side is equal to the left hand side, thus we know that $g^\prime|fa$. This in turns implies that we (due to lemma \ref{Lemma0}) can factor $g$ into two parts, $g_f,g_a$, such that $g^\prime=g_ag_f$, $g_a|a$ and $g_f|f$. But now since $f$ has variable order $(x_2,\ldots,x_m)$ then $g_f$ cannot depend on $x_1$.
+  We start with the first part. Since $g^\prime|b$ and $g^\prime|r$, $g^\prime$ divides the right hand side of \ref{Eq: Theory, gcd, explanation}. But the left hand side is equal to the left hand side, thus we know that $g^\prime|fa$. This in turns implies that we (due to lemma \ref{Lemma0}) can factor $g$ into two parts, $g_f,g_a$, such that $g^\prime=g_ag_f$, $g_a|a$ and $g_f|f$. But now since $f$ has variable setup $(x_2,\ldots,x_m)$ then $g_f$ cannot depend on $x_1$.
 
-  We will now show that $\frac{g^\prime}{gcd_c(g^\prime)}|a$. We know that since $g_f$ is of variable order $(x_2,\ldots,x_m)$ and $g_f|g^\prime$, then by lemma \ref{Lemma1} we get that $g_f|g_i^\prime$ for all coefficients $g_i^\prime$ in $g^\prime$. This means that $g_f|gcd_c(g^\prime)$. We also know that
+  We will now show that $\frac{g^\prime}{gcd_c(g^\prime)}|a$. We know that since $g_f$ is of variable setup $(x_2,\ldots,x_m)$ and $g_f|g^\prime$, then by lemma \ref{Lemma1} we get that $g_f|g_i^\prime$ for all coefficients $g_i^\prime$ in $g^\prime$. This means that $g_f|gcd_c(g^\prime)$. We also know that
   \begin{equation}
     \frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd_c(g^\prime) = g^\prime = g_f\cdot g_a,
   \end{equation}
@@ -485,13 +492,13 @@ Now we are ready to finish this section with the proof of theorem \ref{Thm: gcd}
   \begin{equation}
     d|a,d|b\implies d\Big|\Big(\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b))\Big),
   \end{equation}
-  where $d$ is a polynomial with variable order $\vec{x}=(x_1,\ldots,x_m)$.
+  where $d$ is a polynomial with variable setup $\vec{x}=(x_1,\ldots,x_m)$.
 
   First we note that any polynomial that divides $a$ and $b$ also divide $r$, which is clear by looking at equation \ref{Eq: Theory, gcd, explanation}. We now factor $d$ into $d_1\cdot d_2$, where $d_1=\frac{d}{gcd_c(d)}, d_2=gcd_c(d)$. We will now show that $d_1|\frac{g^\prime}{gcd_c(g^\prime)}$ and $d_2|gcd(gcd_c(a),gcd_c(b))$.
 
-  We have that $d_1|d, d|g^\prime \implies d_1\Big|\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd_c(g^\prime)$. Now lemma \ref{Lemma0} gives us that $d_1$ can be factored into $d_{11},d_{12}$ such that $d_{11}\Big|\frac{g^\prime}{gcd_c(g^\prime)}$ and $d_{12}|gcd_c(g^\prime)$. But $d_{12}|gcd_c(g^\prime)$ means that $d_{12}$ has variable order $(x_2,\ldots,x_m)$ But this gives us that $d_{12}=1$ since $d_1=\frac{d}{gcd_c(d)}$ (otherwise we would have a larger common divisor for the coefficients of $d$ than $gcd_c(d)$). Hence $d_1=d_{11}\Big|\frac{g^\prime}{gcd_c(g^\prime)}$.
+  We have that $d_1|d, d|g^\prime \implies d_1\Big|\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd_c(g^\prime)$. Now lemma \ref{Lemma0} gives us that $d_1$ can be factored into $d_{11},d_{12}$ such that $d_{11}\Big|\frac{g^\prime}{gcd_c(g^\prime)}$ and $d_{12}|gcd_c(g^\prime)$. But $d_{12}|gcd_c(g^\prime)$ means that $d_{12}$ has variable setup $(x_2,\ldots,x_m)$ But this gives us that $d_{12}=1$ since $d_1=\frac{d}{gcd_c(d)}$ (otherwise we would have a larger common divisor for the coefficients of $d$ than $gcd_c(d)$). Hence $d_1=d_{11}\Big|\frac{g^\prime}{gcd_c(g^\prime)}$.
 
-  Next we show that $d_2|gcd(gcd_c(a),gcd_c(b))$. We know that $d_2|d, d|a, d|b \implies d_2|a, d_2|b$. Furthermore $d_2$ has variable order $(x_2,\ldots,x_m)$, therefore lemma \ref{Lemma1} gives us that $d_2|a_i$ for all coefficients $a_i$ in $a$, and $d_2|b_i$ for all coefficients $b_i$ in $b$. This gives us that $d_2|gcd_c(a), d_2|gcd_c(b)$, therefore $d_2$ is a common divisor of $gcd_c(a),gcd_c(b)$, hence $d_2|gcd(gcd_c(a),gcd_c(b))$.
+  Next we show that $d_2|gcd(gcd_c(a),gcd_c(b))$. We know that $d_2|d, d|a, d|b \implies d_2|a, d_2|b$. Furthermore $d_2$ has variable setup $(x_2,\ldots,x_m)$, therefore lemma \ref{Lemma1} gives us that $d_2|a_i$ for all coefficients $a_i$ in $a$, and $d_2|b_i$ for all coefficients $b_i$ in $b$. This gives us that $d_2|gcd_c(a), d_2|gcd_c(b)$, therefore $d_2$ is a common divisor of $gcd_c(a),gcd_c(b)$, hence $d_2|gcd(gcd_c(a),gcd_c(b))$.
 
   This finished the proof for that the greatest common divisor of polynomials $a,b$ is
   \begin{equation}
@@ -503,8 +510,8 @@ Although the procedures of division and gcd are partly already described in the 
 
 \begin{algorithm}[H]
   \caption{Division}
-  \inp{Polynomial $a$ and $b$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
-  \outp{Polynomials $q,r$ with variable order $\vec{x}=(x_1,\ldots,x_m)$ and polynomial $f$ with variable order $\vec{x}=(x_2,\ldots,x_m)$ such that $f\cdot a=q\cdot b + r$ and $deg(r)<deg(b)$}
+  \inp{Polynomial $a$ and $b$, with variable setup $\vec{x}=(x_1,\ldots,x_m)$}
+  \outp{Polynomials $q,r$ with variable setup $\vec{x}=(x_1,\ldots,x_m)$ and polynomial $f$ with variable setup $\vec{x}=(x_2,\ldots,x_m)$ such that $f\cdot a=q\cdot b + r$ and $deg(r)<deg(b)$}
   \begin{algorithmic}[1]
     \Procedure{Divide}{$a,b$}
       \If{$deg(a)<deg(b)$}
@@ -533,13 +540,13 @@ Although the procedures of division and gcd are partly already described in the 
 Now we have gcd and gcd\textsubscript{C} left to write pseudocode for. Since all the code is very recursive here, it seems to be the case that we get infinite recursive calls. This will not be the case, however, since every time GCD is called either
 \begin{enumerate}
   \item the degree of some polynomial, or
-  \item the size of the variable order
+  \item the size of the variable setup
 \end{enumerate}
 decreases. The fact that one of these are true is easily checked in all the procedures.
 \begin{algorithm}[H]
   \caption{Greatest common divisor}
-  \inp{Polynomial $a$ and $b$, with variable order $\vec{x}=(x_1,\ldots,x_m)$}
-  \outp{Polynomial $g$ with variable order $\vec{x}=(x_1,\ldots,x_m)$ such that
+  \inp{Polynomial $a$ and $b$, with variable setup $\vec{x}=(x_1,\ldots,x_m)$}
+  \outp{Polynomial $g$ with variable setup $\vec{x}=(x_1,\ldots,x_m)$ such that
   $g$ is the greatest common divisor of $a$ and $b$}
   \begin{algorithmic}[1]
     \Procedure{GCD}{$a,b$}
@@ -555,8 +562,8 @@ decreases. The fact that one of these are true is easily checked in all the proc
 \end{algorithm}
 \begin{algorithm}[H]
   \caption{Greatest common coefficient divisor}
-  \inp{Polynomial $a$ with variable order $\vec{x}=(x_1,\ldots,x_m)$}
-  \outp{Polynomial $g$ with variable order $\vec{x}=(x_2,\ldots,x_m)$ such that $g$ is the greatest common divisor of all coeffiecients $a_i$ in $a$}
+  \inp{Polynomial $a$ with variable setup $\vec{x}=(x_1,\ldots,x_m)$}
+  \outp{Polynomial $g$ with variable setup $\vec{x}=(x_2,\ldots,x_m)$ such that $g$ is the greatest common divisor of all coeffiecients $a_i$ in $a$}
   \begin{algorithmic}[1]
     \Procedure{GCD\textsubscript{C}}{$a$}
       \State $g\gets a[0]$
@@ -865,7 +872,7 @@ In the paper by Gosper (1978) the first reason for not finding a $f_k$ does not 
 
 In the system \ref{Eq: Theory,equation system2}, $M$ can be constructed to have dimension $L\times (N^m)$, where $L=max(deg(p_k)+1,max(deg(q_{k+1}),deg(r_k))+N+1)$. Here $deg(g)$ denotes the largest degree in any variable of the polynomial $g$. The reason for this limit is that the row with highest degree for any variable can be chosen to be $L$, since the degree of either side of the equation \ref{Eq: Theory,equation system1} is at most $L$.
 
-The time complexity for this system of equations is $\mathcal{O}(L\cdot N^{2m})$, since we perform the following algorithm:
+The time complexity for this system of equations is $\bigO(L\cdot N^{2m})$, since we perform the following algorithm:
 \begin{algorithm}[H]
   \caption{Gaussian Elimination}
   \inp{Matrix $M$, vector $P$}

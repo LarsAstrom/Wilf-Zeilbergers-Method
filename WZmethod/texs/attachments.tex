@@ -1,6 +1,15 @@
 \section{Code}
 All code is available on \url{https://github.com/LarsAstrom/Wilf-Zeilbergers-Method/tree/master/WZmethod}.
 \section{Proofs of identities}
+We want to remind the reader that in Wilf-Zeilberger's method we find a polynomial $F(n,k)$. Then we want to find another polynomial $G$ such that $(F,G)$ is a certifying pair of polynomials, meaning that
+\begin{enumerate}
+  \item $F(n+1,k)-F(n,k)=G(n,k+1)-G(n,k)$, and
+  \item $\lim_{k\to\pm\infty} G(n,k)=0, \forall n$.
+\end{enumerate}
+We can also express this by finding a proof certificate $R(n,k)$ such that
+\begin{equation*}
+  G(n,k)=R(n,k)F(n,k-1).
+\end{equation*}
 \proofimage{images/proof01.png}{Proof of identity \ref{ID: 1}.}
 \proofimage{images/proof02.png}{Proof of identity \ref{ID: 2}.}
 \proofimage{images/proof03.png}{Proof of identity \ref{ID: 3}.}
@@ -8,17 +17,24 @@ All code is available on \url{https://github.com/LarsAstrom/Wilf-Zeilbergers-Met
 \proofimage{images/proof05.png}{Proof of identity \ref{ID: 5}.}
 \proofimage{images/proof06.png}{Proof of identity \ref{ID: 6}.}
 \proofimage{images/proof07.png}{Proof of identity \ref{ID: 7}.}
+In both proof 7 and 8 we have integer variables, $c$ and $r$ respectively. These cause problems in step 2 in Gosper's algorithm, since the polynomial $f$ would have a degree dependent on $c$ and $r$, respectively. This cannot be handled by the automatic solver.
 \proofimage{images/proof08.png}{Proof of identity \ref{ID: 8}.}
 \proofimage{images/proof09.png}{Proof of identity \ref{ID: 9}.}
 \proofimage{images/proof10.png}{Proof of identity \ref{ID: 10}.}
 \proofimage{images/proof11.png}{Validation of program. Proof of identity \ref{ID: 11}.}
 \proofimage{images/proof12.png}{Validation of program. Proof of identity \ref{ID: 12}.}
 \proofimage{images/proof13.png}{Validation of program. Proof of identity \ref{ID: 13}.}
+The automatic prover cannot find a polynomial $f$ in step 2 of Gosper's algorithm. This is since the degree (with respect to $n$) of the left and right hand side of the equation
+\begin{equation}
+  p_k=q_{k+1}f_k-r_kf_{k-1}
+\end{equation}
+cannot be the same.
 \proofimage{images/proof14.png}{Validation of program. Proof of identity \ref{ID: 14}.}
 \proofimage{images/proof15.png}{Validation of program. Proof of identity \ref{ID: 15}.}
 \proofimage{images/proof16.png}{Validation of program. Proof of identity \ref{ID: 16}.}
 \proofimage{images/proof17.png}{Validation of program. Proof of identity \ref{ID: 17}.}
 \proofimage{images/proof18.png}{Validation of program. Proof of identity \ref{ID: 18}.}
+Also in this example the automatic solver cannot prove the identity, and the problem lies in step 2 of Gosper's algorithm.
 \proofimage{images/proof19.png}{Validation of program. Proof of identity \ref{ID: 19}.}
 \proofimage{images/proof20.png}{Validation of program. Proof of identity \ref{ID: 20}.}
 \newpage

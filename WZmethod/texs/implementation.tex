@@ -21,8 +21,9 @@ The code consists of eight files that do different parts of the method. These ar
 The dependencies of the files can be drawn as follows where an arrow from $A$ to $B$ means that $B$ depends on $A$:
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.6\textwidth]{images/dependency_graph.png}
-\caption{Dependency graph of code}\label{Fig: DepGraph}
+\includegraphics[width=0.58\textwidth]{images/dependency_graph_2.png}
+\caption{Dependency graph of code. Expr and Poly is short for Expressions and Polynomial, respectively.}
+\label{Fig: DepGraph}
 \end{figure}
 Now that we have shown the general structure of the program, we will describe each of the important and interesting parts of the implementation. Firstly we will describe the structure used for parsing, thereafter we will discuss implementation of the methods needed for Wilf-Zeilberger's method. After that we will describe how a proof is written automatically and lastly we will describe how testing has been done.
 
@@ -35,7 +36,7 @@ In the code there are four parsers, which all read a string of a specific format
     &\textbf{What?}   & \textbf{Represented as:} & \textbf{Example:} \\ \hline
     &Factorial & $F[x]$, where $x$ is a polynomial & $(m+n)!$ is written as $F[n+m]$ \\ \hline
     &Binomial coefficient & $B[n,k]$ where $n,k$ are polynomials & $\binom{n+1}{k-1}$ is written as $B[n+1,k-1]$ \\ \hline
-    &Power of integer & $P[a,n]$ where $a$ is an integer and $n$ is a polynomial & $2^n$ is written as $P[2,n]$ \\
+    &Power of integer & $P[a,n]$ where $a$ is an integer and $n$ is a polynomial & $2^{n+m}$ is written as $P[2,n+m]$ \\
   \end{tabular}
 \end{center}
 
@@ -52,7 +53,7 @@ The parsers are described by the following table:
 
 \section{Gosper's algorithm}
 Although the whole algorithm is described in section \ref{Sec: Gosper}, we will again go through the algorithm but from the perspective of implementation, and trying to point out difficulties along the way. There are some parts where the theory is straight forward, but the details in the implementation are quite difficult. In this section we try to describe the choices that were made during the work of the thesis, and also point out advantages and disadvantages with these choices.
-\subsection{Finding p,q,r}
+\subsection{Finding p,q,r}\label{Sub: findpqr}
 In section \ref{Sub: pqr} an algorithm is described for how to find polynomials $p,q,r$ such that
 \begin{equation}\label{Eq: getpqr}
   \frac{a_k}{a_{k-1}} = \frac{p_k}{p_{k-1}}\frac{q_k}{r_k},
@@ -82,7 +83,7 @@ This algorithm is in theory fairly simple -- find a common factor and get rid of
 \begin{algorithm}[H]
   \caption{Find $GCD(q_k,r_{k+j})\forall j\geq 0$}
   \inp{Polynomials $q_k,r_k$}
-  \outp{Polynomial $g_k=gcd(q_k,r_{k+j})$ for some $j\geq 0$}
+  \outp{Polynomial $g_k=gcd(q_k,r_{k+j})\neq 1$ for some $j\geq 0$}
   \begin{algorithmic}[1]
     \Procedure{GCDWithShift}{$q_k,r_k$}
       \State $g_{j,0}\gets r_k \text{ evaluated at } k=k+j$
@@ -99,6 +100,9 @@ This algorithm is in theory fairly simple -- find a common factor and get rid of
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+\begin{remark}
+  Note that the procedure cannot always find a $g_k\neq 1$ such that $g_k=GCD(q_k,r_{k+j})$ for some integer $j\geq 0$. If it cannot find such $g_k$ then the procedure returns $None$, which can be seen as an error in finding the gcd.
+\end{remark}
 Here we perform the check in the if-statement on line \ref{Alg: GCDWithShift,if} by calling procedure \ref{Alg: Roots} and then checking if there is any root that is positive. Since this is the crucial step of this algorithm both the advantages and disadvantages come from the Roots-algorithm. In the implementation of Roots, only up to second degree polynomials are solved completely and after that values in the interval $(-100,100)$ are tested. This means that we cannot be sure that we find the roots. In general when we can use Wilf-Zeilberger's method, however, all roots are fairly small -- almost always less than 100. Therefore even though the implementation in theory is limiting it is very likely not to cause any problems in practice.
 \subsection{Finding f}
 The implementation in order to find the polynomial $f$ in Gosper's algorithm is performed just as described in section \ref{Sub: getf}. The goal of that is to find $f$ such that

@@ -579,3 +579,6 @@ if __name__ == '__main__':
     p1 = polynomial_parser('mn+m+1')
     p1.PRINT()
     print('TESTING DONE')
+
+    p = polynomial_parser('1+3n+2n^2-m-2mn-2mn^2+3m^2+3m^2n+3m^2n^2+3k-3kn+2kn^2+km-2kmn-km^2+2k^2-k^2n-k^2n^2+3k^2m-3k^2mn-2k^2mn^2-3k^2m^2-k^2m^2n-3k^2m^2n^2')
+    p.PRINT()
