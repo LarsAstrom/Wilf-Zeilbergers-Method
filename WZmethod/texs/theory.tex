@@ -577,7 +577,7 @@ decreases. The fact that one of these are true is easily checked in all the proc
 These procedure descriptions conclude a quite theory heavy section about polynomials. Next will follow Wilf-Zeilberger's method, and will decribe how the method works.
 
 \section{Wilf-Zeilberger's method}
-Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The method can just be used to show an identity that is given, and cannot itself come up with a guess for what a sum would be. This means that the method can be used to solve problems like
+Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The method can just be used to show an identity that is given, and cannot itself come up with a guess for what a sum would be.\reference{wilf} This means that the method can be used to solve problems like
 \begin{example}
   Show that $$\sum_{k=0}^n (-1)^k\binom{n}{k}\binom{2k}{k}4^{n-k}=\binom{2n}{n}$$
 \end{example}
@@ -643,7 +643,7 @@ The crucial step here is how to find $G(n,k)$, where Gosper's algorithm is used.
 
 We can formalize the concepts in the method like this.\reference{wilf}
 \begin{definition}
-  A pair of functions $(F,G)$ that satisfy equations \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} are said to ''certify'' an identity like \ref{Eq: Theory,WZ} (or is simply called a ''certifying pair''). We can also speak of a ''proof certificate'' $R(n,k)$ of an identity. That is a function such that $G(n,k)=R(n,k)F(n,k-1)$ gives that $(F,G)$ is a certifying pair to the identity.
+  A pair of functions $(F,G)$ that satisfy equations \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} is said to ''certify'' an identity like \ref{Eq: Theory,WZ} (or is simply called a ''certifying pair''). We can also speak of a ''proof certificate'' $R(n,k)$ of an identity. That is a function such that $G(n,k)=R(n,k)F(n,k-1)$ gives that $(F,G)$ is a certifying pair to the identity.
 \end{definition}
 Let us show an short example of how the method can work.
 \begin{example}
@@ -664,14 +664,14 @@ Let us show an short example of how the method can work.
           & = G(n,k+1)-G(n,k)
         \end{split}
       \end{equation*}
-      Furthermore, we have that $G(n,k) = 0$ when $k<0$ and $k>n$.
+      Furthermore, we have that $G(n,k) = 0$ when $k<1$ and $k>n+1$, hence condition \ref{Eq: Theory,second condition} is fulfilled.
     \item Lastly we need to show that $$\sum_{k=0}^n \frac{\binom{n}{k}}{2^n}=1$$ for some $n$. If we choose $n=0$ we see that this equality holds. Therefore the equality holds for all $n$.
   \end{enumerate}
 \end{solution}
-Now that we have seen an example, hopefully the methodology is clear. What still is not clear is how to find the function $G(n,k)$. This is in general a hard task to do by hand, but is certainly managable by using a computer since there are algorithms -- for instance Gosper's algorithm -- that can derive $G(n,k)$ in certain cases.
+Now that we have seen an example, hopefully the methodology is clear. What still is not clear is how to find the function $G(n,k)$. In general this is a hard task to do by hand, but is certainly managable by using a computer since there are algorithms -- for instance Gosper's algorithm -- that can derive $G(n,k)$ in certain cases.
 
 \section{Gosper's algorithm}\label{Sec: Gosper}
-Gosper's algorithm is an algorithm that can be used to find a sum when certain conditions are fulfilled for the sum.\reference{gosper} The setting of the problem that is solved using the algorithm is that we want to find $S_k$ where
+Gosper's algorithm is an algorithm that can be used to find a sum when certain conditions are fulfilled for the sum, and was presented by Gosper in 1978.\reference{gosper} The setting of the problem that is solved using the algorithm is that we want to find $S_k$ where
 \begin{equation}\label{Eq: Theory,Gosper1}
   \sum_{k=1}^n a_k = S_n-S_0.
 \end{equation}
@@ -694,7 +694,7 @@ Therefore Wilf-Zeilberger's method only works if
 
 Note that all the time when we write $x_a$ in this section, this denotes a polynomial $x$ evaluated in $a$, or $x(a)$. For instance $S_k$ denotes that the polynomial $S(k)$. We are only using this notation to make it easier to read. Note that this means that $x$ is a function of the variable $a$, but does not mean that it is a one variable function of $a$ -- it can be a function of several variables but we are just interested in the variable $a$ while the others are viewed as constants. This will actually be the case amost all the time, since $a_k=F(n+1,k)-F(n,k)$ (where $F$ comes from Wilf-Zeilberger's method) will be used most of the time. Also here, note that $F(n,k)$ only denotes that $F$ is a function of $n$ and $k$, but it might be of more variables as well.
 
-In order to make the thesis more easily readable and for completeness, we will provide a quite thorough derivation of the algorithm -- even though it is perfectly described in the original paper by Gosper (1978). This will mostly focus on the steps of the algorithm, but also include the proofs of claims that are made during the steps. Firstly we will describe the main steps and thereafter we will provide the proofs.
+In order to make the thesis more easily readable and for completeness, we will provide a quite thorough derivation of the algorithm -- even though it is perfectly described in the original paper by Gosper from 1978.\reference{gosper} This will mostly focus on the steps of the algorithm, but also include the proofs of claims that are made during the steps. Firstly we will describe the main steps and thereafter we will provide the proofs.
 
 First of all we need to show the connection between the formulation of Wilf-Zeilberger's method and how Gosper's algorithm takes part in it. Gosper's algorithm will solve the third step in Wilf-Zeilberger's method, namely to find a $G(n,k)$ such that conditions \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} will be fulfilled. The first condition is that
 \begin{equation}
