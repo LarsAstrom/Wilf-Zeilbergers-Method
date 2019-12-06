@@ -25,24 +25,20 @@
 
 %\usetheme{default}
 %\usetheme{AnnArbor}
-%\usetheme{Antibes}
+%\usetheme{Antibes} %maybe
 %\usetheme{Bergen}
 %\usetheme{Berkeley}
-%\usetheme{Berlin}
+%\usetheme{Berlin} %maybe+
 %\usetheme{Boadilla}
 %\usetheme{CambridgeUS}
 %\usetheme{Copenhagen}
-%\usetheme{Darmstadt}
-%\usetheme{Dresden}
-%\usetheme{Frankfurt}
+%\usetheme{Dresden} %maybe+
 %\usetheme{Goettingen}
 %\usetheme{Hannover}
-%\usetheme{Ilmenau}
-%\usetheme{JuanLesPins}
+\usetheme{Ilmenau} %maybe+
 %\usetheme{Luebeck}
-\usetheme{Madrid}
+%\usetheme{Madrid}
 %\usetheme{Malmoe}
-%\usetheme{Lund}
 %\usetheme{Marburg}
 %\usetheme{Montpellier}
 %\usetheme{PaloAlto}
@@ -80,14 +76,29 @@
 % Transparent for next thing
 \setbeamercovered{transparent}
 
+\setbeamertemplate{page number in head/foot}{\insertframenumber /\inserttotalframenumber}
+
+\setbeamersize{text margin left=5mm,text margin right=5mm}
+\addtobeamertemplate{frametitle}{}{\vspace{-5mm}}
+
+
+%\addtolength{\headsep}{-1.0cm}
+
+\let\oldforall\forall
+\renewcommand{\forall}{\hspace*{2mm}\oldforall\hspace*{1mm}}
+\newcommand{\ubf}[1]{\underline{\textbf{#1}}}
+
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{ragged2e}
+
+\usepackage{appendixnumberbeamer}
 
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Poly. CA and impl. of WZ method]{Polynomial Computer Algebra and implmentation of Wilf-Zeilberger's method} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Polynomial Computer Algebra and implmentation of Wilf-Zeilberger's method]{Polynomial Computer Algebra and implmentation of Wilf-Zeilberger's method} % The short title appears at the bottom of every slide, the full title is only on the title page
 
 \author{Lars Åström} % Your name
 \institute[LTH] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -102,6 +113,9 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
 
 \begin{document}
 
+\setlength{\abovedisplayskip}{2pt}
+\setlength{\belowdisplayskip}{2pt}
+
 \begin{frame}
 \titlepage % Print the title page as the first slide
 \end{frame}
@@ -115,6 +129,311 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
 %	PRESENTATION SLIDES
 %----------------------------------------------------------------------------------------
 
+%------------------------------------------------
+\section{Introduction}
+%------------------------------------------------
+\begin{frame}
+  \frametitle{What is the thesis about?}
+  %\tableofcontents[currentsection]
+  \Large
+  Polynomial Computer Algebra
+  \pause
+  and implementation of Wilf-Zeilberger's method
+\end{frame}
+
+\begin{frame}
+  \frametitle{What and Why?}
+  \begin{columns}[t]
+
+  \column{.5\textwidth} % Left column and width
+  \centering
+  \Large\ubf{WHAT}\normalsize
+
+  \justify
+  Show that $$\sum_{k=n}^\infty \frac{1}{\binom{k}{n}}=\frac{n}{n-1}.$$
+  \pause
+  \textbf{Characteristics}
+  \begin{itemize}
+    \item Summation on one side.
+    \item Show that...
+    \item Often binomial coefficients.
+  \end{itemize}
+  \pause
+  \column{.5\textwidth} % Right column and width
+  \centering
+  \Large\ubf{WHY}\normalsize
+
+  \justify
+  \begin{itemize}
+    \item Wilf-Zeilberger's method $\rightarrow$ not so much
+    \pause
+    \item Automized proof generation $\rightarrow$ a lot
+    \pause
+    \item Computer Algebra $\rightarrow$ a lot
+  \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Short version of the thesis}
+  \begin{columns}[c]
+    \column{.4\textwidth}
+    \begin{itemize}
+      \item<1> Historical background
+      \item<2> Polynomials
+      \item<3> Wilf-Zeilberger's method
+      \item<4> Gosper's algorithm
+      \item<5> Results
+      \item<6> Conclusions
+    \end{itemize}
+    \column{.6\textwidth}
+    \setbeamercovered{invisible}
+    \only<1>{
+    \center
+    \ubf{Important findings}
+
+    \justify
+    \begin{itemize}
+      \item 1960s: Computer Algebra
+      \item 1978: Gosper's Algorithm
+      \item 1990: Wilf-Zeilberger's method
+      \item 1994: WZ implemented in Mathematica
+    \end{itemize}
+    }
+    \only<2>{
+    \begin{itemize}
+      \item Used for implementation of WZ
+      \item Polynomial $$p(k)=a_0+a_1k+\ldots+a_mk^m$$ is stored as $$[a_0,a_1,\ldots,a_m]$$
+      \item Coefficients $a_i$ can be integers or polynomials
+    \end{itemize}
+    }
+    \only<3>{
+    \begin{itemize}
+      \item Used to prove identities on the form $$\sum_k F(n,k)=1$$
+      \item Does this by proving $$\sum_k F(n+1,k)=\sum_k F(n,k)$$
+      \item Which is done by ''changing variables''
+    \end{itemize}
+    }
+    \only<4>{
+    \begin{itemize}
+      \item An algorithm to find a function $S$ such that $$a_k=S_k-S_{k-1}$$
+      \item Finds the change of variables needed in WZ
+    \end{itemize}
+    }
+    \only<5>{
+    \begin{itemize}
+      \item The program writes formal proofs
+      \item Proves 80\% of the examples
+      \item The remaining seem impossible to prove by WZ method
+    \end{itemize}
+    }
+    \only<6>{
+    \begin{itemize}
+      \item The program seems to work well, although cannot solve all examples
+      \item Computer Algebra quickly gets complicated
+    \end{itemize}
+    }
+  \end{columns}
+\end{frame}
+
+\section[Wilf-Zeilberger's method]{Wilf-Zeilberger's method (Wilf, 1990)}
+\begin{frame}
+  \frametitle{What problems can be solved?}
+  Problems on the form
+  $$\sum_k F(n,k)=1$$
+  can be solved.
+  \pause
+  Problems on the form
+  $$\sum_k A(n,k)=B(n)$$
+  can get converted to the right form.
+\end{frame}
+\begin{frame}
+  \frametitle{The idea}
+  Want to prove
+  \begin{equation*}\label{Eq: WZ1}
+    \sum_k F(n,k)=1
+  \end{equation*}
+  \pause
+  Find $G(n,k)$ such that $F(n+1,k)-F(n,k)=G(n,k+1)-G(n,k)$ and $\lim_{k\to\pm\infty} G(n,k)=0$.\pause Now $$\sum_k F(n+1,k)-F(n,k)=\sum_k G(n,k+1)-G(n,k)=0.$$\pause Therefore $$\sum_k F(n,k)$$ is constant for all $n$, therefore if we can evaluate for one $n$ then we are done.
+\end{frame}
+\begin{frame}
+  \frametitle{Steps of the method}
+  \begin{columns}[t]
+
+  \column{.5\textwidth} % Left column and width
+  \begin{enumerate}
+    \item<1-> Start with $$\sum_k A(n,k)=B(n)$$
+    \item<3-> Let $F(n,k)=\frac{A(n,k)}{B(n)}$
+    \item<5-> Find $G(n,k)$ such that the conditions are satisfied
+    \item<7-> Show that $\sum_k F(n^\prime,k)=1$ for some $n^\prime$
+  \end{enumerate}
+
+  \column{.5\textwidth} % Right column and width
+  \begin{enumerate}
+    \item<2-> We have $$\sum_k \binom{n}{k}=2^n$$
+    \item<4-> $F(n,k)=\frac{\binom{n}{k}}{2^n}$
+    \item<6-> Let $G(n,k)=-\frac{\binom{n}{k-1}}{2^{n+1}}$. Now the conditions are satisfied.
+    \item<8-> For $n=0$ we have $\sum_k F(n,k)=\frac{\binom{0}{0}}{2^0}=1,$ thus we have proved the identity.
+  \end{enumerate}
+  \end{columns}
+\end{frame}
+
+\section[Gosper's algorithm]{Gosper's algorithm (Gosper, 1978)}
+\begin{frame}
+  \frametitle{What problems can be solved?}
+  Given a polynomial $a_k$, Gosper's algorithm finds a polynomial $S_k$ such that $$a_k=S_k-S_{k-1}.$$
+  \pause
+  With $a_k=F(n+1,k)-F(n,k)$ we get that $G(n,k)=S_{k-1}$ makes the first condition in Wilf-Zeilberger's method fulfilled.
+\end{frame}
+\begin{frame}
+  \frametitle{Steps of the algorithm}
+  \begin{columns}[t]
+
+  \column{.35\textwidth} % Left column and width
+  \begin{enumerate}
+    \item<1-> Find polynomials $p_k,q_k,r_k$ such that $gcd(q_k,r_{k+j})=1$ $\forall j\geq 0$ and $$\frac{a_k}{a_{k-1}}=\frac{p_k}{p_{k-1}}\frac{q_k}{r_k}$$
+    \item<2-> Find polynomial $f_k$ such that $p_k=q_{k+1}f_k-r_kf_{k-1}$
+    \item<3-> Let $S_k=\frac{q_{k+1}}{p_k}f_ka_k$
+  \end{enumerate}
+
+  \column{.65\textwidth} % Right column and width
+  \only<4>{
+  Now we see that
+  \begin{equation*}
+    \begin{split}
+      S_k-S_{k-1} = \frac{q_{k+1}}{p_k}f_ka_k-\frac{q_k}{p_{k-1}}f_{k-1}a_{k-1} &=\\
+       = \frac{a_k}{p_k}\Big(q_{k+1}f_k-\frac{q_k}{p_{k-1}}f_{k-1}p_k\frac{a_{k-1}}{a_k}\Big) &= \\
+       =\frac{a_k}{p_k}\Big(q_{k+1}f_k-\frac{q_k}{p_{k-1}}f_{k-1}p_k\frac{p_{k-1}}{p_k}\frac{r_k}{q_k}\Big)&= \\
+       = \frac{a_k}{p_k}\Big(q_{k+1}f_k-r_kf_{k-1}\Big) = \frac{a_k}{p_k}p_k &= a_k,
+    \end{split}
+  \end{equation*}
+  which means that this $S_k$ indeed is a solution.
+  }
+  \only<5-7>{
+  \begin{enumerate}
+    \item<5-> For $\sum_k \binom{n}{k}=2^n$ we get $$\frac{a_k}{a_{k-1}}=\frac{(2k-n-1)(n+2-k)}{k(2k-n-3)}$$ which gives us $p_k=2k-n-1$, $q_k=n+2-k$, $r_k=k$.
+    \item<6-> In $$2k-n-1=(n+1-k)f_k-kf_{k-1}$$ we see that $f_k=-1$ gives a solution.
+    \item<7> Now we get $S_k=-\frac{n+1-k}{2k-n-1}a_k=-\frac{\binom{n}{k}}{2^{n+1}}$, which corresponds to the $G(n,k)$ we got in the previous example.
+  \end{enumerate}
+  }
+  \end{columns}
+\end{frame}
+
+\section{Implementation}
+\begin{frame}
+  \textbf{2300 lines of code}
+  \pause
+  \begin{itemize}
+    \item 50\% methods for polynomials and Wilf-Zeilberger's method
+    \pause
+    \item 20\% parsing
+    \pause
+    \item 30\% testing of the methods
+  \end{itemize}
+\end{frame}
+
+\section{Results}
+\begin{frame}
+  \frametitle{Results as statistics}
+  \begin{itemize}
+    \item 10 examples for training, 10 for validation
+    \pause
+    \item The automatic solver manages to prove 8 of each
+    \pause
+    \item The remaining examples seem to be unsolvable using Wilf-Zeilberger's method
+  \end{itemize}
+\end{frame}
+\begin{frame}
+  \frametitle{Results as an example}
+  \begin{columns}[c]
+
+  \column{.15\textwidth} % Left column and width
+
+  \onslide<2->{
+  \footnotesize
+  $k<1$ and $k>n+1$ gives that $$\binom{n}{k-1}=0,$$ $$\implies$$ $$\lim_{k\to\pm\infty} G(n,k)=0.$$
+  }
+  \column{.5\textwidth} % Right column and width
+  \begin{figure}
+  \includegraphics[width=0.7\linewidth]{images/proof02.png}
+  \end{figure}
+  \column{.35\textwidth}
+  \onslide<3->{
+  \footnotesize
+  For $n=0$ we get
+  \begin{equation*}
+    \begin{split}
+      \sum_k (-1)^k\binom{n}{k}\binom{2k}{k}4^{n-k}&= \\
+      (-1)^0\binom{0}{0}\binom{0}{0}4^0 &=1 \\
+    \end{split}
+  \end{equation*}
+  Also $\binom{0}{0}=1$.
+  }
+  \end{columns}
+\end{frame}
+
+\section{Discussion and conclusions}
+\begin{frame}
+  \begin{columns}[t]
+
+  \column{.5\textwidth} % Left column and width
+  \center
+  \ubf{DOES NOT WORK}
+
+  \justify
+  \begin{itemize}
+    \item<2-> Cannot come up with solution, only prove
+    \item<3-> Some parts are left for the user
+    \item<4-> Similar examples with different results
+  \end{itemize}
+  \column{.5\textwidth} % Right column and width
+  \center
+  \ubf{WORKS WELL}
+
+  \justify
+  \begin{itemize}
+    \item<5-> Solves most examples
+    \item<6-> Gives a solution quickly (in seconds)
+  \end{itemize}
+  \end{columns}
+\end{frame}
+\begin{frame}
+  \Huge\center
+  Thank you for listening!
+\end{frame}
+
+\appendix
+\section*{Extra slides}%Extra slides
+%Polynomials
+\begin{frame}
+  \frametitle{Polynomials}
+\end{frame}
+%Proof generation
+\begin{frame}
+  \frametitle{Proof generation}
+  \ubf{Steps of proof generation}
+  \pause
+  \begin{itemize}
+    \item Get input and parser
+    \pause
+    \item Parse input $\rightarrow$ get $F(n,k)$ and $\frac{a_k}{a_{k-1}}$
+    \pause
+    \item Get $G(n,k)$ from Gosper's algorithm
+    \pause
+    \item Write proof in \LaTeX format
+    \pause
+    \item Highlight parts that the user need to complete
+  \end{itemize}
+\end{frame}
+%Dependencies of programs
+\begin{frame}
+  \frametitle{Dependencies of the code}
+  \begin{figure}
+  \includegraphics[width=0.6\linewidth]{images/dependency_graph_2.png}
+  \end{figure}
+\end{frame}
+
+\iffalse
 %------------------------------------------------
 \section{First Section} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
 %------------------------------------------------
@@ -163,7 +482,7 @@ Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenati
 
 \begin{frame}
 \frametitle{Multiple Columns}
-\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
+\begin{columns}[c]
 
 \column{.45\textwidth} % Left column and width
 \textbf{Heading}
@@ -260,7 +579,7 @@ This statement requires citation \cite{p1}.
 \begin{frame}
 \Huge{\centerline{The End}}
 \end{frame}
-
+\fi
 %----------------------------------------------------------------------------------------
 
 \end{document}
