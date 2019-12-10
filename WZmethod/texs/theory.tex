@@ -13,7 +13,7 @@ A polynomial, say $p(n)$, can be seen as a list of coefficients $[a_0,a_1,\ldots
 \begin{equation}\label{Eq: Theory,polynomials,general polynomial}
   p(n) = a_0+a_1 n + \ldots + a_d n^d.
 \end{equation}
-This is fairly simple if the polynomial only has one variable. As soon as we introduce polynomials with more than one variable -- which is the case in all examples where Wilf-Zeilberger's method is used -- it gets a bit more complicated. The way we will visualize polynomials of more than one variable is to try to keep the very same structure as in \ref{Eq: Theory,polynomials,general polynomial}, namely we store a polynomial $p(n)$ as a list of coefficients $[a_0,a_1,\ldots,a_d]$, but instead of having $a_i$ just representing integers they are instead polynomials. In order to show how this can be done, we consider the following example.
+This is fairly simple if the polynomial only has one variable. As soon as we introduce polynomials with more than one variable -- which is the case in all examples where Wilf-Zeilberger's method is used -- it gets a bit more complicated. The way we will visualize polynomials of more than one variable is to try to keep the very same structure as in \eqref{Eq: Theory,polynomials,general polynomial}, namely we store a polynomial $p(n)$ as a list of coefficients $[a_0,a_1,\ldots,a_d]$, but instead of having $a_i$ just representing integers they are instead polynomials. In order to show how this can be done, we consider the following example.
 \begin{example}\label{Ex: polynomial, recursive}
   Lets look at the polynomial
   \begin{equation*}
@@ -57,7 +57,7 @@ This is fairly simple if the polynomial only has one variable. As soon as we int
   \end{equation*}
   Lastly we have the polynomials $q_0,q_1,q_2$ which have integers as coefficients.
 \end{example}
-As we saw in example \ref{Ex: polynomial, recursive} we define all polynomials as in equation \ref{Eq: Theory,polynomials,general polynomial} where the coefficients $a_i$ are polynomials or integers, where it is only integers in the base case.
+As we saw in example \ref{Ex: polynomial, recursive} we define all polynomials as in equation \eqref{Eq: Theory,polynomials,general polynomial} where the coefficients $a_i$ are polynomials or integers, where it is only integers in the base case.
 
 Note that in this case we wrote the polynomial with $n$ ''outmost'' in the representation of $p$. There was no specific reason for this, and the choice is not very important when only looking at one polynomial at a time. When we are using several polynomials at the same time, for instance if we want to add two polynomials, the structure is crucial. Therefore we will define some concepts regarding the representation of a polynomial.
 
@@ -271,13 +271,23 @@ Now we come to the slightly more complicated operations that we need to perform 
 \begin{definition}\label{Def: common divisor}
   A polynomial $g$ is called a \textit{common divisor} to two polynomials $a$ and $b$ if $g|a$ and $g|b$.
 \end{definition}
+\begin{definition}
+  We say that a polynomial $p_k=a_0+a_1k+\ldots+a_mk^m$ is positive if $a_m$ is positive.
+\end{definition}
+\begin{remark}
+  Note that this definition is highly recursive with base case when the coefficients are integers.
+\end{remark}
 \begin{definition}\label{Def: greatest common divisor}
-  We say that a polynomial $g$ is the \textit{greatest common divisor} (GCD) to two polynomials if
+  We say that a polynomial $g$ is the \textit{greatest common divisor} (GCD) of two polynomials if
   \begin{enumerate}
     \item $g$ is a common divisor to $a$ and $b$
-    \item For all common divisors $g^\prime$ to $a$ and $b$ we have that $g^\prime|g$.
+    \item For all common divisors $g^\prime$ to $a$ and $b$ we have that $g^\prime|g$
+    \item $g$ is a positive polynomial.
   \end{enumerate}
 \end{definition}
+\begin{remark}
+  Note that we have not yet shown that $gcd$ exists of two polynomials. This comes from that $gcd$ exists for polynomials with rational coefficients, and then to get $gcd$ of polynomials with integer coefficients by multiplying by the denominators.
+\end{remark}
 In general performing division, modulo and gcd is fairly straight forward even on polynomials. Usually one might have the following structure on the implementation:
 \begin{equation}\label{Eq: Theory,standard divide}
   DIVIDE(a,b) \rightarrow (q,r) \text{ such that } a=b\cdot q + r, deg(r) < deg(b),
@@ -290,13 +300,15 @@ In general performing division, modulo and gcd is fairly straight forward even o
 \end{equation}
 where $\rightarrow$ indicates what the function returns.
 
-This implementation scheme is fairly straight forward, even though the divide function might be a bit messy. The problem we encounter in this thesis though, is that we cannot necessarily find polynomials $q,r$ such that \ref{Eq: Theory,standard divide} is satisfied. The reason for this is that we are working with integer coefficients and not in a ring. In order to show the problems we encounter we will use a common example throughout this section to show what the problem is and how we resolve it.
+This implementation scheme is fairly straight forward, even though the divide function might be a bit messy. The problem we encounter in this thesis though, is that we cannot necessarily find polynomials $q,r$ such that \eqref{Eq: Theory,standard divide} is satisfied. The reason for this is that we are working with integer coefficients and not in a field. There are several ways to address the problem with integer coefficients. One way is to instead use rational coefficients. Then we get a field, and division will be much easier. In this thesis we choose another way which we will now show, in order to keep the implementation with integer coefficients without any intermediary steps.
+
+In order to show the problems we encounter we will use a common example throughout this section to show what the problem is and how we resolve it.
 \begin{example}
-  Consider dividing $a(x)=x^2+2x+1$ by $b(x)=2x$. Assume we have $q,r$ that fulfill \ref{Eq: Theory,standard divide}. Then we need to have $deg(r)<deg(b)=deg(2x)=1$. This means that $r(x)=c$, where $c$ is an integer constant. This gives us
+  Consider dividing $a(x)=x^2+2x+1$ by $b(x)=2x$. Assume we have $q,r$ that fulfill \eqref{Eq: Theory,standard divide}. Then we need to have $deg(r)<deg(b)=deg(2x)=1$. This means that $r(x)=c$, where $c$ is an integer constant. This gives us
   \begin{equation}\label{Eq: poly,divide,ex1}
     x^2+2x+1=(2x)q(x)+c.
   \end{equation}
-  Furthermore we have that $deg(\text{Left hand side})=2$, hence $deg(q)=1$. Let $q(x)=c_0+c_1x$, then \ref{Eq: poly,divide,ex1} becomes
+  Furthermore we have that $deg(\text{Left hand side})=2$, hence $deg(q)=1$. Let $q(x)=c_0+c_1x$, then \eqref{Eq: poly,divide,ex1} becomes
   \begin{equation}
     x^2+2x+1=(2x)(c_1x+c_0)+c=2c_1x^2+2c_0x+c.
   \end{equation}
@@ -307,7 +319,7 @@ The way we solve this is to instead of giving two polynomials $q,r$ when we divi
 \begin{equation}\label{Eq: Theory,divide condition}
   DIVIDE(a,b) \rightarrow (q,r,f) \text{ such that } f\cdot a=b\cdot q + r, deg(r) < deg(b).
 \end{equation}
-Now we will show that it actually is possible to find $q,r,f$ such that \ref{Eq: Theory,divide condition} holds.
+Now we will show that it actually is possible to find $q,r,f$ such that \eqref{Eq: Theory,divide condition} holds.
 \begin{theorem}
   Let $a(x_1),b(x_1)$ be polynomials of the same variable setup $\vec{x}=(x_1,\ldots,x_m)$. Then it is possible to find polynomials $q,r,f$, where $q,r$ have variable setup $\vec{x}$ and $f$ has variable setup $\vec{x^\prime}=(x_2,\ldots,x_m)$, such that
   \begin{equation}\label{Eq: Theory,theorem,divide}
@@ -316,7 +328,7 @@ Now we will show that it actually is possible to find $q,r,f$ such that \ref{Eq:
   and $deg(r)<deg(b)$.
 \end{theorem}
 \begin{proof}
-  Let $a=a_0+a_1x_1+\ldots+a_cx_1^c$ and $b=b_0+b_1x_1+\ldots+b_dx_1^d$, where $c,d$ are the degrees of $a$ and $b$, respectively. If $c<d$ then we can use $q=0, r=a, f=1$ and we have that \ref{Eq: Theory,theorem,divide} is fulfilled.
+  Let $a=a_0+a_1x_1+\ldots+a_cx_1^c$ and $b=b_0+b_1x_1+\ldots+b_dx_1^d$, where $c,d$ are the degrees of $a$ and $b$, respectively. If $c<d$ then we can use $q=0, r=a, f=1$ and we have that \eqref{Eq: Theory,theorem,divide} is fulfilled.
 
   Now assume that $c\geq d$. We will now show that we can find $a^\prime,q_0,f_0$ such that
   \begin{equation}
@@ -335,7 +347,7 @@ Now we will show that it actually is possible to find $q,r,f$ such that \ref{Eq:
   \begin{equation}
     DIVIDE(a^\prime,b) \rightarrow (q^\prime,r^\prime,f^\prime),
   \end{equation}
-  then since $a^\prime$ is given by \ref{Eq: Theory,aprime} we get
+  then since $a^\prime$ is given by \eqref{Eq: Theory,aprime} we get
   \begin{equation}
     \begin{split}
       f^\prime\cdot a^\prime & =q^\prime\cdot b + r^\prime \hspace{2cm}\implies \\
@@ -356,10 +368,10 @@ Now we will show that it actually is possible to find $q,r,f$ such that \ref{Eq:
     \item $r$, a polynomial with variable setup $\vec{x}$, which is called the ''remainder'',
     \item $f$, a polynomial with variable setup $(x_2,\ldots,x_m)$, which is called the ''factor''.
   \end{itemize}
-  These polynomials fulfill equation \ref{Eq: Theory,divide condition}.
+  These polynomials fulfill equation \eqref{Eq: Theory,divide condition}.
 \end{definition}
 \begin{remark}
-  One important thing to note is that the definition of how we divide is not unique, if $q,r,f$ are all multiplied by a polynomial $s$ with variable setup $(x_2,\ldots,x_m)$ then equation \ref{Eq: Theory,divide condition} will still be fulfilled.
+  One important thing to note is that the definition of how we divide is not unique, if $q,r,f$ are all multiplied by a polynomial $s$ with variable setup $(x_2,\ldots,x_m)$ then equation \eqref{Eq: Theory,divide condition} will still be fulfilled.
 \end{remark}
 
 Now we have defined division and will soon move over to calculating the greatest common divisor, but first we have a look at what happens to our example.
@@ -385,9 +397,9 @@ We will show a theorem which states how the greatest common divisor is computed,
     \end{equation}
   \end{enumerate}
 \end{theorem}
-Before we prove theorem \ref{Thm: gcd} we show the reasoning behind why we get this more complicated version of gcd in \ref{Eq: gcd} instead of the much easier version in \ref{Eq: Theory,standard gcd}. We start by showing the example and see what happens if we naïvely using the new division combined with \ref{Eq: Theory,standard gcd}.
+Before we prove theorem \ref{Thm: gcd} we show the reasoning behind why we get this more complicated version of gcd in \eqref{Eq: gcd} instead of the much easier version in \eqref{Eq: Theory,standard gcd}. We start by showing the example and see what happens if we naïvely using the new division combined with \eqref{Eq: Theory,standard gcd}.
 \begin{example}\label{Ex: gcd}
-  Consider computing the greatest common divisor of $a(x)=x^2+2x+1$ and $b(x)=2x$ using \ref{Eq: Theory,standard gcd}.
+  Consider computing the greatest common divisor of $a(x)=x^2+2x+1$ and $b(x)=2x$ using \eqref{Eq: Theory,standard gcd}.
   \begin{equation}
     gcd(x^2+2x+1,2x)=gcd(2x,2)=gcd(2,0)=2,
   \end{equation}
@@ -398,9 +410,9 @@ Before we prove theorem \ref{Thm: gcd} we show the reasoning behind why we get t
       DIVIDE(2x,2) & \rightarrow (q,r,f)=(x,0,1).
     \end{split}
   \end{equation}
-  But now we see that we have the greatest common divisor being 2, but 2 does not divide $a(x)$. This highlights a problem with using \ref{Eq: Theory,standard gcd} for gcd.
+  But now we see that we have the greatest common divisor being 2, but 2 does not divide $a(x)$. This highlights a problem with using \eqref{Eq: Theory,standard gcd} for gcd.
 
-  Now let us consider using \ref{Eq: gcd} instead. This gives us (working backwards in steps)
+  Now let us consider using \eqref{Eq: gcd} instead. This gives us (working backwards in steps)
   \begin{equation}
     \begin{split}
       gcd(2,0) &= 2 \\
@@ -408,13 +420,13 @@ Before we prove theorem \ref{Thm: gcd} we show the reasoning behind why we get t
       gcd(x^2+2x+1,2x) =\frac{gcd(2x,2)}{gcd_c(gcd(2x,2))}\cdot gcd(gcd_c(x^2+2x+1),gcd_c(2x)) & = \\ = \frac{2}{2}\cdot gcd(1,2) & = 1.
     \end{split}
   \end{equation}
-  Using \ref{Eq: gcd} seems to work on this example. We need, however to prove it in general and to prove it regardless of which $q,r,f$ are used for $DIVIDE(a,b)$.
+  Using \eqref{Eq: gcd} seems to work on this example. We need, however to prove it in general and to prove it regardless of which $q,r,f$ are used for $DIVIDE(a,b)$.
 \end{example}
-As we saw in example \ref{Ex: gcd} if we try to naïvely use \ref{Eq: Theory,standard gcd} to compute the gcd, but with the new definition of how we divide, then that results in a too large divisor since the factor $f$ allows the divisor to be larger. This can be seen by looking at the formula for dividing $a$ by $b$. We have that
+As we saw in example \ref{Ex: gcd} if we try to naïvely use \eqref{Eq: Theory,standard gcd} to compute the gcd, but with the new definition of how we divide, then that results in a too large divisor since the factor $f$ allows the divisor to be larger. This can be seen by looking at the formula for dividing $a$ by $b$. We have that
 \begin{equation}\label{Eq: Theory, gcd, explanation}
   f\cdot a(x_1)=b(x_1)\cdot q(x_1) + r(x_1).
 \end{equation}
-Now the greatest common divisor of $b$ and $r$ will divide the left hand side of equation \ref{Eq: Theory, gcd, explanation}, $f\cdot a(x_1)$, but not necessarily $a(x_1)$. With this insight in mind, we will now prove theorem \ref{Thm: gcd}, but first we need a few lemmas.
+Now the greatest common divisor of $b$ and $r$ will divide the left hand side of equation \eqref{Eq: Theory, gcd, explanation}, $f\cdot a(x_1)$, but not necessarily $a(x_1)$. With this insight in mind, we will now prove theorem \ref{Thm: gcd}, but first we need a few lemmas.
 \begin{lemma}\label{Lemma0}
   Let $a,b,d$ be polynomials such that $d|(a\cdot b)$. Then we can factor $d$ into two polynomials $d_a,d_b$ such that
   \begin{enumerate}
@@ -423,7 +435,7 @@ Now the greatest common divisor of $b$ and $r$ will divide the left hand side of
   \end{enumerate}
 \end{lemma}
 \begin{proof}
-  Let $d_a = gcd(a,d)$. Then we get that $d_a|a, d_a|d \iff \exists a^\prime,d^\prime: d=d_ad^\prime, a=d_aa^\prime$ and $gcd(a^\prime,d^\prime)=1$. We know that $d|(a\cdot b) \iff \exists x: a\cdot b=d\cdot x$. Now we replace $a$ and $d$ by $d_aa^\prime, d=d_ad^\prime$ which gives us $a^\prime\cdot b=d^\prime \cdot x$, where $gcd(a^\prime,d^\prime)=1$. Therefore $d^\prime|b$, and thus we can choose $d_b=d^\prime$.
+  Let $d_a = gcd(a,d)$. Then we get that $d_a|a, d_a|d \iff \exists a^\prime,d^\prime: d=d_ad^\prime, a=d_aa^\prime$ and $gcd(a^\prime,d^\prime)=1$ (if $gcd(a^\prime,d^\prime)\neq 1$ then $d_a$ is not $gcd(a,d)$). We know that $d|(a\cdot b) \iff \exists x: a\cdot b=d\cdot x$. Now we replace $a$ and $d$ by $d_aa^\prime, d=d_ad^\prime$ which gives us $a^\prime\cdot b=d^\prime \cdot x$, where $gcd(a^\prime,d^\prime)=1$. Therefore $d^\prime|b$, and thus we can choose $d_b=d^\prime$.
 \end{proof}
 \begin{lemma}\label{Lemma1}
   Let $p$ be a polynomial $p(x_1)=p_0+\ldots+p_dx_1^d$ with variable setup $\vec{x}=(x_1,\ldots,x_m)$ and $f$ be a polynomial with variable setup $(x_2,\ldots,x_m)$ such that $f|p$. Then we have that $f|p_i\forall 0\leq i\leq d$.
@@ -432,11 +444,11 @@ Now the greatest common divisor of $b$ and $r$ will divide the left hand side of
   We know that $f|p$, which is equivalent to $p=fp^\prime$ for some polynomial $p^\prime$. Let $p^\prime=p_0^\prime+\ldots+p_c^\prime x_1^c$. Now first of all, since $f$ does not depend on $x_1$ we have that $deg(p)=deg(p^\prime)=d$. Furthermore we have that
   \begin{equation}\label{Eq: lemma proof}
     \begin{split}
-      p_0+p_1x_1+\ldots+p_dx_1^d=p=fp &=f(p_0^\prime+p_1^\prime x_1+\ldots+p_d^\prime x_1^d)= \\
+      p_0+p_1x_1+\ldots+p_dx_1^d=p=fp^\prime &=f(p_0^\prime+p_1^\prime x_1+\ldots+p_d^\prime x_1^d)= \\
       &=(fp_0^\prime)+(fp_1^\prime)x_1+\ldots+(fp_d^\prime)x_1^d
     \end{split}
   \end{equation}
-  Now by looking at the terms for each degree of $x_1$ in \ref{Eq: lemma proof} we see that
+  Now by looking at the terms for each degree of $x_1$ in \eqref{Eq: lemma proof} we see that
   \begin{equation}
     p_i=fp_i^\prime \iff f|p_i, \forall 0\leq i\leq d.
   \end{equation}
@@ -458,7 +470,7 @@ Now we are ready to finish this section with the proof of theorem \ref{Thm: gcd}
     d|a, d|b \implies d\Big|\Big(\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd(gcd_c(a),gcd_c(b))\Big).
   \end{equation}
 
-  We start with the first part. Since $g^\prime|b$ and $g^\prime|r$, $g^\prime$ divides the right hand side of \ref{Eq: Theory, gcd, explanation}. But the left hand side is equal to the left hand side, thus we know that $g^\prime|fa$. This in turns implies that we (due to lemma \ref{Lemma0}) can factor $g$ into two parts, $g_f,g_a$, such that $g^\prime=g_ag_f$, $g_a|a$ and $g_f|f$. But now since $f$ has variable setup $(x_2,\ldots,x_m)$ then $g_f$ cannot depend on $x_1$.
+  We start with the first part. Since $g^\prime|b$ and $g^\prime|r$, $g^\prime$ divides the right hand side of \eqref{Eq: Theory, gcd, explanation}. But the left hand side is equal to the left hand side, thus we know that $g^\prime|fa$. This in turns implies that we (due to lemma \ref{Lemma0}) can factor $g$ into two parts, $g_f,g_a$, such that $g^\prime=g_ag_f$, $g_a|a$ and $g_f|f$. But now since $f$ has variable setup $(x_2,\ldots,x_m)$ then $g_f$ cannot depend on $x_1$.
 
   We will now show that $\frac{g^\prime}{gcd_c(g^\prime)}|a$. We know that since $g_f$ is of variable setup $(x_2,\ldots,x_m)$ and $g_f|g^\prime$, then by lemma \ref{Lemma1} we get that $g_f|g_i^\prime$ for all coefficients $g_i^\prime$ in $g^\prime$. This means that $g_f|gcd_c(g^\prime)$. We also know that
   \begin{equation}
@@ -466,7 +478,7 @@ Now we are ready to finish this section with the proof of theorem \ref{Thm: gcd}
   \end{equation}
   therefore we get that $\frac{g^\prime}{gcd_c(g^\prime)}|g_a$, and thus $\frac{g^\prime}{gcd_c(g^\prime)}|a$. Furthermore
   \begin{equation}
-    gcd_c\Big(\frac{g^\prime}{gcd_c(g^\prime)}\Big)=1.
+    gcd_c\Big(\frac{g^\prime}{gcd_c(g^\prime)}\Big)=\pm 1.
   \end{equation}
   We also clearly see that $gcd(gcd_c(a),gcd_c(b))|gcd_c(a)$ and $gcd_c(a)|a$. Therefore $gcd(gcd_c(a),gcd_c(b))$ divides $a$. Now we use lemma \ref{Lemma2} and conclude that with
   \begin{equation}
@@ -494,7 +506,7 @@ Now we are ready to finish this section with the proof of theorem \ref{Thm: gcd}
   \end{equation}
   where $d$ is a polynomial with variable setup $\vec{x}=(x_1,\ldots,x_m)$.
 
-  First we note that any polynomial that divides $a$ and $b$ also divide $r$, which is clear by looking at equation \ref{Eq: Theory, gcd, explanation}. We now factor $d$ into $d_1\cdot d_2$, where $d_1=\frac{d}{gcd_c(d)}, d_2=gcd_c(d)$. We will now show that $d_1|\frac{g^\prime}{gcd_c(g^\prime)}$ and $d_2|gcd(gcd_c(a),gcd_c(b))$.
+  First we note that any polynomial that divides $a$ and $b$ also divide $r$, which is clear by looking at equation \eqref{Eq: Theory, gcd, explanation}. We now factor $d$ into $d_1\cdot d_2$, where $d_1=\frac{d}{gcd_c(d)}, d_2=gcd_c(d)$. We will now show that $d_1|\frac{g^\prime}{gcd_c(g^\prime)}$ and $d_2|gcd(gcd_c(a),gcd_c(b))$.
 
   We have that $d_1|d, d|g^\prime \implies d_1\Big|\frac{g^\prime}{gcd_c(g^\prime)}\cdot gcd_c(g^\prime)$. Now lemma \ref{Lemma0} gives us that $d_1$ can be factored into $d_{11},d_{12}$ such that $d_{11}\Big|\frac{g^\prime}{gcd_c(g^\prime)}$ and $d_{12}|gcd_c(g^\prime)$. But $d_{12}|gcd_c(g^\prime)$ means that $d_{12}$ has variable setup $(x_2,\ldots,x_m)$ But this gives us that $d_{12}=1$ since $d_1=\frac{d}{gcd_c(d)}$ (otherwise we would have a larger common divisor for the coefficients of $d$ than $gcd_c(d)$). Hence $d_1=d_{11}\Big|\frac{g^\prime}{gcd_c(g^\prime)}$.
 
@@ -506,7 +518,7 @@ Now we are ready to finish this section with the proof of theorem \ref{Thm: gcd}
   \end{equation}
   where $g^\prime=gcd(b,r), DIVIDE(a,b) \rightarrow (q,r,f)$.
 \end{proof}
-Although the procedures of division and gcd are partly already described in the theorems and proofs in this section we will finish this section by formalize the procedures of division, gcd and gcd\textsubscript{C}, by providing the pseudocode.
+Although the procedures of division and gcd are partly already described in the theorems and proofs in this section we will finish this section by formalize the procedures of division, gcd and gcd\textsubscript{c}, by providing the pseudocode.
 
 \begin{algorithm}[H]
   \caption{Division}
@@ -537,7 +549,7 @@ Although the procedures of division and gcd are partly already described in the 
   \end{equation}
   This step is not necessary, but ensures that $q,r,f$ do not have unnecessarily large coefficients. The reason it is not included is that adding this step most likely adds more confusion than value.
 \end{remark}
-Now we have gcd and gcd\textsubscript{C} left to write pseudocode for. Since all the code is very recursive here, it seems to be the case that we get infinite recursive calls. This will not be the case, however, since every time GCD is called either
+Now we have gcd and gcd\textsubscript{c} left to write pseudocode for. Since all the code is very recursive here, it seems to be the case that we get infinite recursive calls. This will not be the case, however, since every time GCD is called either
 \begin{enumerate}
   \item the degree of some polynomial, or
   \item the size of the variable setup
@@ -555,17 +567,17 @@ decreases. The fact that one of these are true is easily checked in all the proc
       \EndIf
       \State $q_0,r_0,f_0\gets$ \Call{Divide}{$a,b$}
       \State $g^\prime\gets$ \Call{GCD}{$b,r_0$}
-      \State $q^\prime,r^\prime,f^\prime\gets$ \Call{Divide}{$g^\prime$,\Call{GCD\textsubscript{C}}{$g^\prime$}}
-      \State \Return \Call{Multiply}{$q^\prime$,\Call{GCD}{\Call{GCD\textsubscript{C}}{$a$},\Call{GCD\textsubscript{C}}{$b$}}}
+      \State $q^\prime,r^\prime,f^\prime\gets$ \Call{Divide}{$g^\prime$,\Call{gcd\textsubscript{c}}{$g^\prime$}}
+      \State \Return \Call{Multiply}{$q^\prime$,\Call{GCD}{\Call{gcd\textsubscript{c}}{$a$},\Call{gcd\textsubscript{c}}{$b$}}}
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
 \begin{algorithm}[H]
   \caption{Greatest common coefficient divisor}
   \inp{Polynomial $a$ with variable setup $\vec{x}=(x_1,\ldots,x_m)$}
-  \outp{Polynomial $g$ with variable setup $\vec{x}=(x_2,\ldots,x_m)$ such that $g$ is the greatest common divisor of all coeffiecients $a_i$ in $a$}
+  \outp{Polynomial $g$ with variable setup $\vec{x}=(x_2,\ldots,x_m)$ such that $g$ is the greatest common divisor of all coefficients $a_i$ in $a$}
   \begin{algorithmic}[1]
-    \Procedure{GCD\textsubscript{C}}{$a$}
+    \Procedure{gcd\textsubscript{c}}{$a$}
       \State $g\gets a[0]$
       \For{$i\gets 1,\ldots,deg(a)$}
         \State $g\gets$ \Call{GCD}{$g,a[i]$}
@@ -577,7 +589,7 @@ decreases. The fact that one of these are true is easily checked in all the proc
 These procedure descriptions conclude a quite theory heavy section about polynomials. Next will follow Wilf-Zeilberger's method, and will decribe how the method works.
 
 \section{Wilf-Zeilberger's method}
-Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The method can just be used to show an identity that is given, and cannot itself come up with a guess for what a sum would be.\reference{wilf} This means that the method can be used to solve problems like
+Wilf-Zeilberger's method is a method to show an equality by using a certifying pair, or a proof certificate. The method can just be used to show an identity that is given, and cannot itself come up with a guess for what a sum would be (see \reference{wilf}). This means that the method can be used to solve problems like
 \begin{example}
   Show that $$\sum_{k=0}^n (-1)^k\binom{n}{k}\binom{2k}{k}4^{n-k}=\binom{2n}{n}$$
 \end{example}
@@ -595,7 +607,7 @@ Then we let
 \begin{equation}
   F(n,k)=\frac{A(n,k)}{B(n)}
 \end{equation}
-Now equation \ref{Eq: Theory,PS} becomes
+Now equation \eqref{Eq: Theory,PS} becomes
 \begin{equation}\label{Eq: Theory,WZ}
   \sum_{k=-\infty}^\infty F(n,k) = 1
 \end{equation}
@@ -603,7 +615,7 @@ The way we want to prove this is by first proving
 \begin{equation}\label{Eq: Theory,WZ2}
   \sum_{k=-\infty}^\infty F(n+1,k)-F(n,k) = 0
 \end{equation}
-and then calculate the left hand side of \ref{Eq: Theory,WZ} for one $n$, usually but not always $n=0$. Then we get that
+and then calculate the left hand side of \eqref{Eq: Theory,WZ} for one $n$, usually but not always $n=0$. Then we get that
 \begin{equation}
   \sum_{k=-\infty}^\infty F(n+1,k)=\sum_{k=-\infty}^\infty F(n,k)
 \end{equation}
@@ -611,7 +623,7 @@ which in turns gives us that
 \begin{equation}
   \sum_{k=-\infty}^\infty F(n,k) = c,
 \end{equation}
-where $c$ is a constant, for all values of $n$ and thus equal to the result of our previous calculations. The trick we use to prove equation \ref{Eq: Theory,WZ2} is to find another function $G(n,k)$ which satisfies:
+where $c$ is a constant, for all values of $n$ and thus equal to the result of our previous calculations. The trick we use to prove equation \eqref{Eq: Theory,WZ2} is to find another function $G(n,k)$ which satisfies:
 \begin{enumerate}[i)]
   \item
   \begin{equation}\label{Eq: Theory,first condition}
@@ -622,7 +634,7 @@ where $c$ is a constant, for all values of $n$ and thus equal to the result of o
     \lim_{k\to\pm\infty}G(n,k)=0, \forall n
   \end{equation}
 \end{enumerate}
-If these two conditions are fulfilled, then equation \ref{Eq: Theory,WZ2} is fulfilled since by replacing $F(n+1,k)-F(n,k)$ with $G(n,k+1)-G(n,k)$ we get a telescopic sum:
+If these two conditions are fulfilled, then equation \eqref{Eq: Theory,WZ2} is fulfilled since by replacing $F(n+1,k)-F(n,k)$ with $G(n,k+1)-G(n,k)$ we get a telescopic sum:
 \begin{equation*}
 \begin{split}
 \sum_{k=-\infty}^\infty F(n+1,k)-F(n,k) & = \sum_{k=-\infty}^\infty G(n,k+1)-G(n,k) = \\
@@ -636,14 +648,14 @@ If we summarize the method we have the following steps:
 \begin{enumerate}
   \item Start with equation on the form $$\sum_{k=-\infty}^\infty A(n,k) = B(n).$$
   \item Let $$F(n,k)=\frac{A(n,k)}{B(n)}.$$
-  \item Find $G(n,k)$ such that equations \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} are fulfilled.
+  \item Find $G(n,k)$ such that equations \eqref{Eq: Theory,first condition} and \eqref{Eq: Theory,second condition} are fulfilled.
   \item Show that $\sum_{k=-\infty}^\infty F(n^\prime,k)=1$ for some $n^\prime$.
 \end{enumerate}
 The crucial step here is how to find $G(n,k)$, where Gosper's algorithm is used. This means that an identity can only be proved by Wilf-Zeilberger's method if the conditions in Gosper's algorithm are fulfilled, which we will come back to in section \ref{Sec: Gosper}.
 
-We can formalize the concepts in the method like this.\reference{wilf}
+We can formalize the concepts in the method like this (see \reference{wilf}).
 \begin{definition}
-  A pair of functions $(F,G)$ that satisfy equations \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} is said to ''certify'' an identity like \ref{Eq: Theory,WZ} (or is simply called a ''certifying pair''). We can also speak of a ''proof certificate'' $R(n,k)$ of an identity. That is a function such that $G(n,k)=R(n,k)F(n,k-1)$ gives that $(F,G)$ is a certifying pair to the identity.
+  A pair of functions $(F,G)$ that satisfy equations \eqref{Eq: Theory,first condition} and \eqref{Eq: Theory,second condition} is said to ''certify'' an identity like \eqref{Eq: Theory,WZ} (or is simply called a ''certifying pair''). We can also speak of a ''proof certificate'' $R(n,k)$ of an identity. That is a function such that $G(n,k)=R(n,k)F(n,k-1)$ gives that $(F,G)$ is a certifying pair to the identity.
 \end{definition}
 Let us show an short example of how the method can work.
 \begin{example}
@@ -664,14 +676,14 @@ Let us show an short example of how the method can work.
           & = G(n,k+1)-G(n,k)
         \end{split}
       \end{equation*}
-      Furthermore, we have that $G(n,k) = 0$ when $k<1$ and $k>n+1$, hence condition \ref{Eq: Theory,second condition} is fulfilled.
+      Furthermore, we have that $G(n,k) = 0$ when $k<1$ and $k>n+1$, hence condition \eqref{Eq: Theory,second condition} is fulfilled.
     \item Lastly we need to show that $$\sum_{k=0}^n \frac{\binom{n}{k}}{2^n}=1$$ for some $n$. If we choose $n=0$ we see that this equality holds. Therefore the equality holds for all $n$.
   \end{enumerate}
 \end{solution}
 Now that we have seen an example, hopefully the methodology is clear. What still is not clear is how to find the function $G(n,k)$. In general this is a hard task to do by hand, but is certainly managable by using a computer since there are algorithms -- for instance Gosper's algorithm -- that can derive $G(n,k)$ in certain cases.
 
 \section{Gosper's algorithm}\label{Sec: Gosper}
-Gosper's algorithm is an algorithm that can be used to find a sum when certain conditions are fulfilled for the sum, and was presented by Gosper in 1978.\reference{gosper} The setting of the problem that is solved using the algorithm is that we want to find $S_k$ where
+Gosper's algorithm is an algorithm that can be used to find a sum when certain conditions are fulfilled for the sum, and was presented by Gosper in 1978 (see \reference{gosper}). The setting of the problem that is solved using the algorithm is that we want to find $S_k$ where
 \begin{equation}\label{Eq: Theory,Gosper1}
   \sum_{k=1}^n a_k = S_n-S_0.
 \end{equation}
@@ -694,9 +706,9 @@ Therefore Wilf-Zeilberger's method only works if
 
 Note that all the time when we write $x_a$ in this section, this denotes a polynomial $x$ evaluated in $a$, or $x(a)$. For instance $S_k$ denotes that the polynomial $S(k)$. We are only using this notation to make it easier to read. Note that this means that $x$ is a function of the variable $a$, but does not mean that it is a one variable function of $a$ -- it can be a function of several variables but we are just interested in the variable $a$ while the others are viewed as constants. This will actually be the case amost all the time, since $a_k=F(n+1,k)-F(n,k)$ (where $F$ comes from Wilf-Zeilberger's method) will be used most of the time. Also here, note that $F(n,k)$ only denotes that $F$ is a function of $n$ and $k$, but it might be of more variables as well.
 
-In order to make the thesis more easily readable and for completeness, we will provide a quite thorough derivation of the algorithm -- even though it is perfectly described in the original paper by Gosper from 1978.\reference{gosper} This will mostly focus on the steps of the algorithm, but also include the proofs of claims that are made during the steps. Firstly we will describe the main steps and thereafter we will provide the proofs.
+In order to make the thesis more easily readable and for completeness, we will provide a quite thorough derivation of the algorithm -- even though it is perfectly described in the original paper by Gosper from 1978 (see \reference{gosper}). This will mostly focus on the steps of the algorithm, but also include the proofs of claims that are made during the steps. Firstly we will describe the main steps and thereafter we will provide the proofs.
 
-First of all we need to show the connection between the formulation of Wilf-Zeilberger's method and how Gosper's algorithm takes part in it. Gosper's algorithm will solve the third step in Wilf-Zeilberger's method, namely to find a $G(n,k)$ such that conditions \ref{Eq: Theory,first condition} and \ref{Eq: Theory,second condition} will be fulfilled. The first condition is that
+First of all we need to show the connection between the formulation of Wilf-Zeilberger's method and how Gosper's algorithm takes part in it. Gosper's algorithm will solve the third step in Wilf-Zeilberger's method, namely to find a $G(n,k)$ such that conditions \eqref{Eq: Theory,first condition} and \eqref{Eq: Theory,second condition} will be fulfilled. The first condition is that
 \begin{equation}
   F(n+1,k)-F(n,k) = G(n,k+1)-G(n,k).
 \end{equation}
@@ -722,11 +734,11 @@ The steps of Gosper's algorithm are:
     S_k=\frac{q_{k+1}}{p_k}f_ka_k.
   \end{equation}
 \end{enumerate}
-The reason this algorithm will provide a solution is that with $S_k$ given by \ref{Eq: Theory,Gosper,S} we have
+The reason this algorithm will provide a solution is that with $S_k$ given by \eqref{Eq: Theory,Gosper,S} we have
 \begin{equation}\label{Eq: Theory,Gosper,sksk1}
   S_k-S_{k-1} = \frac{q_{k+1}}{p_k}f_ka_k-\frac{q_{k}}{p_{k-1}}f_{k-1}a_{k-1}.
 \end{equation}
-By factoring out $\frac{a_k}{p_k}$ in \ref{Eq: Theory,Gosper,sksk1}, and using \ref{Eq: Theory,Gosper,step1} followed by \ref{Eq: Theory,Gosper,step2} gives us:
+By factoring out $\frac{a_k}{p_k}$ in \eqref{Eq: Theory,Gosper,sksk1}, and using \eqref{Eq: Theory,Gosper,step1} followed by \eqref{Eq: Theory,Gosper,step2} gives us:
 \begin{equation}
   \begin{split}
     S_k-S_{k-1} & = \frac{a_k}{p_k}\Big(q_{k+1}f_k-\frac{q_k}{p_{k-1}}f_{k-1}p_k\frac{a_{k-1}}{a_k}\Big) = \\
@@ -736,14 +748,14 @@ By factoring out $\frac{a_k}{p_k}$ in \ref{Eq: Theory,Gosper,sksk1}, and using \
 \end{equation}
 which is exactly what we wanted to be true for $S_k$.
 
-Now, we have quite a few details to derive in each step -- both how the step is performed more precisely and furthermore explaining why all the polynomials actually need to be polynomials and not rational polynomials instead.
+Now, we have quite a few details to derive in each step -- both how the step is performed more precisely and furthermore explaining why all the polynomials actually need to be polynomials and not quotients of polynomials instead.
 
-\subsection{How to get polynomials $p,q,r$ in equation \ref{Eq: Theory,Gosper,step1}}\label{Sub: pqr}
-First of all, we need to prove that it is possible to find polynomials $p,q,r$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled. Since $\frac{S_k}{S_{k-1}}$ is a rational function of $k$, then
+\subsection{How to get polynomials $p,q,r$ in equation \eqref{Eq: Theory,Gosper,step1}}\label{Sub: pqr}
+First of all, we need to prove that it is possible to find polynomials $p,q,r$ such that \eqref{Eq: Theory,Gosper,step1} is fulfilled. Since $\frac{S_k}{S_{k-1}}$ is a rational function of $k$, then
 \begin{equation}
   \frac{a_k}{a_{k-1}}=\frac{S_k-S_{k-1}}{S_{k-1}-S_{k-2}}=\frac{\frac{S_k}{S_{k-1}}-1}{1-\frac{S_{k-2}}{S_{k-1}}}
 \end{equation}
-is a rational function of $k$ as well. Therefore we will be able to find polynomials such that \ref{Eq: Theory,Gosper,step1} is fulfilled. Left is to show how to find polynomials such that $gcd(q_k,r_{k+j})=1 \forall j\geq 1$ as well.
+is a rational function of $k$ as well. Therefore we will be able to find polynomials such that \eqref{Eq: Theory,Gosper,step1} is fulfilled. Left is to show how to find polynomials such that $gcd(q_k,r_{k+j})=1 \forall j\geq 1$ as well.
 
 We do this in a series of steps. First we let $p_k=1$ and $q_k, r_k$ be the numerator and denominator of $\frac{a_k}{a_k-1}$, respectively. Then if $gcd(q_k,r_{k+j})=1, \forall j\geq 0$ we are done. Otherwise we replace the polynomials by
 \begin{equation}
@@ -757,37 +769,39 @@ where $g_k=gcd(q_k,r_{k+j})$ for the smallest $j\geq 0$ such that $gcd(q_k,r_{k+
 \begin{equation}
   \frac{a_k}{a_{k-1}} = \frac{p_k^\prime}{p_{k-1}^\prime}\frac{q_k^\prime}{r_k^\prime}
 \end{equation}
-and the degrees of the polynomials $q_k, r_k$ are smaller. We then iterate this procedure as long as there exists a $j\geq 0$ such that $gcd(q_k,r_{k+j})>1$. When this procedure finishes, we have obtained $q_k,r_k,p_k$ such that \ref{Eq: Theory,Gosper,step1} is fulfilled and $gcd(q_k,r_{k+j})=1 \forall j\geq 0$.
+and the degrees of the polynomials $q_k, r_k$ are smaller. We then iterate this procedure as long as there exists a $j\geq 0$ such that $gcd(q_k,r_{k+j})>1$. When this procedure finishes, we have obtained $q_k,r_k,p_k$ such that \eqref{Eq: Theory,Gosper,step1} is fulfilled and $gcd(q_k,r_{k+j})=1 \forall j\geq 0$.
 
-\subsection{How to get polynomial $f$ in equation \ref{Eq: Theory,Gosper,step2}}\label{Sub: getf}
-The proof provided here is just due to Gosper's paper and mostly very similar. First of all, we need to prove that $f$ is a polynomial and not a rational polynomial.
+\subsection{How to get polynomial $f$ in equation \eqref{Eq: Theory,Gosper,step2}}\label{Sub: getf}
+The proof provided here is just due to Gosper's paper (see \reference{gosper}) and mostly very similar. First of all, we need to prove that $f$ is a polynomial and not a quotient of polynomials.
 \begin{theorem}
-  There exists a polynomial $f_k$ such that equation \ref{Eq: Theory,Gosper,step2} is fulfilled.
+  There exists a polynomial $f_k$ such that equation \eqref{Eq: Theory,Gosper,step2} is fulfilled.
 \end{theorem}
 \begin{proof}
-  Assume that $f_k=\frac{c_k}{d_k}$ where $gcd(c_k,d_k)=1$. Then by plugging this into \ref{Eq: Theory,Gosper,step2} and multiplying by $d_kd_{k-1}$ gives us:
+  Assume that $f_k=\frac{c_k}{d_k}$ where $gcd(c_k,d_k)=1$ and $d_k\neq 1$. Note that here $c_k,d_k$ are polynomials which means that $gcd(c_k,d_k)=1\implies gcd(c_{k-1},d_{k-1})=1$. Then by plugging this into \eqref{Eq: Theory,Gosper,step2} and multiplying by $d_kd_{k-1}$ gives us:
   \begin{equation}\label{Eq: Theory,8prime}
     d_kd_{k-1}p_k = c_kd_{k-1}q_{k+1} - d_kc_{k-1}r_k.
   \end{equation}
   Let $j$ be the largest integer such that
   \begin{equation}\label{Eq: Theory,10a}
-    gcd(d_k,d_{k+j})=g_k\neq 1
+    gcd(d_k,d_{k+j})=g_k\neq 1, \forall k.
   \end{equation}
+  Note that $j\geq 0$, since $gcd(d_k,d_k)=d_k\neq 1$. Furthermore the largest such $j$ exists since $d_k$ is a polynomial.
+
   Since $g_k|d_{k+j}$ we get that
   \begin{equation}\label{Eq: Theory,10b}
     gcd(d_{k-1},d_{k+j})=1=gcd(d_{k-1},g_{k+j}).
   \end{equation}
-  By just shifting $k$ by $-j-1$ in \ref{Eq: Theory,10a} we get that
+  By just shifting $k$ by $-j-1$ in \eqref{Eq: Theory,10a} we get that
   \begin{equation}\label{Eq: Theory,10c}
-    gcd(d_{k-j-1},d_{k-1})=g_{k-j-1}\neq 1
+    gcd(d_{k-j-1},d_{k-1})=g_{k-j-1}\neq 1.
   \end{equation}
-  By shifting $k$ by $j$ in \ref{Eq: Theory,10b} we get that
+  By shifting $k$ by $j$ in \eqref{Eq: Theory,10b} we get that
   \begin{equation}\label{Eq: Theory,10d}
     gcd(d_{k-j-1},d_k) = 1 = gcd(g_{k-j-1},d_k),
   \end{equation}
   again since $g_{k-j-1}|d_{k-j-1}$.
 
-  Now we consider equation \ref{Eq: Theory,8prime} upon dividing by first $g_k$ and then $g_{k-j-1}$. Clearly $g_k|d_kd_{k-1}p_k$, since $g_k|d_k$. This means that $g_k$ divides the right hand side of equation \ref{Eq: Theory,8prime} as well:
+  Now we consider equation \eqref{Eq: Theory,8prime} upon dividing by first $g_k$ and then $g_{k-j-1}$. Clearly $g_k|d_kd_{k-1}p_k$, since $g_k|d_k$. This means that $g_k$ divides the right hand side of equation \eqref{Eq: Theory,8prime} as well:
   \begin{equation}
     g_k|c_kd_{k-1}q_{k+1}-d_kc_{k-1}r_k.
   \end{equation}
@@ -795,7 +809,7 @@ The proof provided here is just due to Gosper's paper and mostly very similar. F
   \begin{equation}
     g_k|c_kd_{k-1}q_{k+1}.
   \end{equation}
-  By equation \ref{Eq: Theory,10b} we get $gcd(d_{k-1},g_k)=1$ and since $g_k|d_k$ and $gcd(c_k,d_k)=1$ we get $gcd(c_k,g_k)=1$. This means that
+  By equation \eqref{Eq: Theory,10b} we get $gcd(d_{k-1},g_k)=1$ and since $g_k|d_k$ and $gcd(c_k,d_k)=1$ we get $gcd(c_k,g_k)=1$. This means that
   \begin{equation}
     g_k|q_{k+1} \implies g_{k-1}|q_k.
   \end{equation}
@@ -808,7 +822,7 @@ The proof provided here is just due to Gosper's paper and mostly very similar. F
   \begin{equation}
     g_k|d_kc_{k-1}r_k.
   \end{equation}
-  By equation \ref{Eq: Theory,10d} we get $gcd(d_k,g_{k-j-1})=1$ and by $gcd(c_{k-1},d_{k-1})=1$ together with $g_{k-j-1}|d_{k-1}$ we get $gcd(c_{k-1},g_{k-j-1})=1$. This means that
+  By equation \eqref{Eq: Theory,10d} we get $gcd(d_k,g_{k-j-1})=1$ and by $gcd(c_{k-1},d_{k-1})=1$ together with $g_{k-j-1}|d_{k-1}$ we get $gcd(c_{k-1},g_{k-j-1})=1$. This means that
   \begin{equation}
     g_{k-j-1}|r_k \implies g_{k-1}|r_{k+j}.
   \end{equation}
@@ -823,7 +837,7 @@ The proof provided here is just due to Gosper's paper and mostly very similar. F
   Hence $d_k=1$ for all $k$ and thus $f_k$ is a polynomial.
 \end{proof}
 
-Now, let us derive how to get the polynomial $f_k$ such that \ref{Eq: Theory,Gosper,step2} is fulfilled. It is possible to get a bound for the degree of $f_k$ with respect to $k$. This is derived in the paper by Gosper (1978) and for the interested reader the details can be found there. The results is that
+Now, let us derive how to get the polynomial $f_k$ such that \eqref{Eq: Theory,Gosper,step2} is fulfilled. It is possible to get a bound for the degree of $f_k$ with respect to $k$. This is derived in the paper by Gosper (1978) and for the interested reader the details can be found there. The results is that
 \begin{equation}
   deg(f_k)\leq deg(p_k) - max\big(deg(q_{k+1}+r_k),deg(q_{k+1}-r_k)\big) + 1.
 \end{equation}
@@ -835,11 +849,11 @@ We will now firstly show that there is a way to get the polynomial $f_k$ given t
 \end{equation}
 where $m$ is the number of variables in $f_k$, the variables of $f_k$ are named $v_j$ for $1\leq j\leq m$ where $v_1=k$, $a_\vec{i}$ are the coefficients and $\vec{i}=(i_2,i_3,\ldots,i_m)$ goes through all combinations of degrees in the range $0\leq deg(v_j)=i_j\leq N$ for all the different variables. The number $i_1$ is the exponent of $k$ and also goes through all the values for in the range $0\leq i_1\leq N$. This exponent is treaded slightly different just because it is the exponent of $k$.
 
-Then from this we can derive what the polynomial $f_{k-1}$ is. First we write the polynomial $f_{k-1}$ on the same form as in \ref{Eq: Theory,general polynomial} but with other coefficients:
+Then from this we can derive what the polynomial $f_{k-1}$ is. First we write the polynomial $f_{k-1}$ on the same form as in \eqref{Eq: Theory,general polynomial} but with other coefficients:
 \begin{equation}\label{Eq: Theory,general polynomial k-1}
   f_{k-1} = \sum_{\vec{i}\in (0,1,\ldots,N)^m} \Big(b_{\vec{i},i_1}k^{i_1}\prod_{j=2}^m v_j^{i_j}\Big).
 \end{equation}
-Now we will derive the expression for $b_{\vec{i},i_1}$ in terms of $a_{\vec{i},i_1}$. If we replace $k$ by $k-1$ in \ref{Eq: Theory,general polynomial} we get
+Now we will derive the expression for $b_{\vec{i},i_1}$ in terms of $a_{\vec{i},i_1}$. If we replace $k$ by $k-1$ in \eqref{Eq: Theory,general polynomial} we get
 \begin{equation}\label{Eq: Theory,general polynomial k-1 plugged in}
   \begin{split}
     f_{k-1} & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Big(a_{\vec{i},i_1}(k-1)^{i_1}\prod_{j=2}^m v_j^{i_j}\Big) = \\
@@ -847,30 +861,30 @@ Now we will derive the expression for $b_{\vec{i},i_1}$ in terms of $a_{\vec{i},
     & = \sum_{\substack{\vec{i}\in (0,1,\ldots,N)^{m-1}\\i_1\in (0,1,\ldots,N)}} \Bigg(\sum_{u=0}^{i_1} a_{\vec{i},i_1}\binom{i_1}{u}(-1)^{i_1-u}k^u\Bigg) \prod_{j=2}^m v_j^{i_j}
   \end{split}
 \end{equation}
-Now we can see that the term $k^{i_1^\prime}\prod_{j=2}^m v_j^{i_j}$ from \ref{Eq: Theory,general polynomial k-1} ($i_1^\prime$ denotes a specific $i_1$) appears in \ref{Eq: Theory,general polynomial k-1 plugged in} in several places -- namely when $i_1\in\{i_1^\prime,i_1^\prime+1,\ldots,N\}$. This means that we get
+Now we can see that the term $k^{i_1^\prime}\prod_{j=2}^m v_j^{i_j}$ from \eqref{Eq: Theory,general polynomial k-1} ($i_1^\prime$ denotes a specific $i_1$) appears in \eqref{Eq: Theory,general polynomial k-1 plugged in} in several places -- namely when $i_1\in\{i_1^\prime,i_1^\prime+1,\ldots,N\}$. This means that we get
 \begin{equation}\label{Eq: Theory,fk-1 coefficients}
   b_{\vec{i},i_1} = \sum_{s=i_1}^N a_{\vec{i},s}\binom{s}{i_1}(-1)^{s-i_1}
 \end{equation}
-Now we have all the background we need in order to set up the system of equations and then solve for $a_{\vec{i},i_1}$. This is done by noticing that the left and right hand sides of the equation
+Now we have all the background we need in order to set up the system of equations and then solve for $a_{\vec{i},i_1}$. This is done by noticing that the coefficients of the left and right hand sides of the equation
 \begin{equation}\label{Eq: Theory,f equation}
   p_k=q_{k+1}f_k - r_k f_{k-1}
 \end{equation}
-In order to ease the formulation of the equation system, let $\vec{\hat{i}}=(\vec{i},i_1)$, let $\ll$ denote that a vector is pointwise smaller than or equal to e.g. $(1,2,3)\ll(2,3,3)$ and let $\vec{i}-\vec{j}$ denote the pointwise difference between $\vec{i}$ and $\vec{j}$, e.g. $(2,3,3)-(1,2,3)=(1,1,0)$. Finally we also denote the coefficients in front of $k^{i_1}\prod_{j=2}^N v_j^{i_j}$ in the polynomials $p_k, q_{k+1}, r_k$ by $r_\vec{\hat{i}}, q_\vec{\hat{i}}, r_\vec{\hat{i}}$, respectively. This gives us that
+have to be equal. In order to ease the formulation of the equation system, let $\vec{\hat{i}}=(\vec{i},i_1)$, let $\ll$ denote that a vector is pointwise smaller than or equal to e.g. $(1,2,3)\ll(2,3,3)$ and let $\vec{i}-\vec{j}$ denote the pointwise difference between $\vec{i}$ and $\vec{j}$, e.g. $(2,3,3)-(1,2,3)=(1,1,0)$. Finally we also denote the coefficients in front of $k^{i_1}\prod_{j=2}^N v_j^{i_j}$ in the polynomials $p_k, q_{k+1}, r_k$ by $r_\vec{\hat{i}}, q_\vec{\hat{i}}, r_\vec{\hat{i}}$, respectively. This gives us that
 \begin{equation}\label{Eq: Theory,equation system1}
   p_\vec{\hat{i}} = \sum_{\substack{\vec{\hat{j}}\\\vec{\hat{j}}\ll\vec{\hat{i}}\\\vec{\hat{j^\prime}}=\vec{\hat{i}}-\vec{\hat{j}}}} a_{\vec{\hat{j}}}q_{\vec{\hat{j^\prime}}} - \sum_{\substack{\vec{\hat{j}}\\\vec{\hat{j}}\ll\vec{\hat{i}}\\\vec{\hat{j^\prime}}=\vec{\hat{i}}-\vec{\hat{j}}}} b_{\vec{\hat{j}}}r_{\vec{\hat{j^\prime}}},
 \end{equation}
-where $b_{\vec{\hat{j}}}$ is given by \ref{Eq: Theory,fk-1 coefficients}. Note that at this point in the algorithm all the numbers $p_\vec{\hat{i}},q_\vec{\hat{i}},r_\vec{\hat{i}}$ are simply constants. This means that we can formulate a system of equations
+where $b_{\vec{\hat{j}}}$ is given by \eqref{Eq: Theory,fk-1 coefficients}. Note that at this point in the algorithm all the numbers $p_\vec{\hat{i}},q_\vec{\hat{i}},r_\vec{\hat{i}}$ are simply constants. This means that we can formulate a system of equations
 \begin{equation}\label{Eq: Theory,equation system2}
   Ma=P,
 \end{equation}
-where $M$ is the matrix that is given by the right hand side of \ref{Eq: Theory,equation system1}, $a$ consists of all coefficients $a_{\vec{\hat{j}}}$ and $P$ is the left hand side of \ref{Eq: Theory,equation system1}. Note that each row in this system of equations corresponds to a different $\vec{\hat{i}}$. Here we go through all $\vec{\hat{i}}$ that are relevant -- meaning all $\vec{\hat{i}}$ with degree smaller than what either of the sides of equation \ref{Eq: Theory,equation system1} can have. This means that we have an overdetermined system of equations. Furthermore we demand that all the coefficients of $f_k$ have to be integers. This means that it is not certain that we will get a solution, but in case we do, then we have found $f_k$. If we do not get a solution that can be because of two different reasons:
+where $M$ is the matrix that is given by the right hand side of \eqref{Eq: Theory,equation system1}, $a$ consists of all coefficients $a_{\vec{\hat{j}}}$ and $P$ is the left hand side of \eqref{Eq: Theory,equation system1}. Note that each row in this system of equations corresponds to a different $\vec{\hat{i}}$. Here we go through all $\vec{\hat{i}}$ that are relevant -- meaning all $\vec{\hat{i}}$ with degree smaller than what either of the sides of equation \eqref{Eq: Theory,equation system1} can have. This means that we have an overdetermined system of equations. Furthermore we demand that all the coefficients of $f_k$ have to be integers. This means that it is not certain that we will get a solution, but in case we do, then we have found $f_k$. If we do not get a solution that can be because of two different reasons:
 \begin{enumerate}[i)]
   \item We chose a too small maximal degree $N$ for the polynomial $f_k$.
   \item There does not exist a solution, hence the identity cannot be shown by Wilf-Zeilberger's method.
 \end{enumerate}
-In the paper by Gosper (1978) the first reason for not finding a $f_k$ does not exists, since the paper proves an upper limit on the degree of $f_k$ with respect to $k$. This cannot be done for other variables, for instance with $p_k=q_{k+1}=r_k=1$ any polynomial $f_k$ on the form $f_k=n^c+k$ satisfies \ref{Eq: Theory,f equation}.
+In the paper by Gosper (1978) the first reason for not finding a $f_k$ does not exists, since the paper proves an upper limit on the degree of $f_k$ with respect to $k$. This cannot be done for other variables, for instance with $p_k=q_{k+1}=r_k=1$ any polynomial $f_k$ on the form $f_k=n^c+k$ satisfies \eqref{Eq: Theory,f equation}.
 
-In the system \ref{Eq: Theory,equation system2}, $M$ can be constructed to have dimension $L\times (N^m)$, where $L=max(deg(p_k)+1,max(deg(q_{k+1}),deg(r_k))+N+1)$. Here $deg(g)$ denotes the largest degree in any variable of the polynomial $g$. The reason for this limit is that the row with highest degree for any variable can be chosen to be $L$, since the degree of either side of the equation \ref{Eq: Theory,equation system1} is at most $L$.
+In the system \eqref{Eq: Theory,equation system2}, $M$ can be constructed to have dimension $L\times (N^m)$, where $L=max(deg(p_k)+1,max(deg(q_{k+1}),deg(r_k))+N+1)$. Here $deg(g)$ denotes the largest degree in any variable of the polynomial $g$. The reason for this limit is that the row with highest degree for any variable can be chosen to be $L$, since the degree of either side of the equation \eqref{Eq: Theory,equation system1} is at most $L$.
 
 The time complexity for this system of equations is $\bigO(L\cdot N^{2m})$, since we perform the following algorithm:
 \begin{algorithm}[H]
@@ -925,6 +939,6 @@ The time complexity for this system of equations is $\bigO(L\cdot N^{2m})$, sinc
 \begin{remark}
   Each time we divide in the algorithm we need to make sure that the resulting integer is the exact division, otherwise we have gotten an error and return $None$.
 \end{remark}
-Here we can clearly see that we have two loops, which are of size $c=N^m$ and $r=L$, respectively. The reason for the last $N^m$-factor is that when we perform row \ref{Extra linear term, start}--\ref{Extra linear term, end} we do this elementwise, hence once for each column.
+Here we can clearly see that we have two loops, which are of size $c=N^m$ and $r=L$, respectively. The reason for the last $N^m$-factor is that when we perform rows \ref{Extra linear term, start}--\ref{Extra linear term, end} we do this elementwise, hence once for each column.
 
 This means that the time complexity is exponential in the number of variables. In general exponential time complexities are not desired at all -- since they grow very fast. In this thesis however we are working with identities that just involve a few (less than 5) different variables. Therefore this time complexity is acceptable. This means that given that given the limit on $m$ we have a polynomial time complexity for obtaining $f_k$.

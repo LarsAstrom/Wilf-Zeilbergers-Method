@@ -61,8 +61,8 @@ In section \ref{Sub: pqr} an algorithm is described for how to find polynomials 
 such that $gcd(q_k,r_{k+j})=1 \forall j\geq 0$. The algorithm can be described as follows:
 \begin{algorithm}[H]
   \caption{Get $p,q,r$}
-  \inp{Rational polynomial $b=\frac{b_n}{b_d}=\frac{a_k}{a_{k-1}}$}
-  \outp{Polynomials $p,q,r$ such that \ref{Eq: getpqr} holds and $gcd(q_k,r_{k+j})=1\forall j\geq 0$}
+  \inp{Quotient of polynomials $b=\frac{b_n}{b_d}=\frac{a_k}{a_{k-1}}$}
+  \outp{Polynomials $p,q,r$ such that \eqref{Eq: getpqr} holds and $gcd(q_k,r_{k+j})=1\forall j\geq 0$}
   \begin{algorithmic}[1]
     \Procedure{getpqr}{$b_n,b_d$}
       \State $r_k\gets b_d$
@@ -109,7 +109,7 @@ The implementation in order to find the polynomial $f$ in Gosper's algorithm is 
 \begin{equation}\label{Eq: getf}
   p_k=q_{k+1}f_k-r_kf_{k-1}.
 \end{equation}
-First the matrix $M$ and the vector $P$ are constructed. $M$ comes from the right hand side of \ref{Eq: getf} after assigning $f$ as stated in equation \ref{Eq: Theory,general polynomial}. $P$ is the vector that represent the coefficients on the left hand side. After the construction, Gaussian elimination is performed and then hopefully an answer will be given.
+First the matrix $M$ and the vector $P$ are constructed. $M$ comes from the right hand side of \eqref{Eq: getf} after assigning $f$ as stated in equation \eqref{Eq: Theory,general polynomial}. $P$ is the vector that represent the coefficients on the left hand side. After the construction, Gaussian elimination is performed and then hopefully an answer will be given.
 
 In case no answer has been found one can try to increase the maximal degree of $f$. It is not certain however that a solution can be given by this method since possibly the degree of the smallest degree solution for $f$ can be arbitrarily large with respect to the variables that are not $k$. If a solution is given, however, then we have performed the whole Gosper's algorithm.
 

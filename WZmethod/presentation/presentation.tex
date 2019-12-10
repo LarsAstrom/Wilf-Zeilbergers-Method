@@ -399,6 +399,14 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
 \end{frame}
 \begin{frame}
   \frametitle{Future work}
+  \pause
+  \begin{itemize}
+    \item Can Wilf-Zeilberger's method be used in other fields? (not binomial coefficients)
+    \pause
+    \item Combine the program with guessing solution to identity
+    \pause
+    \item Computer algebra in general
+  \end{itemize}
 \end{frame}
 \begin{frame}
   \Huge\center
@@ -409,7 +417,34 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
 \section*{Extra slides}%Extra slides
 %Polynomials
 \begin{frame}
-  \frametitle{Polynomials}
+  \frametitle{Polynomials -- Representation}
+  Polynomial $$p(k)=a_0+a_1k+\ldots+a_mk^m$$ is stored as $$[a_0,a_1,\ldots,a_m].$$
+\end{frame}
+\begin{frame}
+  \frametitle{Polynomials 1 -- Example}
+  The polynomial $$p(k,m)=1+k^2+km-m^2+km^2+k^2m^2$$ is stored as $$\Big[[1,0,1],[0,1,0],[-1,1,1]\Big].$$
+\end{frame}
+\begin{frame}
+  \frametitle{Polynomials -- Addition}
+  Assume we want to add $f=[f_0,\ldots,f_{m_f}]$ and $g=[g_0,\ldots,g_{m_g}]$.\pause Then we get $h=[h_0,\ldots,h_m]$ where $m=max(m_f,m_g)$.\pause Then we have that
+  $$h_i=f_i+g_i,$$
+  if $f_i$ and $g_i$ are of one and the same variable.\pause Otherwise we get
+  $$h_i=ADD(f_i,g_i).$$
+\end{frame}
+\begin{frame}
+  \frametitle{Polynomials -- Multiplication}
+  Assume we want to add $f=[f_0,\ldots,f_{m_f}]$ and $g=[g_0,\ldots,g_{m_g}]$.\pause Then we get $h=[h_0,\ldots,h_m]$ where $m=m_f+m_g$.\pause Then we have that
+  $$h_i=\sum_{k=0}^i f_k\cdot g_{k-i},$$
+  if $f_i$ and $g_i$ are of one and the same variable.\pause Otherwise we get
+  $$h_i=\sum_{k=0}^i MULTIPLY(f_k,g_{k-i}).$$
+\end{frame}
+\begin{frame}
+  \frametitle{Polynomials -- Division}
+  Usually division ($a$ divided by $b$) is done by finding polynomials $q,r$ such that $$a=q\cdot b + r,$$
+  and $deg(r)<deg(b)$.\pause This is not possible in integer coefficients.\pause Therefore we use $q,r,f$ such that $$f\cdot a=q\cdot b + r,$$ $deg(r)<deg(b)$ and $f$ has the same variable setup as the coefficients of $a$ and $b$.
+\end{frame}
+\begin{frame}
+  \frametitle{Polynomials -- GCD}
 \end{frame}
 %Proof generation
 \begin{frame}
