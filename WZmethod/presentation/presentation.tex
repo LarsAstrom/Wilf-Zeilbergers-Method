@@ -401,7 +401,7 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
   \frametitle{Future work}
   \pause
   \begin{itemize}
-    \item Can Wilf-Zeilberger's method be used in other fields? (not binomial coefficients)
+    \item Can Wilf-Zeilberger's method be used on other types of problems? (not binomial coefficients)
     \pause
     \item Combine the program with guessing solution to identity
     \pause
@@ -429,12 +429,12 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
   \frametitle{Polynomials -- Addition}
   Assume we want to add $f=[f_0,\ldots,f_{m_f}]$ and $g=[g_0,\ldots,g_{m_g}]$.\pause Then we get $h=[h_0,\ldots,h_m]$ where $m=max(m_f,m_g)$.\pause Then we have that
   $$h_i=f_i+g_i,$$
-  if $f_i$ and $g_i$ are of one and the same variable.\pause Otherwise we get
+  if $f_i$ and $g_i$ are integers.\pause Otherwise we get
   $$h_i=ADD(f_i,g_i).$$
 \end{frame}
 \begin{frame}
   \frametitle{Polynomials -- Multiplication}
-  Assume we want to add $f=[f_0,\ldots,f_{m_f}]$ and $g=[g_0,\ldots,g_{m_g}]$.\pause Then we get $h=[h_0,\ldots,h_m]$ where $m=m_f+m_g$.\pause Then we have that
+  Assume we want to multiply $f=[f_0,\ldots,f_{m_f}]$ and $g=[g_0,\ldots,g_{m_g}]$.\pause Then we get $h=[h_0,\ldots,h_m]$ where $m=m_f+m_g$.\pause Then we have that
   $$h_i=\sum_{k=0}^i f_k\cdot g_{k-i},$$
   if $f_i$ and $g_i$ are of one and the same variable.\pause Otherwise we get
   $$h_i=\sum_{k=0}^i MULTIPLY(f_k,g_{k-i}).$$
