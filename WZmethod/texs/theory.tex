@@ -282,9 +282,12 @@ Now we come to the slightly more complicated operations that we need to perform 
   \begin{enumerate}
     \item $g$ is a common divisor to $a$ and $b$
     \item For all common divisors $g^\prime$ to $a$ and $b$ we have that $g^\prime|g$
-    \item $g$ is a positive polynomial.
+    \item $g$ is a positive polynomial. \label{lastcond}
   \end{enumerate}
 \end{definition}
+\begin{remark}
+  Condition \ref{lastcond} is only introduced to get a unique greatest common divisor. Otherwise $-g$ would also be a greatest common divisor if $g$ is a greatest common divisor.
+\end{remark}
 \begin{remark}
   Note that we have not yet shown that $gcd$ exists of two polynomials. This comes from that $gcd$ exists for polynomials with rational coefficients, and then to get $gcd$ of polynomials with integer coefficients by multiplying by the denominators.
 \end{remark}
