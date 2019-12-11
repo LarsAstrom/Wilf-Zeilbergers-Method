@@ -254,7 +254,7 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
     \sum_k F(n,k)=1
   \end{equation*}
   \pause
-  Find $G(n,k)$ such that $F(n+1,k)-F(n,k)=G(n,k+1)-G(n,k)$ and $\lim_{k\to\pm\infty} G(n,k)=0$.\pause Now $$\sum_k F(n+1,k)-F(n,k)=\sum_k G(n,k+1)-G(n,k)=0.$$\pause Therefore $$\sum_k F(n,k)$$ is constant for all $n$, therefore if we can evaluate for one $n$ then we are done.
+  Find $G(n,k)$ such that $F(n+1,k)-F(n,k)=G(n,k+1)-G(n,k)$ and $\lim_{k\to\pm\infty} G(n,k)=0$.\pause Now $$\sum_k F(n+1,k)-F(n,k)=\sum_k G(n,k+1)-G(n,k)=0.$$\pause Therefore $$\sum_k F(n,k)$$ is constant for all $n$, and if we can evaluate for one $n$ then we are done.
 \end{frame}
 \begin{frame}
   \frametitle{Steps of the method}
@@ -270,9 +270,9 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
 
   \column{.5\textwidth} % Right column and width
   \begin{enumerate}
-    \item<2-> We have $$\sum_k \binom{n}{k}=2^n$$
+    \item<2-> Show that $$\sum_k \binom{n}{k}=2^n$$
     \item<4-> $F(n,k)=\frac{\binom{n}{k}}{2^n}$
-    \item<6-> Let $G(n,k)=-\frac{\binom{n}{k-1}}{2^{n+1}}$. Now the conditions are satisfied.
+    \item<6-> Let $G(n,k)=-\frac{\binom{n}{k-1}}{2^{n+1}}.$
     \item<8-> For $n=0$ we have $\sum_k F(n,k)=\frac{\binom{0}{0}}{2^0}=1,$ thus we have proved the identity.
   \end{enumerate}
   \end{columns}
@@ -281,7 +281,7 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
 \section[Gosper's algorithm]{Gosper's algorithm (Gosper, 1978)}
 \begin{frame}
   \frametitle{What problems can be solved?}
-  Given a polynomial $a_k$, Gosper's algorithm finds a polynomial $S_k$ such that $$a_k=S_k-S_{k-1}.$$
+  Given an expression $a_k$, Gosper's algorithm finds an expression $S_k$ such that $$a_k=S_k-S_{k-1}.$$
   \pause
   With $a_k=F(n+1,k)-F(n,k)$ we get that $G(n,k)=S_{k-1}$ makes the first condition in Wilf-Zeilberger's method fulfilled.
 \end{frame}
@@ -355,7 +355,7 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
   }
   \column{.5\textwidth} % Right column and width
   \begin{figure}
-  \includegraphics[width=0.7\linewidth]{images/proof02.png}
+  \includegraphics[width=0.8\linewidth]{images/proof02.png}
   \end{figure}
   \column{.35\textwidth}
   \onslide<3->{
@@ -393,7 +393,7 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
   \justify
   \begin{itemize}
     \item<5-> Solves most examples
-    \item<6-> Gives a solution quickly (in seconds)
+    \item<6-> Gives a solution quickly
   \end{itemize}
   \end{columns}
 \end{frame}
@@ -435,9 +435,9 @@ Faculty of Engineering at Lund University \\ % Your institution for the title pa
 \begin{frame}
   \frametitle{Polynomials -- Multiplication}
   Assume we want to multiply $f=[f_0,\ldots,f_{m_f}]$ and $g=[g_0,\ldots,g_{m_g}]$.\pause Then we get $h=[h_0,\ldots,h_m]$ where $m=m_f+m_g$.\pause Then we have that
-  $$h_i=\sum_{k=0}^i f_k\cdot g_{k-i},$$
+  $$h_i=\sum_{k=0}^i f_k\cdot g_{i-k},$$
   if $f_i$ and $g_i$ are of one and the same variable.\pause Otherwise we get
-  $$h_i=\sum_{k=0}^i MULTIPLY(f_k,g_{k-i}).$$
+  $$h_i=\sum_{k=0}^i MULTIPLY(f_k,g_{i-k}).$$
 \end{frame}
 \begin{frame}
   \frametitle{Polynomials -- Division}
